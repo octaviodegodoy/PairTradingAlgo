@@ -1,5 +1,9 @@
 import logging
 from mt5_connector import MT5Connector
+from config import (
+    TRAILING_DISTANCE_POINTS
+)
+import time
 
 class TradeManager:
     def __init__(self, magic_number):
