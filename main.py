@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from config import (
     PERIODS, ROLLING_PERIODS, MARGIN_Y, MARGIN_X, TRAILING_DISTANCE_POINTS,
@@ -7,38 +8,39 @@ from config import (
 
 from mt5_connector import MT5Connector
 from utils import check_trading_time
-from trade_manager import TradeManager
+from strategy import PairTradingStrategy
 
-def main():
-     # Setup logging
+async def main():
+    
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    
-    # Initialize MT5 connection and managers
     mt5_conn = MT5Connector()
-    trade_manager = TradeManager(MAGIC_NUMBER)
+    pair_trading_strategy = PairTradingStrategy(MAX_HALF_LIFE,MIN_ZSCORE)  # Trade manager not implemented yet
     
     try:
+        if not mt5_conn.initialize():
+            logger.error("MT5 initialization failed")
+            return
+
         while True:
             if not check_trading_time():
-                if mt5_conn.get_open_positions_count() > 0:
-                    logger.info("Trading window closed, closing all positions.")
-                    
-            else:
-                # Check risk and profit
-                profit, highest_z, total_profit = total_daily_risk(mt5_conn)
-                if abs(profit) > MAX_RISK:
-                    logger.info("Max risk exceeded, closing all positions.")
-                    trade_manager.close_all_positions()
-                    break
+                logger.info("Outside trading hours. Sleeping for 5 seconds.")
+                await asyncio.sleep(5)
+                continue
+            elif check_trading_time():
+                logger.info("Start scanning for trading opportunities...")
+                pair_trading_strategy.scan_pairs_arbitrage()
+                logger.info("Scanning complete. Sleeping for 5 seconds.")
 
-                # Active trading logic
-                strategy.run_trading_cycle()
-            mt5_conn.sleep(15)
+                   
+
+            await asyncio.sleep(5)
     except KeyboardInterrupt:
         logger.info("Terminating script by user.")
     finally:
         mt5_conn.shutdown()
+    logger.info("Outside trading hours. Sleeping for 5 seconds.")
+    
+    await asyncio.sleep(5)
 
-if __name__ == "__main__":
-    main()
+asyncio.run(main())
