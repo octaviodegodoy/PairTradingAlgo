@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 import time
 import pandas as pd
+from config import PERIODS, SHIFT_PERIODS
 
 class MT5Connector:
     
@@ -15,15 +16,17 @@ class MT5Connector:
             raise RuntimeError("Failed to initialize MetaTrader 5")
         self.logger = logging.getLogger(__name__)
 
-    def get_data(self, symbol, timeframe, n, start):
-        rates = mt5.copy_rates_from_pos(symbol, timeframe, start, n)
+    def get_data(self, symbol):
+        rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_D1, SHIFT_PERIODS, PERIODS)
         if rates is None:
             self.logger.error(f"Could not get rates for {symbol}")
             return None
         else:
-            self.logger.info(f"Retrieved {len(rates)} rates for {symbol}")
             df = pd.DataFrame(rates)
+            df = df.dropna()
             df['time'] = pd.to_datetime(df['time'], unit='s')
+            # Filter out weekends (keep only weekdays)
+            df = df[df['time'].dt.weekday < 5]  # 0=Monday, ..., 4=Friday
             return df
     
     def positions_get(self):

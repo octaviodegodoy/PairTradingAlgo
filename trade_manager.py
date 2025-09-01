@@ -4,6 +4,7 @@ from config import (
     TRAILING_DISTANCE_POINTS
 )
 import time
+import random
 
 class TradeManager:
     def __init__(self, magic_number):
@@ -11,10 +12,19 @@ class TradeManager:
         self.mt5_conn = MT5Connector()
         self.logger = logging.getLogger(__name__)
 
-    def manage_positions(self):   
-        # Implement position management logic
+    def manage_trades(self):
+        positions = 1 #self.mt5_conn.positions_get()
         while True:
-            self.logger.info("Managing open positions")
+            # Implement position management logic            
+            if positions > 0:
+                self.logger.info(f"Currently open positions: {positions}")
+            elif positions == 0:
+                self.logger.info("No open positions to manage")
+                break
+            
+            positions = random.randint(0, 1)
+            self.logger.info(f"Managing positions: {positions}")
+            time.sleep(5)  # Sleep for a while before next management cycle
 
     def close_all_positions(self):
         # Implement closing logic

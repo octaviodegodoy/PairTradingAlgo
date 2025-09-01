@@ -10,7 +10,7 @@ class TradeExecution:
         self.magic_number = magic_number
         self.mt5_conn = MT5Connector()
         self.logger = logging.getLogger(__name__)
-
+    
     def execute_trade(self, symbolY, symbolX, hedge_ratio, z_score):
         # Implement actual trade logic; replace with MetaTrader 5 API calls
         if z_score > 0:

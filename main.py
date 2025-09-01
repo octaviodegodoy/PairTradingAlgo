@@ -35,12 +35,17 @@ async def main():
             elif check_trading_time():
                 logger.info("Start scanning for trading opportunities...")
                 arbitrage = pair_trading_strategy.scan_pairs_arbitrage()
-                if not arbitrage:
-                    logger.info("No arbitrage opportunity found.")
-                    time.sleep(5)
-                    continue
-                logger.info("Scanning complete. Sleeping for 5 seconds.")
-                time.sleep(5)                  
+                print(f"Arbitrage was found : {arbitrage}")
+                if arbitrage:
+                    logger.info("Arbitrage opportunity detected. Executing trades...")
+                    # Here you would add logic to execute trades and manage them
+                    # For example:
+                    # trade_execution.execute_trade(...)
+                    trade_execution.execute_trade("WIN", "WDO", 0.7, 0.8)
+                    # trade_manager.manage_trades(...)               
+                
+                logger.info("Starting trade management...")
+                trade_manager.manage_trades()
 
             await asyncio.sleep(5)
     except KeyboardInterrupt:
