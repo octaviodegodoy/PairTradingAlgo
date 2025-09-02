@@ -35,14 +35,15 @@ async def main():
                 continue
             elif utils.check_trading_time():
                 logger.info("Start scanning for trading opportunities...")
-                arbitrage = pair_trading_strategy.scan_pairs_arbitrage()
-                print(f"Arbitrage was found : {arbitrage}")
-                if arbitrage:
+                hedge_ratio, spreads, rolling_z_scores, pair, correlation, arbitrage_found = pair_trading_strategy.scan_pairs_arbitrage()
+                print(f"Correlation is {correlation}")
+                print(f"Arbitrage was found : {arbitrage_found} for pair y as {pair[0]} and x as {pair[1]} hedge ratio is {hedge_ratio[-1]} and spreads length is {len(spreads)} and rolling z scores length is {len(rolling_z_scores)}")
+                if arbitrage_found:
                     logger.info("Arbitrage opportunity detected. Executing trades...")
                     # Here you would add logic to execute trades and manage them
                     # For example:
                     # trade_execution.execute_trade(...)
-                    trade_execution.execute_trade("WIN", "WDO", 0.7, 0.8)
+                    trade_execution.execute_trade(pair[0], pair[1], hedge_ratio[-1], 0.8)
                     # trade_manager.manage_trades(...)               
                 
                 logger.info("Starting trade management...")

@@ -17,9 +17,9 @@ class PairTradingStrategy:
         pair_y = TRADING_PAIR_Y
         pair_x = TRADING_PAIR_X
         arbitrage_found = False
+        pair = []
 
-        while True:
-          
+        while True:          
             for i in range(len(pair_y)):
               for j in range(len(pair_x)):
                   self.logger.info(f"Scanning pairs: {pair_y[i]} and {pair_x[j]}")
@@ -33,7 +33,12 @@ class PairTradingStrategy:
                   self.logger.info(f"Cointegration Condition Met: {cointegration_condition}")
                   self.logger.info(f"Correlation between {pair_y[i]} and {pair_x[j]}: {correlation}")
                   arbitrage_found = zscore_condition and half_life_condition and cointegration_condition
-                  
+                  if arbitrage_found:
+                     y = self.utils.mt5_conn.get_symbol_futures(pair_y[i])
+                     x = self.utils.mt5_conn.get_symbol_futures(pair_x[j])
+                     pair = (y[1], x[1])
+                     self.logger.info(f"Arbitrage conditions met for pair: {pair}")
+                     break         
                   
 
             if not arbitrage_found:
@@ -41,5 +46,6 @@ class PairTradingStrategy:
              time.sleep(5)
              continue
             break
-        self.logger.info(f"Arbitrage opportunity found between {pair_y[i]} and {pair_x[j]}!")
-        return hedge_ratio, spreads, rolling_z_scores, arbitrage_found    
+
+        self.logger.info(f"Arbitrage opportunity found between {pair[0]} and {pair[1]}!")
+        return hedge_ratio, spreads, rolling_z_scores, pair, correlation,arbitrage_found    
