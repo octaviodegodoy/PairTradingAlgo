@@ -28,8 +28,6 @@ class MT5Connector:
             df['time'] = pd.to_datetime(df['time'], unit='s')
             # Filter out weekends (keep only weekdays)
             df = df[df['time'].dt.weekday < 5]  # 0=Monday, ..., 4=Friday
-            print(f"Data fetched for {symbol}: {df.head()}")
-            self.logger.info(f"Retrieved {len(df)} data points for {symbol} and {PERIODS} periods ")
             return df
     
     def get_data_futures(self, symbol):
@@ -45,24 +43,42 @@ class MT5Connector:
         
         sorted_next_futures = dict(sorted(next_symbols_fut.items()))
         sorted_past_futures = dict(sorted(past_symbols_fut.items()))
-
+    
         # Find the index of the current key
-        last_item = list(sorted_past_futures.items())[-1]
-        current_item = list(sorted_next_futures.items())[0]
-        data_prices = self.get_data(current_item[1])
-        prices_len = len(data_prices)
-        count_prices_range = prices_len
-        symbols_needed = [current_item[1]]
-        k = 0
-        while count_prices_range < PERIODS:
-            self.logger.info(f"Not enough data points ({prices_len}) for {current_item[1]}, need {PERIODS}. Fetching more from past futures...")
-            k -=1
-            needed_symbol = list(sorted_past_futures.items())[k]
-            data_prices_needed = self.get_data(needed_symbol[1])
-            symbols_needed.append(needed_symbol[1])
-            count_prices_range += len(data_prices_needed)
+        current_symbol = list(sorted_next_futures.items())[0]
+        unix_day = 24 * 60 * 60
+        from_time = time_now - unix_day * PERIODS
+        fut_history_symbols = [current_symbol[1]]
 
-            self.logger.info(f"Fetching data from past future: {symbols_needed}")
+        for t in range(len(sorted_past_futures)):
+            past_symbol = list(sorted_past_futures.items())[-(t+1)]
+            fut_history_symbols.append(past_symbol[1])
+            if past_symbol[0] < from_time:
+                break          
+
+        dataframes = []
+
+        for fut_symbol in fut_history_symbols:
+            rates = mt5.copy_rates_from_pos(fut_symbol, mt5.TIMEFRAME_D1, SHIFT_PERIODS, PERIODS)
+            if rates is not None and len(rates) > 0:
+               df = pd.DataFrame(rates)
+               df['symbol'] = symbol  # Optionally keep track of the symbol
+               dataframes.append(df)
+
+        # Concatenate all DataFrames
+        if dataframes:
+            all_data = pd.concat(dataframes, ignore_index=True)
+            # Remove duplicates based on the index (in this case, you might want to remove by 'time' or another column)
+            all_data = all_data.drop_duplicates(subset=['time', 'symbol'])  # Adjust subset as needed
+        else:
+            print("No data retrieved.")
+
+        # If 'time' is not already datetime, convert it
+        all_data['time'] = pd.to_datetime(all_data['time'], unit='s')  # or remove unit if already datetime
+        # Sort by date (most recent last)
+        all_data = all_data.sort_values('time')
+        last_252 = all_data[all_data['time'].dt.weekday < 5].tail(PERIODS)
+        return last_252   
             
         
     def get_symbols_futures(self,group_name):

@@ -34,10 +34,17 @@ async def main():
         # Convert cumulative log returns to cumulative returns (compounded)
         data['cum_return'] = np.exp(data['cum_log_return']) - 1    
 
-        print(f"Data Y length: {data}")        
+        print(f"Data Y length: {data}")    
 
-        plt.plot(data.index,data['cum_return'], label='Prices WIN ')
-        plt.legend()
+        data_win = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])    
+
+        plt.figure(figsize=(12, 6))
+        plt.plot(data_win['time'], data_win['close'], marker='o', linestyle='-')
+        plt.title('Close Price - Last 252 Business Days')
+        plt.xlabel('Date')
+        plt.ylabel('Close Price')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
         plt.show()
 
         
@@ -56,7 +63,17 @@ async def test_get_data_prices():
     if not mt5_conn.initialize():
         print("MT5 initialization failed")
         return
-    symbol = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
+    
+    data_win = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])    
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(data_win['time'], data_win['close'], marker='o', linestyle='-')
+    plt.title(f'Close Price - Last 252 Business Days for {data_win["symbol"].iloc[0]}')
+    plt.xlabel('Date')
+    plt.ylabel('Close Price')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
     #data_y = mt5_conn.get_data(symbol)
 
 asyncio.run(test_get_data_prices())
