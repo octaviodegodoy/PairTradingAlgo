@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 import time
 import pandas as pd
 from config import PERIODS, SHIFT_PERIODS
+import math
 
 class MT5Connector:
     
@@ -27,7 +28,54 @@ class MT5Connector:
             df['time'] = pd.to_datetime(df['time'], unit='s')
             # Filter out weekends (keep only weekdays)
             df = df[df['time'].dt.weekday < 5]  # 0=Monday, ..., 4=Friday
+            print(f"Data fetched for {symbol}: {df.head()}")
+            self.logger.info(f"Retrieved {len(df)} data points for {symbol} and {PERIODS} periods ")
             return df
+    
+    def get_data_futures(self, symbol):
+        futures_symbols = mt5.symbols_get(symbol)
+        time_now = int(time.time())
+        next_symbols_fut = {}
+        past_symbols_fut = {}
+        for s in futures_symbols:
+            if s.expiration_time > time_now:
+               next_symbols_fut[s.expiration_time] = s.name
+            elif s.expiration_time < time_now:
+               past_symbols_fut[s.expiration_time] = s.name
+        
+        sorted_next_futures = dict(sorted(next_symbols_fut.items()))
+        sorted_past_futures = dict(sorted(past_symbols_fut.items()))
+
+        # Find the index of the current key
+        last_item = list(sorted_past_futures.items())[-1]
+        current_item = list(sorted_next_futures.items())[0]
+        data_prices = self.get_data(current_item[1])
+        prices_len = len(data_prices)
+        ranges_factor = PERIODS/prices_len
+        total_ranges = int(math.ceil(ranges_factor))
+        symbol_concat = [current_item[1]]
+        for i in range(-1,-total_ranges,-1):
+            needed_symbol = list(sorted_past_futures.items())[i]
+            range_prices = self.get_data(needed_symbol[1])
+            prices_len += len(range_prices)
+            print(f"Needed symbol {needed_symbol[1]} with prices len {prices_len}")
+            symbol_concat.append(needed_symbol[1]) 
+            if prices_len >= PERIODS:
+                break                 
+        
+        self.logger.info(f"Current future symbol: {symbol_concat}")        
+            
+        
+    def get_symbols_futures(self,group_name):
+        # get symbols containing RU in their names 
+        futures_symbols = mt5.symbols_get(group_name)
+        future_symbol = None
+        for s in futures_symbols:
+            if "Vencimento" in s.description:  #[5:3] 
+                symbol = s.description.split('-')
+                future_symbol = symbol[1][17:23]
+                break 
+        return future_symbol 
     
     def positions_get(self):
         positions = mt5.positions_get()

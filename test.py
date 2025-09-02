@@ -27,18 +27,20 @@ async def main():
 
         data = pd.DataFrame({'price_y':log_asset_y}, index=dates)
 
+         # Calculate log returns
+        data['log_return'] = np.log(data['price_y'] / data['price_y'].shift(1))
+        # Calculate cumulative log returns
+        data['cum_log_return'] = data['log_return'].cumsum()
+        # Convert cumulative log returns to cumulative returns (compounded)
+        data['cum_return'] = np.exp(data['cum_log_return']) - 1    
+
         print(f"Data Y length: {data}")        
 
-        plt.plot(data.index,data['price_y'], label='Prices WIN ')
+        plt.plot(data.index,data['cum_return'], label='Prices WIN ')
         plt.legend()
         plt.show()
 
-        # Calculate log returns
-        data_x['log_return'] = np.log(data_x['close'] / data_x['close'].shift(1))
-        # Calculate cumulative log returns
-        data_x['cum_log_return'] = data_x['log_return'].cumsum()
-        # Convert cumulative log returns to cumulative returns (compounded)
-        data_x['cum_return'] = np.exp(data_x['cum_log_return']) - 1     
+        
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")
@@ -48,4 +50,13 @@ async def main():
     await asyncio.sleep(1)
     print("Main function completed.")
 
-asyncio.run(main())
+async def test_get_data_prices():
+    logging.basicConfig(level=logging.INFO)
+    mt5_conn = MT5Connector()
+    if not mt5_conn.initialize():
+        print("MT5 initialization failed")
+        return
+    symbol = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
+    #data_y = mt5_conn.get_data(symbol)
+
+asyncio.run(test_get_data_prices())
