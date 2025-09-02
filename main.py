@@ -15,7 +15,7 @@ import time
 
 async def main():
     
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     mt5_conn = MT5Connector()
     utils = Utils()
