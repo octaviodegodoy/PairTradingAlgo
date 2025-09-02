@@ -3,8 +3,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 import time
 import pandas as pd
-from config import PERIODS, SHIFT_PERIODS
-import math
+from config import PERIODS, SHIFT_PERIODS, UNIX_DAY
 
 class MT5Connector:
     
@@ -46,8 +45,7 @@ class MT5Connector:
     
         # Find the index of the current key
         current_symbol = list(sorted_next_futures.items())[0]
-        unix_day = 24 * 60 * 60
-        from_time = time_now - unix_day * PERIODS
+        from_time = time_now - UNIX_DAY * PERIODS
         fut_history_symbols = [current_symbol[1]]
 
         for t in range(len(sorted_past_futures)):
@@ -77,20 +75,25 @@ class MT5Connector:
         all_data['time'] = pd.to_datetime(all_data['time'], unit='s')  # or remove unit if already datetime
         # Sort by date (most recent last)
         all_data = all_data.sort_values('time')
-        last_252 = all_data[all_data['time'].dt.weekday < 5].tail(PERIODS)
-        return last_252   
+        futrues_data = all_data[all_data['time'].dt.weekday < 5].tail(PERIODS)
+        return futrues_data   
             
         
-    def get_symbols_futures(self,group_name):
-        # get symbols containing RU in their names 
+    def get_symbol_futures(self,group_name):
         futures_symbols = mt5.symbols_get(group_name)
-        future_symbol = None
+        time_now = int(time.time())
+        next_symbols_fut = {}
+        past_symbols_fut = {}
         for s in futures_symbols:
-            if "Vencimento" in s.description:  #[5:3] 
-                symbol = s.description.split('-')
-                future_symbol = symbol[1][17:23]
-                break 
-        return future_symbol 
+            if s.expiration_time > time_now:
+               next_symbols_fut[s.expiration_time] = s.name
+            elif s.expiration_time < time_now:
+               past_symbols_fut[s.expiration_time] = s.name
+        
+        sorted_next_futures = dict(sorted(next_symbols_fut.items()))
+        current_symbol = list(sorted_next_futures.items())[0]
+
+        return current_symbol 
     
     def positions_get(self):
         positions = mt5.positions_get()

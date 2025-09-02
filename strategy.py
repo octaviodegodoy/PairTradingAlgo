@@ -1,36 +1,40 @@
 import logging
 import numpy as np
 import pandas as pd
-from config import TRADING_PAIR_Y, TRADING_PAIR_X, PERIODS, SHIFT_PERIODS
-from mt5_connector import MT5Connector
+from config import TRADING_PAIR_Y, TRADING_PAIR_X, Z_SCORE_ENTRY_THRESHOLD, MAX_HALF_LIFE
 import time
+from utils import Utils
 import random
 
 class PairTradingStrategy:
     def __init__(self, max_half_life, min_zscore):
         self.max_half_life = max_half_life
-        self.min_zscore = min_zscore
+        self.utils = Utils()
         self.logger = logging.getLogger(__name__)
 
 
     def scan_pairs_arbitrage(self):
         pair_y = TRADING_PAIR_Y
         pair_x = TRADING_PAIR_X
-        mt5_conn = MT5Connector()
         arbitrage_found = False
 
         while True:
           
-            print(f"Searching for pairs with min z score {self.min_zscore} and half life {self.max_half_life} ")
-
             for i in range(len(pair_y)):
               for j in range(len(pair_x)):
                   self.logger.info(f"Scanning pairs: {pair_y[i]} and {pair_x[j]}")
-                  prices_data_y = mt5_conn.get_data(pair_y[i])
-                  prices_data_x = mt5_conn.get_data(pair_x[j])
-                  self.logger.info(f"Retrieved {len(prices_data_y)} data points for {pair_y[i]} and {len(prices_data_x)} for {pair_x[j]}")
+                  rolling_z_scores, spreads, hedge_ratio, correlation = self.utils.get_dynamic_spread_zscores(pair_y[i], pair_x[j])
+                  zscore_condition = abs(rolling_z_scores[-1]) > Z_SCORE_ENTRY_THRESHOLD
+                  self.logger.info(f"Current Z-Score: {rolling_z_scores[-1]}, Z-Score Condition Met: {zscore_condition}") 
+                  half_life = self.utils.get_half_life(spreads)
+                  half_life_condition = half_life < MAX_HALF_LIFE
+                  self.logger.info(f"Calculated Half-Life: {half_life}, Half-Life Condition Met: {half_life_condition}")
+                  cointegration_condition = self.utils.check_cointegration(spreads)
+                  self.logger.info(f"Cointegration Condition Met: {cointegration_condition}")
+                  self.logger.info(f"Correlation between {pair_y[i]} and {pair_x[j]}: {correlation}")
+                  arbitrage_found = zscore_condition and half_life_condition and cointegration_condition
                   
-            arbitrage_found = random.random() < 0.7     
+                  
 
             if not arbitrage_found:
              self.logger.info(f"Arbitrage not yet found, continuing scan...")
@@ -38,4 +42,4 @@ class PairTradingStrategy:
              continue
             break
         self.logger.info(f"Arbitrage opportunity found between {pair_y[i]} and {pair_x[j]}!")
-        return arbitrage_found    
+        return hedge_ratio, spreads, rolling_z_scores, arbitrage_found    

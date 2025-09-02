@@ -7,7 +7,7 @@ from config import (
 )
 
 from mt5_connector import MT5Connector
-from utils import check_trading_time
+from utils import Utils
 from strategy import PairTradingStrategy
 from trade_manager import TradeManager  # Trade manager not implemented yet
 from trade_execution import TradeExecution  # Trade execution not implemented yet
@@ -18,6 +18,7 @@ async def main():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     mt5_conn = MT5Connector()
+    utils = Utils()
     pair_trading_strategy = PairTradingStrategy(MAX_HALF_LIFE,MIN_ZSCORE)  # Trade manager not implemented yet
     trade_execution = TradeExecution(MAGIC_NUMBER)
     trade_manager = TradeManager(MAGIC_NUMBER)  # Trade manager not implemented yet
@@ -28,11 +29,11 @@ async def main():
             return
 
         while True:
-            if not check_trading_time():
+            if not utils.check_trading_time():
                 logger.info("Outside trading hours. Sleeping for 5 seconds.")
                 await asyncio.sleep(5)
                 continue
-            elif check_trading_time():
+            elif utils.check_trading_time():
                 logger.info("Start scanning for trading opportunities...")
                 arbitrage = pair_trading_strategy.scan_pairs_arbitrage()
                 print(f"Arbitrage was found : {arbitrage}")

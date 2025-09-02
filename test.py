@@ -15,8 +15,8 @@ async def main():
             logger.error("MT5 initialization failed")
             return
         logger.info("MT5 initialized successfully")
-        data_y = mt5_conn.get_data(TRADING_PAIR_Y[0])
-        data_x = mt5_conn.get_data(TRADING_PAIR_X[0])
+        data_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
+        data_x = mt5_conn.get_data_futures(TRADING_PAIR_X[0])
         dates = data_y['time']
 
         print(f"Data Y length: {len(data_y['close'])} and Data X length: {len(data_x)}")
@@ -32,9 +32,7 @@ async def main():
         # Calculate cumulative log returns
         data['cum_log_return'] = data['log_return'].cumsum()
         # Convert cumulative log returns to cumulative returns (compounded)
-        data['cum_return'] = np.exp(data['cum_log_return']) - 1    
-
-        print(f"Data Y length: {data}")    
+        data['cum_return'] = np.exp(data['cum_log_return']) - 1
 
         data_win = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])    
 
@@ -64,6 +62,9 @@ async def test_get_data_prices():
         print("MT5 initialization failed")
         return
     
+    current_symbol = mt5_conn.get_symbol_futures(TRADING_PAIR_Y[0])    
+
+    print(f"Current symbol {current_symbol} data points for {TRADING_PAIR_Y[0]}")
     data_win = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])    
 
     plt.figure(figsize=(12, 6))
@@ -76,4 +77,4 @@ async def test_get_data_prices():
     plt.show()
     #data_y = mt5_conn.get_data(symbol)
 
-asyncio.run(test_get_data_prices())
+asyncio.run(main())
