@@ -59,6 +59,8 @@ class Utils:
 
         asset1_prices = np.array(asset1_prices['close'])
         asset2_prices = np.array(asset2_prices['close'])
+
+        print(f"Asset1 prices length: {len(asset1_prices)} and Asset2 prices length: {len(asset2_prices)}")
          
         # Log-transform the prices
         log_asset1 = np.log(asset1_prices)
