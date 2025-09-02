@@ -52,15 +52,17 @@ class MT5Connector:
         data_prices = self.get_data(current_item[1])
         prices_len = len(data_prices)
         count_prices_range = prices_len
+        symbols_needed = [current_item[1]]
         k = 0
         while count_prices_range < PERIODS:
             self.logger.info(f"Not enough data points ({prices_len}) for {current_item[1]}, need {PERIODS}. Fetching more from past futures...")
-            k=k-1
+            k -=1
             needed_symbol = list(sorted_past_futures.items())[k]
             data_prices_needed = self.get_data(needed_symbol[1])
+            symbols_needed.append(needed_symbol[1])
             count_prices_range += len(data_prices_needed)
 
-            self.logger.info(f"Fetching data from past future: {needed_symbol[1]}")
+            self.logger.info(f"Fetching data from past future: {symbols_needed}")
             
         
     def get_symbols_futures(self,group_name):
