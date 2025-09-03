@@ -27,17 +27,17 @@ class TradeExecution:
             if (correlation > 0):
                 if (z_score < -entry_level):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_SELL]
-                   # self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+                    self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
 
                 elif (z_score > entry_level):
                     orders_type = [self.mt5_conn.ORDER_TYPE_SELL, self.mt5_conn.ORDER_TYPE_BUY]
-                   # self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+                    self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
 
             elif (correlation < 0):
                 if (z_score < -entry_level):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_BUY]
-                   # self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+                    self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
 
                 elif (z_score > entry_level):
                     orders_type = [self.mt5_conn.ORDER_TYPE_SELL, self.mt5_conn.ORDER_TYPE_SELL]
-                   # self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+                    self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
