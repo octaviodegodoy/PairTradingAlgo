@@ -7,7 +7,6 @@ import math
 import numpy as np
 import logging
 import pandas as pd
-from mt5_connector import MT5Connector
 
 def check_trading_time():
     now = datetime.now(timezone.utc)

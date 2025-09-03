@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 import time
 import pandas as pd
 from config import PERIODS, SHIFT_PERIODS, UNIX_DAY, MAGIC_NUMBER
+from utils import calculate_volumes
 
 class MT5Connector:
     
@@ -95,9 +96,9 @@ class MT5Connector:
 
         return current_symbol
 
-    def place_order(self,symbolY,symbolX,orders_type,slope,zscore):
+    def place_order(symbolY,symbolX,orders_type,slope,zscore):
       # prepare the Short request
-        volumeY, volume_X = self.utils.calculate_volumes(symbolY,symbolX,slope)
+        volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope)
         request_y = {
            "action": mt5.TRADE_ACTION_DEAL,
            "symbol": symbolY,
