@@ -1,5 +1,6 @@
 import asyncio
 from mt5_connector import MT5Connector
+from utils import Utils
 import logging
 import pandas as pd
 import numpy as np
@@ -10,6 +11,7 @@ async def main():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     mt5_conn = MT5Connector()
+
     try:
         if not mt5_conn.initialize():
             logger.error("MT5 initialization failed")
@@ -57,24 +59,30 @@ async def main():
 
 async def test_get_data_prices():
     logging.basicConfig(level=logging.INFO)
+    utils = Utils()
     mt5_conn = MT5Connector()
     if not mt5_conn.initialize():
         print("MT5 initialization failed")
         return
     
-    current_symbol = mt5_conn.get_symbol_futures(TRADING_PAIR_Y[0])    
 
-    print(f"Current symbol {current_symbol} data points for {TRADING_PAIR_Y[0]}")
-    data_win = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])    
+    rolling_z_scores, spreads, hedge_ratio, correlation = utils.get_dynamic_spread_zscores(TRADING_PAIR_Y[0], TRADING_PAIR_X[0])
+    asset1_prices = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
+    dates = asset1_prices['time']
+    data = pd.DataFrame({'z score': rolling_z_scores}, index=dates)   
 
     plt.figure(figsize=(12, 6))
-    plt.plot(data_win['time'], data_win['close'], marker='o', linestyle='-')
-    plt.title(f'Close Price - Last 252 Business Days for {data_win["symbol"].iloc[0]}')
+    plt.plot(data.index, data['z score'], label='rolling zscore', color='green')
+    plt.axhline(1, color='red', linestyle='--')
+    plt.axhline(-1, color='green', linestyle='--')
+    plt.axhline(0, color='black', linestyle='-')
+    plt.axhline(1, color='green', linestyle='-')
+    plt.axhline(-1, color='red', linestyle='-')
     plt.xlabel('Date')
     plt.ylabel('Close Price')
-    plt.xticks(rotation=45)
+    plt.ylim(-3, 3)
     plt.tight_layout()
     plt.show()
     #data_y = mt5_conn.get_data(symbol)
 
-asyncio.run(main())
+asyncio.run(test_get_data_prices())

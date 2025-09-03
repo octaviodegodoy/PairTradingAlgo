@@ -3,12 +3,12 @@ import logging
 from datetime import datetime, timedelta, timezone
 import time
 import pandas as pd
-from config import PERIODS, SHIFT_PERIODS, UNIX_DAY
+from config import PERIODS, SHIFT_PERIODS, UNIX_DAY, MAGIC_NUMBER
 
 class MT5Connector:
     
-    POSITION_TYPE_BUY = mt5.POSITION_TYPE_BUY
-    POSITION_TYPE_SELL = mt5.POSITION_TYPE_SELL
+    ORDER_TYPE_BUY = mt5.ORDER_TYPE_BUY
+    ORDER_TYPE_SELL = mt5.ORDER_TYPE_SELL
     TIMEFRAME_D1 = mt5.TIMEFRAME_D1
 
     def __init__(self):
@@ -93,7 +93,51 @@ class MT5Connector:
         sorted_next_futures = dict(sorted(next_symbols_fut.items()))
         current_symbol = list(sorted_next_futures.items())[0]
 
-        return current_symbol 
+        return current_symbol
+
+    def place_order(self,symbolY,symbolX,orders_type,slope,zscore):
+      # prepare the Short request
+        volumeY, volume_X = self.utils.calculate_volumes(symbolY,symbolX,slope)
+        request_y = {
+           "action": mt5.TRADE_ACTION_DEAL,
+           "symbol": symbolY,
+           "volume": volumeY,
+           "type": orders_type[0],
+           "zscore": mt5.symbol_info_tick(symbolY).bid,
+           "sl": 0.0,
+           "tp": 0.0,
+           "deviation": 10,
+           "magic": MAGIC_NUMBER,
+           "comment": "y,{:.2f}".format(zscore),
+           "type_time": mt5.ORDER_TIME_GTC,
+           "type_filling": mt5.ORDER_FILLING_IOC,
+        }
+        result_y_check = mt5.order_check(request_y)
+        print("Resultado do short check order (dependente) ", result_y_check)       
+        
+        # prepare the Long request
+        point=mt5.symbol_info(symbolX).point
+        request_x = {
+           "action": mt5.TRADE_ACTION_DEAL,
+           "symbol": symbolX,
+           "volume": volume_X,
+           "type": orders_type[1],
+           "zscore": mt5.symbol_info_tick(symbolX).ask,
+           "sl": 0.0,
+           "tp": 0.0,
+           "deviation": 10,
+           "magic": MAGIC_NUMBER,
+           "comment": "x,{:.2f}".format(zscore),
+           "type_time": mt5.ORDER_TIME_GTC,
+           "type_filling": mt5.ORDER_FILLING_IOC,
+        }
+        result_x_order_check = mt5.order_check(request_x)
+        print("Resultado do long check order (independente) ", result_x_order_check)
+
+        result_y_order = mt5.order_send(request_y)
+        result_x_order = mt5.order_send(request_x)
+        print("Resultado do short (dependente) ", result_y_order)
+        print("Resultado do long (independente) ", result_x_order) 
     
     def positions_get(self):
         positions = mt5.positions_get()

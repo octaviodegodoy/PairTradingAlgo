@@ -1,6 +1,7 @@
 import logging
 from mt5_connector import MT5Connector
 from config import (
+    MAX_POSITIONS,
     TRAILING_DISTANCE_POINTS
 )
 import time
@@ -11,10 +12,26 @@ class TradeExecution:
         self.mt5_conn = MT5Connector()
         self.logger = logging.getLogger(__name__)
     
-    def execute_trade(self, symbolY, symbolX, hedge_ratio, z_score):
+    def execute_trade(self, symbolY, symbolX, slope, entry_level, z_score, correlation):
         # Implement actual trade logic; replace with MetaTrader 5 API calls
-        if z_score > 0:
-            self.logger.info(f"Placing SELL on {symbolY} and BUY on {symbolX}")
-        elif z_score < 0:
-            self.logger.info(f"Placing BUY on {symbolY} and SELL on {symbolX}")
-        self.logger.info(f"Trading {symbolY} vs {symbolX} | Hedge: {hedge_ratio:.2f} | Z-score: {z_score:.2f}")
+        total_positions = self.mt5_conn.get_open_positions_count()
+
+         # Trading logic based on z-score and correlation
+        if (total_positions < MAX_POSITIONS):
+            if (correlation > 0):
+                if (z_score < -entry_level):
+                    orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_SELL]
+                   # self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+
+                elif (z_score > entry_level):
+                    orders_type = [self.mt5_conn.ORDER_TYPE_SELL, self.mt5_conn.ORDER_TYPE_BUY]
+                   # self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+
+            elif (correlation < 0):
+                if (z_score < -entry_level):
+                    orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_BUY]
+                   # self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+
+                elif (z_score > entry_level):
+                    orders_type = [self.mt5_conn.ORDER_TYPE_SELL, self.mt5_conn.ORDER_TYPE_SELL]
+                   # self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
