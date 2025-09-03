@@ -41,8 +41,7 @@ async def main():
                     # Here you would add logic to execute trades and manage them
                     # For example:
                     # trade_execution.execute_trade(...)
-                    entry_level = abs(rolling_z_scores[-1]) + 0.5  # Example entry level
-                    trade_execution.execute_trade(pair[0], pair[1], hedge_ratio[-1],entry_level,rolling_z_scores[-1], correlation)
+                    trade_execution.execute_trade(pair[0], pair[1], hedge_ratio[-1],rolling_z_scores[-1], correlation)
                     # trade_manager.manage_trades(...)               
                 
                 logger.info("Starting trade management...")
