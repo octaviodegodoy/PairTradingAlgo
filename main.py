@@ -2,8 +2,7 @@ import asyncio
 import logging
 from config import (
     PERIODS, ROLLING_PERIODS, MARGIN_Y, MARGIN_X, TRAILING_DISTANCE_POINTS,
-    PROFIT_THRESHOLD_MULTIPLIER, MARGIN_PERCENT, MAX_POSITIONS, MAX_RISK,
-    MIN_ZSCORE, MAX_HALF_LIFE, MAGIC_NUMBER
+    PROFIT_THRESHOLD_MULTIPLIER, MARGIN_PERCENT, MAX_POSITIONS, MAX_RISK,MAGIC_NUMBER
 )
 
 from mt5_connector import MT5Connector
@@ -18,9 +17,9 @@ async def main():
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     mt5_conn = MT5Connector()
-    pair_trading_strategy = PairTradingStrategy(MAX_HALF_LIFE,MIN_ZSCORE)  # Trade manager not implemented yet
+    pair_trading_strategy = PairTradingStrategy()  # Trade manager not implemented yet
     trade_execution = TradeExecution(MAGIC_NUMBER)
-    trade_manager = TradeManager(MAGIC_NUMBER)  # Trade manager not implemented yet
+    trade_manager = TradeManager()  # Trade manager not implemented yet
     
     try:
         if not mt5_conn.initialize():

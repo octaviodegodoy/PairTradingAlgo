@@ -96,9 +96,13 @@ class MT5Connector:
 
         return current_symbol
 
-    def place_order(symbolY,symbolX,orders_type,slope,zscore):
+    def place_order(self,symbolY,symbolX,orders_type,slope,zscore):
+        min_lot_Y = mt5.symbol_info(symbolY).volume_min
+        min_lot_X = mt5.symbol_info(symbolX).volume_min
+        available_margin = mt5.account_info().equity
+        total_positions = mt5.positions_total()
       # prepare the Short request
-        volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope)
+        volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,available_margin,total_positions)
         request_y = {
            "action": mt5.TRADE_ACTION_DEAL,
            "symbol": symbolY,
@@ -144,9 +148,13 @@ class MT5Connector:
         positions = mt5.positions_get()
         return len(positions) if positions else 0
 
-    def get_open_positions_count(self):
+    def get_open_positions(self):
         positions = mt5.positions_get()
-        return len(positions) if positions else 0
+        return positions
+    
+    def get_total_positions(self):
+        total_positions = mt5.positions_total()
+        return total_positions
     
     def last_error():
         last_error = mt5.last_error()

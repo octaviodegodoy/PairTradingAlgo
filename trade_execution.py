@@ -14,7 +14,7 @@ class TradeExecution:
     
     def execute_trade(self, symbolY, symbolX, slope, z_score, correlation):
         # Implement actual trade logic; replace with MetaTrader 5 API calls
-        total_positions = self.mt5_conn.get_open_positions_count()
+        total_positions = self.mt5_conn.get_total_positions()
         grid_size = (total_positions/2) # Example grid size, adjust as needed
        
         if total_positions > 0:

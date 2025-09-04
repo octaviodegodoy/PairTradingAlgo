@@ -1,29 +1,67 @@
 import logging
 from mt5_connector import MT5Connector
+from strategy import PairTradingStrategy
 from config import (
-    TRAILING_DISTANCE_POINTS
+    TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS,MAGIC_NUMBER
 )
 import time
+from utils import get_dynamic_spread_zscores
 import random
 
 class TradeManager:
-    def __init__(self, magic_number):
-        self.magic_number = magic_number
+    def __init__(self):
         self.mt5_conn = MT5Connector()
+        self.pair_trading_strategy = PairTradingStrategy()
         self.logger = logging.getLogger(__name__)
 
     def manage_trades(self):
-        positions = 1 #self.mt5_conn.positions_get()
+        
+        total_positions = self.mt5_conn.get_total_positions() #self.mt5_conn.positions_total()
+        stop_active = False
+        open_position_y = None
+        open_position_x = None 
+
         while True:
-            # Implement position management logic            
-            if positions > 0:
-                self.logger.info(f"Currently open positions: {positions}")
-            elif positions == 0:
+            # Implement position management logic
+            # 
+            if total_positions > 0:
+                self.logger.info(f"Total open positions: {total_positions}")
+
+                positions = self.mt5_conn.get_open_positions()  #self.mt5_conn.positions_get()
+
+                for position in positions:
+                    position_name = position.comment.split(",")
+                    
+                    if position.sl != 0.0:
+                        stop_active = True
+                    
+                    if position_name[0] == 'x':
+                        # Extract position details
+                        ticket_x = position.ticket
+                        open_position_x = position.symbol
+                        stop_loss_x = position.sl
+                        type_position_x = position.type  # 0 = BUY, 1 = SELL
+                        # trailing_stop(open_position_x,type_position_x,stop_loss_x,ticket_x)                        
+                        
+                    elif position_name[0] == 'y':
+                        ticket_y = position.ticket
+                        open_position_y = position.symbol
+                        stop_loss_y = position.sl
+                        type_position_y = position.type  # 0 = BUY, 1 = SELL
+                # trailing_stop(open_position_y,type_position_y,stop_loss_y,ticket_y)
+                self.logger.info(f"Position Y: {open_position_y}, Type: {type_position_y}, Stop Loss: {stop_loss_y}, Ticket: {ticket_y}")
+                self.logger.info(f"Position X: {open_position_x}, Type: {type_position_x}, Stop Loss: {stop_loss_x}, Ticket: {ticket_x}")
+                assets_y = self.mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
+                assets_x = self.mt5_conn.get_data_futures(TRADING_PAIR_X[0])
+                rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
+                self.logger.info(f"Currently open positions Z-Score: {rolling_z_scores[-1]}")
+            
+            elif total_positions == 0:
                 self.logger.info("No open positions to manage")
                 break
             
-            positions = random.randint(0, 1)
-            self.logger.info(f"Managing positions: {positions}")
+            
+            self.logger.info(f"Managing positions")
             time.sleep(5)  # Sleep for a while before next management cycle
 
     def close_all_positions(self):

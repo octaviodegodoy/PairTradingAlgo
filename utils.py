@@ -117,13 +117,8 @@ def check_cointegration(spreads):
     coint_flag = p_value < 0.05 and t_check
     return coint_flag
 
-def calculate_volumes(self,symbolY,symbolX,hedge_ratio):
+def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,available_margin,total_positions):
     print(f"Volume adjust for {symbolY} and {symbolX} with hedge ratio {hedge_ratio}")
-
-    min_lot_Y = self.mt5_conn.symbol_info(symbolY).volume_min
-    min_lot_X = self.mt5_conn.symbol_info(symbolX).volume_min
-
-    available_margin = self.mt5_conn.account_info().equity
 
     amount_y = available_margin/MARGIN_Y
     amount_x = available_margin/MARGIN_X
@@ -134,7 +129,6 @@ def calculate_volumes(self,symbolY,symbolX,hedge_ratio):
 
     grid_lot_investment = max_lots/VOLUME_FACTOR
 
-    total_positions = self.mt5_conn.positions_total()
     grid_count = (total_positions/2)
     fibo_index = int(grid_count)
 
@@ -150,8 +144,9 @@ def calculate_volumes(self,symbolY,symbolX,hedge_ratio):
     volume_x = float(math.floor(volume_x))
     
     print(f"hedge ratio {hedge_ratio} volume {symbolY} is {volume_y} and for {symbolX} is {volume_x}")
+    return volume_y, volume_x
 
-def get_correlation(self,assetY,assetX):
+def get_correlation(assetY,assetX):
     # Calculate the Pearson correlation coefficient between the two assets
     correlation = assetY['close'].corr(assetX['close'])
     return correlation

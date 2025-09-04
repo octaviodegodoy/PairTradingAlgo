@@ -8,18 +8,22 @@ from mt5_connector import MT5Connector
 from utils import check_cointegration, get_dynamic_spread_zscores, get_half_life
 
 class PairTradingStrategy:
-    def __init__(self, max_half_life, min_zscore):
-        self.max_half_life = max_half_life
+    def __init__(self):
         self.mt5_conn = MT5Connector()
         self.logger = logging.getLogger(__name__)
-
 
     def scan_pairs_arbitrage(self):
         pair_y = TRADING_PAIR_Y
         pair_x = TRADING_PAIR_X
         arbitrage_found = False
         pair = []
+        total_positions = self.mt5_conn.get_total_positions() #self.mt5_conn.positions_total()
+        self.logger.info(f"Total current positions: {total_positions}")
 
+        if total_positions == 0:
+            self.logger.info("Existing positions detected, skipping new pair scanning.")
+            return None, None, None, None, None, arbitrage_found
+        
         while True:          
             for i in range(len(pair_y)):
               for j in range(len(pair_x)):
