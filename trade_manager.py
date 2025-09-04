@@ -2,7 +2,7 @@ import logging
 from mt5_connector import MT5Connector
 from strategy import PairTradingStrategy
 from config import (
-    TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS,MAGIC_NUMBER
+    PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS,MAGIC_NUMBER
 )
 import time
 from utils import get_dynamic_spread_zscores
@@ -16,16 +16,20 @@ class TradeManager:
 
     def manage_trades(self):
         
-        total_positions = self.mt5_conn.get_total_positions() #self.mt5_conn.positions_total()
+        
         stop_active = False
         open_position_y = None
         open_position_x = None 
 
         while True:
             # Implement position management logic
-            # 
+            #
+            total_positions = self.mt5_conn.get_total_positions() #self.mt5_conn.positions_total() 
             if total_positions > 0:
                 self.logger.info(f"Total open positions: {total_positions}")
+                profit = self.mt5_conn.get_profit()
+                if profit >= PROFIT_THRESHOLD:
+                    self.mt5_conn.all_positions_stop_loss()
 
                 positions = self.mt5_conn.get_open_positions()  #self.mt5_conn.positions_get()
 
@@ -41,14 +45,19 @@ class TradeManager:
                         open_position_x = position.symbol
                         stop_loss_x = position.sl
                         type_position_x = position.type  # 0 = BUY, 1 = SELL
-                        # trailing_stop(open_position_x,type_position_x,stop_loss_x,ticket_x)                        
+                        self.mt5_conn.trailing_stop(open_position_x,type_position_x,stop_loss_x,ticket_x,position)                        
                         
                     elif position_name[0] == 'y':
                         ticket_y = position.ticket
                         open_position_y = position.symbol
                         stop_loss_y = position.sl
                         type_position_y = position.type  # 0 = BUY, 1 = SELL
-                # trailing_stop(open_position_y,type_position_y,stop_loss_y,ticket_y)
+                        self.mt5_conn.trailing_stop(open_position_y,type_position_y,stop_loss_y,ticket_y,position)
+
+                if (stop_active):
+                    time.sleep(1)
+                    continue
+                
                 self.logger.info(f"Position Y: {open_position_y}, Type: {type_position_y}, Stop Loss: {stop_loss_y}, Ticket: {ticket_y}")
                 self.logger.info(f"Position X: {open_position_x}, Type: {type_position_x}, Stop Loss: {stop_loss_x}, Ticket: {ticket_x}")
                 assets_y = self.mt5_conn.get_data_futures(TRADING_PAIR_Y[0])

@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 import time
 import pandas as pd
-from config import PERIODS, SHIFT_PERIODS, UNIX_DAY, MAGIC_NUMBER
+from config import PERIODS, SHIFT_PERIODS, TRAILING_DISTANCE_POINTS, UNIX_DAY, MAGIC_NUMBER
 from utils import calculate_volumes
 
 class MT5Connector:
@@ -95,6 +95,109 @@ class MT5Connector:
         current_symbol = list(sorted_next_futures.items())[0]
 
         return current_symbol
+    
+    def all_positions_stop_loss(self):
+
+        while True:  
+            # Get all open positions
+            positions = mt5.positions_get()
+
+            if positions is None:
+                print("No positions found, error code =", mt5.last_error())
+                return
+            all_set = True
+
+            for position in positions:
+                symbol = position.symbol
+                ticket = position.ticket
+                position_type = position.type
+                symbol_info = mt5.symbol_info(symbol)
+                tick_size = symbol_info.trade_tick_size
+            
+                ask = symbol_info.ask
+                bid = symbol_info.bid
+            
+                # Calculate the stop loss price based on the position type
+                if position_type == mt5.POSITION_TYPE_BUY:
+                    stop_loss_price = bid - TRAILING_DISTANCE_POINTS * tick_size
+                elif position_type == mt5.POSITION_TYPE_SELL:
+                    stop_loss_price = ask + TRAILING_DISTANCE_POINTS * tick_size
+                print(f"Tentando setar stop com stop price {stop_loss_price} no ask {ask}")
+                # Modify the position to include the stop loss
+                request = {
+                        "action": mt5.TRADE_ACTION_SLTP,
+                        "symbol": symbol,
+                        "position": ticket,
+                        "sl": stop_loss_price,
+                        "tp": 0.0,
+                    }
+
+                if position.sl == 0.0:
+                    # Only set the stop loss if it is not already set
+                    print(f"Setting stop loss for position {ticket} on {symbol} to {stop_loss_price}")
+                    result = mt5.order_send(request)
+                    print(f"Result of order check for ticket {ticket}: ", result)
+                
+                    if result.retcode != mt5.TRADE_RETCODE_DONE:
+                        print(f"Failed to set stop loss for position {ticket}, error code: {result.retcode}")
+                    all_set = False
+
+            if all_set:
+                print("All positions have non-zero stop loss. Exiting loop.")
+                break
+
+            time.sleep(1)  # Sleep for a short time before checking again 
+
+    def trailing_stop(self,symbol,position_type,stop_loss,ticket,position):
+    # Get all open positions    
+        profit = mt5.account_info().profit
+        stop_active = stop_loss != 0.0
+        symbol_info = mt5.symbol_info(symbol)
+        tick_size = symbol_info.trade_tick_size
+        digits = symbol_info.digits
+        ask = symbol_info.ask
+        bid = symbol_info.bid    
+        
+        # Check if profit exceeds the threshold
+        if stop_active:
+            
+            # Calculate the new stop loss level
+            if position_type == mt5.ORDER_TYPE_BUY:
+                new_stop_loss = bid - (TRAILING_DISTANCE_POINTS * tick_size)
+                
+                # Only modify if the new SL is higher than the current one
+                if (stop_loss == 0.0) or new_stop_loss > stop_loss:
+                    print(f"Updating Trailing para {symbol} point {tick_size} com profit {profit} new stop {new_stop_loss} old stop {stop_loss} ")
+                    request = {
+                        "action": mt5.TRADE_ACTION_SLTP,
+                        "symbol": symbol,
+                        "position": ticket,
+                        "sl": new_stop_loss,
+                        "tp": position.tp,
+                    }
+                    result = mt5.order_send(request)
+                    if result.retcode != mt5.TRADE_RETCODE_DONE:
+                        print(f"Failed to update SL for BUY {symbol}, ticket {ticket}: {result.comment}")
+                    else:
+                        print(f"Trailing stop updated for BUY {symbol}, ticket {ticket}. New SL: {new_stop_loss:.{digits}f}")
+            elif position_type == mt5.ORDER_TYPE_SELL:
+                new_stop_loss = ask + (TRAILING_DISTANCE_POINTS * tick_size)
+                # Only modify if the new SL is lower than the current one
+                if (stop_loss == 0.0) or new_stop_loss < stop_loss:
+                    print(f"Updating Trailing para {symbol} point {tick_size} com profit {profit} new stop {new_stop_loss} old stop {stop_loss} ")
+                    request = {
+                        "action": mt5.TRADE_ACTION_SLTP,
+                        "symbol": symbol,
+                        "position": ticket,
+                        "sl": new_stop_loss,
+                        "tp": position.tp,
+                    }
+                    result = mt5.order_send(request)
+                    if result.retcode != mt5.TRADE_RETCODE_DONE:
+                        print(f"Failed to update SL for SELL {symbol}, ticket {ticket}: {result.comment}")
+                    else:
+                        print(f"Trailing stop updated for SELL {symbol}, ticket {ticket}. New SL: {new_stop_loss:.{digits}f}")
+
 
     def place_order(self,symbolY,symbolX,orders_type,slope,zscore):
         min_lot_Y = mt5.symbol_info(symbolY).volume_min
@@ -168,3 +271,7 @@ class MT5Connector:
 
     def shutdown(self):
         mt5.shutdown()
+
+    def get_profit(self):
+        profit = mt5.account_info().profit
+        return profit
