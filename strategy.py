@@ -20,7 +20,7 @@ class PairTradingStrategy:
         total_positions = self.mt5_conn.get_total_positions() #self.mt5_conn.positions_total()
         self.logger.info(f"Total current positions: {total_positions}")
 
-        if total_positions == 0:
+        if total_positions > 0:
             self.logger.info("Existing positions detected, skipping new pair scanning.")
             return None, None, None, None, None, arbitrage_found
         
