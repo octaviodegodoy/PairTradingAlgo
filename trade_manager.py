@@ -1,8 +1,9 @@
 import logging
 from mt5_connector import MT5Connector
+from trade_execution import TradeExecution  # Trade execution not implemented yet
 from strategy import PairTradingStrategy
 from config import (
-    PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS,MAGIC_NUMBER
+    PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
 )
 import time
 from utils import get_dynamic_spread_zscores
@@ -11,11 +12,11 @@ import random
 class TradeManager:
     def __init__(self):
         self.mt5_conn = MT5Connector()
+        self.trade_execution = TradeExecution(MAGIC_NUMBER)
         self.pair_trading_strategy = PairTradingStrategy()
         self.logger = logging.getLogger(__name__)
 
-    def manage_trades(self):
-        
+    def manage_trades(self):        
         
         stop_active = False
         open_position_y = None
@@ -23,7 +24,8 @@ class TradeManager:
 
         while True:
             # Implement position management logic
-            #
+            #          
+
             total_positions = self.mt5_conn.get_total_positions() #self.mt5_conn.positions_total() 
             if total_positions > 0:
                 self.logger.info(f"Total open positions: {total_positions}")
@@ -63,7 +65,10 @@ class TradeManager:
                 assets_y = self.mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
                 assets_x = self.mt5_conn.get_data_futures(TRADING_PAIR_X[0])
                 rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
-                self.logger.info(f"Currently open positions Z-Score: {rolling_z_scores[-1]}")
+                self.trade_execution.execute_trade(open_position_y, open_position_x, hedge_ratio[-1],rolling_z_scores[-1], correlation)
+                time.sleep(1)
+                
+                
             
             elif total_positions == 0:
                 self.logger.info("No open positions to manage")

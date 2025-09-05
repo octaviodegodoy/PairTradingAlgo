@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 import pandas as pd
-from config import TRADING_PAIR_Y, TRADING_PAIR_X, Z_SCORE_ENTRY_THRESHOLD, MAX_HALF_LIFE
+from config import TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
 import time
 import random
 from mt5_connector import MT5Connector
@@ -15,23 +15,33 @@ class PairTradingStrategy:
     def scan_pairs_arbitrage(self):
         pair_y = TRADING_PAIR_Y
         pair_x = TRADING_PAIR_X
+        updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD
         arbitrage_found = False
         pair = []
         total_positions = self.mt5_conn.get_total_positions() #self.mt5_conn.positions_total()
         self.logger.info(f"Total current positions: {total_positions}")
+        
+        ## Get daily profit and highest z score period
+        day_profit,highest_zscore_period,total_profit = self.mt5_conn.total_daily_risk()
+        if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
+              updated_zscore_entry = float(highest_zscore_period)
+        print(f"Updated Z score entry : {updated_zscore_entry}")
 
         if total_positions > 0:
             self.logger.info("Existing positions detected, skipping new pair scanning.")
             return None, None, None, None, None, arbitrage_found
         
-        while True:          
+        while True:
+            
+            self.logger.info(f"Day profit: {day_profit}, Highest Z-Score Period: {highest_zscore_period}, Total Profit: {total_profit}")            
+
             for i in range(len(pair_y)):
               for j in range(len(pair_x)):
                   self.logger.info(f"Scanning pairs: {pair_y[i]} and {pair_x[j]}")
                   assets_y = self.mt5_conn.get_data_futures(pair_y[i])
                   assets_x = self.mt5_conn.get_data_futures(pair_x[j])
                   rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
-                  zscore_condition = abs(rolling_z_scores[-1]) > Z_SCORE_ENTRY_THRESHOLD
+                  zscore_condition = abs(rolling_z_scores[-1]) > updated_zscore_entry
                   self.logger.info(f"Current Z-Score: {rolling_z_scores[-1]}, Z-Score Condition Met: {zscore_condition}") 
                   half_life = get_half_life(spreads)
                   half_life_condition = half_life < MAX_HALF_LIFE

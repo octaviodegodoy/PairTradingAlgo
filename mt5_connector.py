@@ -247,6 +247,37 @@ class MT5Connector:
         print("Resultado do short (dependente) ", result_y_order)
         print("Resultado do long (independente) ", result_x_order) 
     
+    
+    def total_daily_risk(self):
+        from_date = datetime.now() - timedelta(hours=10,minutes=0)
+        #get the number of deals in history
+        total_daily_risk = 0.0 
+        to_date=datetime.now()
+        print(f"From date {from_date} to date {to_date}")
+        deals=mt5.history_deals_get(from_date, to_date) 
+        total_profit = 0
+        highest_score = 0.0
+        comment = "" 
+        if deals==None:   
+                print("No deals , error code={}".format(mt5.last_error()))   
+        elif len(deals) > 0:        
+            for deal in deals:
+                if (len(deal.comment) > 1):
+                    comment_deal = deal.comment.split(",")
+                    
+                    if (comment_deal[0] == 'y') or (comment_deal[0] == 'x'):
+                        traded_zscore = abs(float(comment_deal[1]))
+                    if (traded_zscore > highest_score):
+                        highest_score = traded_zscore
+                total_profit = total_profit + deal.commission + deal.profit
+        
+        print(f"Highest score {highest_score} and total profit {total_profit}")
+        current_equity = mt5.account_info().equity
+        total_day_risk = round(abs(total_profit/current_equity),3)
+        
+        return total_day_risk,highest_score,total_profit
+
+
     def positions_get(self):
         positions = mt5.positions_get()
         return len(positions) if positions else 0
