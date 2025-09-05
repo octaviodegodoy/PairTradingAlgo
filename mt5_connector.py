@@ -274,6 +274,7 @@ class MT5Connector:
         print(f"Highest score {highest_score} and total profit {total_profit}")
         current_equity = mt5.account_info().equity
         total_day_risk = round(abs(total_profit/current_equity),3)
+        highest_score = 0.0
         
         return total_day_risk,highest_score,total_profit
 

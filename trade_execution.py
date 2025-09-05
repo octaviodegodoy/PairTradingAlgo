@@ -21,11 +21,9 @@ class TradeExecution:
 
         day_profit,highest_zscore_period,total_profit = self.mt5_conn.total_daily_risk()
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
-              updated_zscore_entry = float(highest_zscore_period)
+              updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID
         elif highest_zscore_period == 0:
-              updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD
-
-        updated_zscore_entry = abs(updated_zscore_entry) + (grid_count)*ADDITIONAL_GRID
+              updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (grid_count)*ADDITIONAL_GRID
         
         self.logger.info(f"Updated grid z score entry : {updated_zscore_entry}")
 

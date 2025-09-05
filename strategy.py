@@ -20,17 +20,17 @@ class PairTradingStrategy:
         pair = []
         total_positions = self.mt5_conn.get_total_positions() #self.mt5_conn.positions_total()
         self.logger.info(f"Total current positions: {total_positions}")
+        if total_positions > 0:
+            self.logger.info("Existing positions detected, skipping new pair scanning.")
+            return None, None, None, None, None, arbitrage_found
         
         ## Get daily profit and highest z score period
         day_profit,highest_zscore_period,total_profit = self.mt5_conn.total_daily_risk()
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period)
-        print(f"Updated Z score entry : {updated_zscore_entry}")
+        self.logger.info(f"Updated Z score entry : {updated_zscore_entry}")
 
-        if total_positions > 0:
-            self.logger.info("Existing positions detected, skipping new pair scanning.")
-            return None, None, None, None, None, arbitrage_found
-        
+     
         while True:
             
             self.logger.info(f"Day profit: {day_profit}, Highest Z-Score Period: {highest_zscore_period}, Total Profit: {total_profit}")            
