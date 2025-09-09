@@ -199,13 +199,10 @@ class MT5Connector:
                         print(f"Trailing stop updated for SELL {symbol}, ticket {ticket}. New SL: {new_stop_loss:.{digits}f}")
 
 
-    def place_order(self,symbolY,symbolX,orders_type,slope,zscore):
-        min_lot_Y = mt5.symbol_info(symbolY).volume_min
-        min_lot_X = mt5.symbol_info(symbolX).volume_min
-        available_margin = mt5.account_info().equity*MARGIN_PERCENT
-        total_positions = mt5.positions_total()
+    def place_order(self,symbolY,symbolX,volumeY,volumeX,orders_type,zscore):
+
       # prepare the Short request
-        volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,available_margin,total_positions)
+        #volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,available_margin,total_positions)
         request_y = {
            "action": mt5.TRADE_ACTION_DEAL,
            "symbol": symbolY,
@@ -228,7 +225,7 @@ class MT5Connector:
         request_x = {
            "action": mt5.TRADE_ACTION_DEAL,
            "symbol": symbolX,
-           "volume": volume_X,
+           "volume": volumeX,
            "type": orders_type[1],
            "zscore": mt5.symbol_info_tick(symbolX).ask,
            "sl": 0.0,
@@ -247,7 +244,7 @@ class MT5Connector:
         print("Resultado do short (dependente) ", result_y_order)
         print("Resultado do long (independente) ", result_x_order) 
     
-    def close_all_positions():
+    def close_all_positions(self):
         # Get all open positions
         positions = mt5.positions_get()
         if positions is not None or len(positions) > 0:
@@ -322,6 +319,10 @@ class MT5Connector:
         highest_score = 0.0
         
         return total_day_risk,highest_score,total_profit
+    
+    def get_symbol_info(self,symbol):
+        symbol_info = mt5.symbol_info(symbol)
+        return symbol_info
 
     def get_account_info(self):
         account_info = mt5.account_info()

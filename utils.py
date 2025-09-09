@@ -56,6 +56,20 @@ def run_kalman_filter_momentum(y, x, NOISE_VARIANCE=0.0421):
 
     return slope, intercept, spreads
 
+def get_residuals_zscore(asset1_prices, asset2_prices):
+    X = asset1_prices.values.reshape(-1, 1)
+    y = asset2_prices.values
+
+    model = LinearRegression()
+    model.fit(X, y)
+
+    # Predict log_price2 using the regression model
+    log_price2_pred = model.predict(X)
+
+    # Calculate residuals: actual - predicted
+    residuals = asset2_prices - log_price2_pred
+
+    return residuals
 
 def get_dynamic_spread_zscores(asset1_prices,asset2_prices):
 
@@ -65,15 +79,20 @@ def get_dynamic_spread_zscores(asset1_prices,asset2_prices):
 
     asset1_prices = np.array(asset1_prices['close'])
     asset2_prices = np.array(asset2_prices['close'])
-
-    print(f"Asset1 prices length: {len(asset1_prices)} and Asset2 prices length: {len(asset2_prices)}")
     
     # Log-transform the prices
     log_asset1 = np.log(asset1_prices)
     log_asset2 = np.log(asset2_prices)
 
+    residuals = get_residuals_zscore(pd.Series(log_asset1), pd.Series(log_asset2))
+
+    residual_spreads = residuals.rolling(window=PERIODS, min_periods=1).std()
+    noise_variance = residual_spreads.var()
+
+    print(f"Residuals after function call: {noise_variance}")
+
     # Run the Kalman Filter
-    slope, intercept, spreads = run_kalman_filter_momentum(log_asset1, log_asset2, NOISE_VARIANCE=0.001)
+    slope, intercept, spreads = run_kalman_filter_momentum(log_asset1, log_asset2, NOISE_VARIANCE=noise_variance)
 
     spreads = pd.Series(spreads, index=dates)
     slope = pd.Series(slope, index=dates)
@@ -117,22 +136,15 @@ def check_cointegration(spreads):
     coint_flag = p_value < 0.05 and t_check
     return coint_flag
 
-def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,available_margin,total_positions):
+def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_lots,total_positions):
     print(f"Volume adjust for {symbolY} and {symbolX} with hedge ratio {hedge_ratio}")
 
-    amount_y = available_margin/MARGIN_Y
-    amount_x = available_margin/MARGIN_X
-    
-    print(f"Amount y {amount_y} amount x {amount_x}")
-
-    max_lots = amount_y + amount_x
-
-    grid_lot_investment = max_lots/VOLUME_FACTOR
+    grid_lot_investment = total_max_lots/VOLUME_FACTOR
 
     grid_count = (total_positions/2)
     fibo_index = int(grid_count)
 
-    print(f"Grid count {grid_count} and fibo index {fibo_index} max lots {max_lots} and grid lot investment {grid_lot_investment}")
+    print(f"Grid count {grid_count} and fibo index {fibo_index} max lots {total_max_lots} and grid lot investment {grid_lot_investment}")
 
     investment_asset_y = (grid_lot_investment/(1 + hedge_ratio))
     investment_asset_x = (grid_lot_investment - investment_asset_y)

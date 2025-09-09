@@ -38,6 +38,7 @@ async def main():
                     # Here you would add logic to execute trades and manage them
                     # For example:
                     # trade_execution.execute_trade(...)
+                    logger.info(f"Starting trade execution for {pair[0]} and {pair[1]}")
                     trade_execution.execute_trade(pair[0], pair[1], hedge_ratio[-1],rolling_z_scores[-1], correlation)
                     # trade_manager.manage_trades(...)               
                 

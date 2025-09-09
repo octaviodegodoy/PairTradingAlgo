@@ -1,11 +1,13 @@
 import asyncio
 from mt5_connector import MT5Connector
-from utils import Utils
+from utils import get_dynamic_spread_zscores
 import logging
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from config import TRADING_PAIR_Y, TRADING_PAIR_X
+import seaborn as sns
+
 
 async def main():
     logging.basicConfig(level=logging.INFO)
@@ -59,19 +61,20 @@ async def main():
 
 async def test_get_data_prices():
     logging.basicConfig(level=logging.INFO)
-    utils = Utils()
     mt5_conn = MT5Connector()
     if not mt5_conn.initialize():
         print("MT5 initialization failed")
         return
     
-
-    rolling_z_scores, spreads, hedge_ratio, correlation = utils.get_dynamic_spread_zscores(TRADING_PAIR_Y[0], TRADING_PAIR_X[0])
+    assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
+    assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[0])
+    rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
     asset1_prices = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
     dates = asset1_prices['time']
     data = pd.DataFrame({'z score': rolling_z_scores}, index=dates)   
 
     plt.figure(figsize=(12, 6))
+    sns.lineplot(x=data.index, y=data['z score'])
     plt.plot(data.index, data['z score'], label='rolling zscore', color='green')
     plt.axhline(1, color='red', linestyle='--')
     plt.axhline(-1, color='green', linestyle='--')

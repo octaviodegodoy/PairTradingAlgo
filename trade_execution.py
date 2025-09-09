@@ -1,5 +1,6 @@
 import logging
 from mt5_connector import MT5Connector
+from utils import calculate_volumes
 from config import (
     ADDITIONAL_GRID,
     MARGIN_PERCENT,
@@ -25,7 +26,9 @@ class TradeExecution:
         max_lots_y = total_margin/MARGIN_Y
         max_lots_x = total_margin/MARGIN_X
         total_max_lots = min(max_lots_y, max_lots_x)
-        total_volume = self.mt5_conn.get_total_volume()
+        total_lots_volume = self.mt5_conn.get_total_volume()
+
+        self.logger.info(f"Executing trade for : {symbolY},and : {symbolX}")
                 
          ## Get daily profit and highest z score period
 
@@ -35,24 +38,30 @@ class TradeExecution:
         elif highest_zscore_period == 0:
               updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (grid_count)*ADDITIONAL_GRID
         
-        self.logger.info(f"Max volume : {total_max_lots} and open positions volume {total_volume} current zscore {z_score} updated zscore entry {updated_zscore_entry}  ")
-
+        self.logger.info(f"Max volume : {total_max_lots} and open positions volume {total_lots_volume} current zscore {z_score} updated zscore entry {updated_zscore_entry}  ")
+        min_lot_Y = self.mt5_conn.get_symbol_info(symbolY).volume_min
+        min_lot_X = self.mt5_conn.get_symbol_info(symbolX).volume_min
+        volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,total_max_lots,total_positions)
+        self.logger.info(f"Calculated volumes - {symbolY}: {volumeY}, {symbolX}: {volume_X}")
+        total_lots_volume = total_lots_volume + volumeY + volume_X
+        self.logger.info(f"Total lots volume after calculation: {total_lots_volume} and max lots {total_max_lots}")
          # Trading logic based on z-score and correlation
-        if (total_positions < total_max_lots):
+        if (total_lots_volume < total_max_lots):
+        #if False:
             if (correlation > 0):
                 if (z_score < -updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_SELL]
-                    self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+                    self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
 
                 elif (z_score > updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_SELL, self.mt5_conn.ORDER_TYPE_BUY]
-                    self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+                    self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
 
             elif (correlation < 0):
                 if (z_score < -updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_BUY]
-                    self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+                    self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
 
                 elif (z_score > updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_SELL, self.mt5_conn.ORDER_TYPE_SELL]
-                    self.mt5_conn.place_order(symbolY,symbolX,orders_type,slope,z_score)
+                    self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
