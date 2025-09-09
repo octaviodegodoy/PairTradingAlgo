@@ -3,11 +3,10 @@ from mt5_connector import MT5Connector
 from trade_execution import TradeExecution  # Trade execution not implemented yet
 from strategy import PairTradingStrategy
 from config import (
-    MARGIN_PERCENT, MARGIN_X, MARGIN_Y, MAX_LOSS, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
+    MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
 )
 import time
 from utils import get_dynamic_spread_zscores
-import random
 
 class TradeManager:
     def __init__(self):

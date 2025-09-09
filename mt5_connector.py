@@ -316,8 +316,7 @@ class MT5Connector:
                     if (traded_zscore > highest_score):
                         highest_score = traded_zscore
                 total_profit = total_profit + deal.commission + deal.profit
-        
-        print(f"Highest score {highest_score} and total profit {total_profit}")
+
         current_equity = mt5.account_info().equity
         total_day_risk = round(abs(total_profit/current_equity),3)
         highest_score = 0.0
