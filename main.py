@@ -1,8 +1,7 @@
 import asyncio
 import logging
 from config import (
-    PERIODS, ROLLING_PERIODS, MARGIN_Y, MARGIN_X, TRAILING_DISTANCE_POINTS,
-    PROFIT_THRESHOLD_MULTIPLIER, MARGIN_PERCENT, MAX_POSITIONS, MAX_RISK,MAGIC_NUMBER
+    MAGIC_NUMBER
 )
 
 from mt5_connector import MT5Connector
@@ -10,7 +9,6 @@ from utils import check_trading_time
 from strategy import PairTradingStrategy
 from trade_manager import TradeManager  # Trade manager not implemented yet
 from trade_execution import TradeExecution  # Trade execution not implemented yet
-import time
 
 async def main():
     

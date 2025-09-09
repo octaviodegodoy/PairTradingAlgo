@@ -1,9 +1,9 @@
 import MetaTrader5 as mt5
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import time
 import pandas as pd
-from config import PERIODS, SHIFT_PERIODS, TRAILING_DISTANCE_POINTS, UNIX_DAY, MAGIC_NUMBER
+from config import MARGIN_PERCENT, PERIODS, SHIFT_PERIODS, TRAILING_DISTANCE_POINTS, UNIX_DAY, MAGIC_NUMBER
 from utils import calculate_volumes
 
 class MT5Connector:
@@ -202,7 +202,7 @@ class MT5Connector:
     def place_order(self,symbolY,symbolX,orders_type,slope,zscore):
         min_lot_Y = mt5.symbol_info(symbolY).volume_min
         min_lot_X = mt5.symbol_info(symbolX).volume_min
-        available_margin = mt5.account_info().equity
+        available_margin = mt5.account_info().equity*MARGIN_PERCENT
         total_positions = mt5.positions_total()
       # prepare the Short request
         volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,available_margin,total_positions)
@@ -247,6 +247,52 @@ class MT5Connector:
         print("Resultado do short (dependente) ", result_y_order)
         print("Resultado do long (independente) ", result_x_order) 
     
+    def close_all_positions():
+        # Get all open positions
+        positions = mt5.positions_get()
+        if positions is not None or len(positions) > 0:
+            # Loop through each position and close it
+            for position in positions:
+                symbol = position.symbol
+                ticket = position.ticket
+                volume = position.volume
+                position_magic = position.magic
+                position_type = position.type  # 0 for buy, 1 for sell
+
+            # Determine the opposite order type to close the position
+                if position_type == mt5.ORDER_TYPE_BUY:
+                    order_type = mt5.ORDER_TYPE_SELL
+                    zscore = mt5.symbol_info_tick(symbol).bid
+                else:
+                    order_type = mt5.ORDER_TYPE_BUY
+                    zscore = mt5.symbol_info_tick(symbol).ask
+
+            # Create a close request
+                request = {
+                    "action": mt5.TRADE_ACTION_DEAL,
+                    "symbol": symbol,
+                    "volume": volume,
+                    "type": order_type,
+                    "position": ticket,
+                    "zscore": zscore,
+                    "deviation": 20,
+                    "magic": MAGIC_NUMBER,
+                    "comment": "Close position",
+                    "type_time": mt5.ORDER_TIME_GTC,
+                    "type_filling": mt5.ORDER_FILLING_IOC,
+                }
+
+            # Send the close request
+                if (position_magic != MAGIC_NUMBER):
+                    continue
+                result = mt5.order_send(request)
+
+            # Check the result
+                if result.retcode != mt5.TRADE_RETCODE_DONE:
+                    print(f"Failed to close position {ticket} on {symbol}, Error code: {result.retcode}")
+                else:
+                    print(f"Successfully closed position {ticket} on {symbol}")
+
     
     def total_daily_risk(self):
         from_date = datetime.now() - timedelta(hours=10,minutes=0)
@@ -278,14 +324,21 @@ class MT5Connector:
         
         return total_day_risk,highest_score,total_profit
 
-
-    def positions_get(self):
-        positions = mt5.positions_get()
-        return len(positions) if positions else 0
+    def get_account_info(self):
+        account_info = mt5.account_info()
+        return account_info    
 
     def get_open_positions(self):
         positions = mt5.positions_get()
         return positions
+    
+    def get_total_volume(self):
+        total_volume = 0.0
+        positions = mt5.positions_get()
+        if positions is not None:
+            for pos in positions:
+                total_volume += pos.volume
+        return total_volume
     
     def get_total_positions(self):
         total_positions = mt5.positions_total()

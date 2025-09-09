@@ -31,7 +31,7 @@ def check_trading_time():
 def update_H(x_t):
     return np.array([[x_t, 1]])  # y_t = slope * x_t + intercept + noise
 
-def run_kalman_filter_momentum(y, x, NOISE_VARIANCE=0.001):
+def run_kalman_filter_momentum(y, x, NOISE_VARIANCE=0.0421):
     kf = KalmanFilter(dim_x=2, dim_z=1)  # State: [slope, intercept], Measurement: y
     # Define state transition matrix (random walk for slope and intercept)
     kf.F = np.array([[1, 0],  # Slope stays constant (random walk)

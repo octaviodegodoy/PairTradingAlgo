@@ -3,7 +3,7 @@ from mt5_connector import MT5Connector
 from trade_execution import TradeExecution  # Trade execution not implemented yet
 from strategy import PairTradingStrategy
 from config import (
-    PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
+    MARGIN_PERCENT, MARGIN_X, MARGIN_Y, MAX_LOSS, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
 )
 import time
 from utils import get_dynamic_spread_zscores
@@ -20,8 +20,12 @@ class TradeManager:
         
         stop_active = False
         open_position_y = None
-        open_position_x = None 
-
+        open_position_x = None
+        current_equity = self.mt5_conn.get_account_info().equity
+        total_margin = current_equity*MARGIN_PERCENT
+        max_loss = total_margin*MAX_RISK
+        trailing_start = max_loss*PROFIT_THRESHOLD
+        
         while True:
             # Implement position management logic
             #          
@@ -30,8 +34,13 @@ class TradeManager:
             if total_positions > 0:
                 self.logger.info(f"Total open positions: {total_positions}")
                 profit = self.mt5_conn.get_profit()
-                if profit >= PROFIT_THRESHOLD:
+                self.logger.info(f"Current profit: {profit}, Trailing start: {trailing_start}, Max loss: {max_loss} ")
+
+                if profit >= trailing_start:
                     self.mt5_conn.all_positions_stop_loss()
+                elif profit <= -max_loss:
+                    self.mt5_conn.close_all_positions()
+
 
                 positions = self.mt5_conn.get_open_positions()  #self.mt5_conn.positions_get()
 
