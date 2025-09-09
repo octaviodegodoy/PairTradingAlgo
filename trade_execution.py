@@ -26,8 +26,7 @@ class TradeExecution:
         max_lots_x = total_margin/MARGIN_X
         total_max_lots = min(max_lots_y, max_lots_x)
         total_volume = self.mt5_conn.get_total_volume()
-        self.logger.info(f"Max volume : {total_max_lots} and open positions volume {total_volume}")
-        
+                
          ## Get daily profit and highest z score period
 
         day_profit,highest_zscore_period,total_profit = self.mt5_conn.total_daily_risk()
@@ -36,7 +35,7 @@ class TradeExecution:
         elif highest_zscore_period == 0:
               updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (grid_count)*ADDITIONAL_GRID
         
-        self.logger.info(f"Updated grid z score entry : {updated_zscore_entry} max lots {total_max_lots}")
+        self.logger.info(f"Max volume : {total_max_lots} and open positions volume {total_volume} current zscore {z_score} updated zscore entry {updated_zscore_entry}  ")
 
          # Trading logic based on z-score and correlation
         if (total_positions < total_max_lots):
