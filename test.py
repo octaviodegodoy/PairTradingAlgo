@@ -69,23 +69,46 @@ async def test_get_data_prices():
     assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
     assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[0])
     rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
-    asset1_prices = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
-    dates = asset1_prices['time']
-    data = pd.DataFrame({'z score': rolling_z_scores}, index=dates)   
+    
+    price1 = np.array(assets_y['close'])
+    price2 = np.array(assets_x['close'])
+    dates = np.array(assets_y['time'])
 
-    plt.figure(figsize=(12, 6))
-    sns.lineplot(x=data.index, y=data['z score'])
-    plt.plot(data.index, data['z score'], label='rolling zscore', color='green')
-    plt.axhline(1, color='red', linestyle='--')
-    plt.axhline(-1, color='green', linestyle='--')
-    plt.axhline(0, color='black', linestyle='-')
-    plt.axhline(1, color='green', linestyle='-')
-    plt.axhline(-1, color='red', linestyle='-')
-    plt.xlabel('Date')
-    plt.ylabel('Close Price')
-    plt.ylim(-3, 3)
+    log_asset1 = np.log(price1)
+    log_asset2 = np.log(price2)
+
+    print(f"Assets Y length: {len(assets_y)} and Assets X length: {len(assets_x)}")    
+
+    data = pd.DataFrame({'Price1': price1, 'Price2': price2,'LogPrice1': log_asset1, 'LogPrice2': log_asset2,'Rolling Z': rolling_z_scores,'Hedge Ratio': hedge_ratio}, index=dates)
+        
+    # Calculate cumulative returns
+    data['Return1'] = data['Price1'].pct_change().cumsum()
+    data['Return2'] = data['Price2'].pct_change().cumsum()
+
+    # Plot the cumulative returns
+    plt.figure(figsize=(12, 8),layout='constrained')
+
+    plt.subplot(2, 1, 1)        
+    plt.plot(data.index, data['Return1'], label='Cumulative returns WDO', color='red')
+    plt.plot(data.index, data['Return2'], label='Cumulative returns WIN', color='blue')
+    plt.ylabel('Cumulative Return')
+    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[0]} and {TRADING_PAIR_X[0]} correlation {correlation}')
+    plt.axhline(0, color='black')
+    plt.legend()
+    plt.grid(True)
+
+    plt.subplot(2, 1, 2)
+    #plt.plot(data.index, data['Z scores'], label='Z-scores', color='purple')
+    plt.plot(data.index, data['Rolling Z'],label='Z-scores Rolling', color='green')
+    plt.plot(data.index, data['Hedge Ratio'], label='Hedge Ratio', color='orange')
+    plt.axhline(0, color='black')
+    plt.axhline(1, color='blue',linestyle='--')
+    plt.axhline(2, color='green', linestyle='--', label='+2 Std Dev')
+    plt.axhline(-1, color='red', linestyle='--')
+    plt.axhline(-2, color='green', linestyle='--', label='-2 Std Dev')
+    plt.legend()
     plt.tight_layout()
+    plt.grid(True)
     plt.show()
-    #data_y = mt5_conn.get_data(symbol)
 
 asyncio.run(test_get_data_prices())

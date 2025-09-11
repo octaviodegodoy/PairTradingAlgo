@@ -68,8 +68,9 @@ class TradeManager:
                     time.sleep(1)
                     continue
    
-                if open_position_y and open_position_x:
+                if open_position_y:
                     self.logger.info(f"Position Y: {open_position_y}, Type: {type_position_y}, Stop Loss: {stop_loss_y}, Ticket: {ticket_y}")
+                if open_position_x:
                     self.logger.info(f"Position X: {open_position_x}, Type: {type_position_x}, Stop Loss: {stop_loss_x}, Ticket: {ticket_x}")
                 assets_y = self.mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
                 assets_x = self.mt5_conn.get_data_futures(TRADING_PAIR_X[0])

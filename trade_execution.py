@@ -6,6 +6,7 @@ from config import (
     MARGIN_PERCENT,
     MARGIN_X,
     MARGIN_Y,
+    MAX_GRIDS,
     Z_SCORE_ENTRY_THRESHOLD
 )
 import time
@@ -45,8 +46,9 @@ class TradeExecution:
         self.logger.info(f"Calculated volumes - {symbolY}: {volumeY}, {symbolX}: {volume_X}")
         total_lots_volume = total_lots_volume + volumeY + volume_X
         self.logger.info(f"Total lots volume after calculation: {total_lots_volume} and max lots {total_max_lots}")
+        
          # Trading logic based on z-score and correlation
-        if (total_lots_volume < total_max_lots):
+        if (total_lots_volume < total_max_lots) and grid_count < MAX_GRIDS:
         #if False:
             if (correlation > 0):
                 if (z_score < -updated_zscore_entry):

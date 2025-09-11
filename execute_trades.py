@@ -1,1 +1,0 @@
-# check if there is open positions if not calculate z score data to get new data
