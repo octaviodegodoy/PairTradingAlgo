@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 import pandas as pd
-from config import TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
+from constants import TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
 import time
 import random
 from mt5_connector import MT5Connector

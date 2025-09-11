@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 import time
 import pandas as pd
-from config import MARGIN_PERCENT, PERIODS, SHIFT_PERIODS, TRAILING_DISTANCE_POINTS, UNIX_DAY, MAGIC_NUMBER
+from constants import MARGIN_PERCENT, PERIODS, SHIFT_PERIODS, TRAILING_DISTANCE_POINTS, UNIX_DAY, MAGIC_NUMBER
 from utils import calculate_volumes
 
 class MT5Connector:

@@ -1,7 +1,7 @@
 import logging
 from mt5_connector import MT5Connector
 from utils import calculate_volumes
-from config import (
+from constants import (
     ADDITIONAL_GRID,
     MARGIN_PERCENT,
     MARGIN_X,

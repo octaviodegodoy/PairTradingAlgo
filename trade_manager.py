@@ -2,7 +2,7 @@ import logging
 from mt5_connector import MT5Connector
 from trade_execution import TradeExecution  # Trade execution not implemented yet
 from strategy import PairTradingStrategy
-from config import (
+from constants import (
     MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
 )
 import time

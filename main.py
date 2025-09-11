@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from config import (
+from constants import (
     MAGIC_NUMBER
 )
 

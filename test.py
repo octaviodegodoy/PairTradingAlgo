@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from config import TRADING_PAIR_Y, TRADING_PAIR_X
+from constants import TRADING_PAIR_Y, TRADING_PAIR_X
 import seaborn as sns
 
 
