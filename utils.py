@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from constants import FIBO_VOLUME_FACTORS, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR
+from constants import FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR
 from filterpy.kalman import KalmanFilter
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller
@@ -31,7 +31,7 @@ def check_trading_time():
 def update_H(x_t):
     return np.array([[x_t, 1]])  # y_t = slope * x_t + intercept + noise
 
-def run_kalman_filter_momentum(y, x, NOISE_VARIANCE=0.0421):
+def run_kalman_filter_momentum(y, x):
     kf = KalmanFilter(dim_x=2, dim_z=1)  # State: [slope, intercept], Measurement: y
     # Define state transition matrix (random walk for slope and intercept)
     kf.F = np.array([[1, 0],  # Slope stays constant (random walk)
@@ -56,7 +56,10 @@ def run_kalman_filter_momentum(y, x, NOISE_VARIANCE=0.0421):
 
     return slope, intercept, spreads
 
-def get_residuals_zscore(asset1_prices, asset2_prices):
+def get_residuals_zscore_stdev(asset1_prices, asset2_prices):
+    pd.Series(log_asset1), 
+    pd.Series(log_asset2)
+
     X = asset1_prices.values.reshape(-1, 1)
     y = asset2_prices.values
 
@@ -84,15 +87,8 @@ def get_dynamic_spread_zscores(asset1_prices,asset2_prices):
     log_asset1 = np.log(asset1_prices)
     log_asset2 = np.log(asset2_prices)
 
-    residuals = get_residuals_zscore(pd.Series(log_asset1), pd.Series(log_asset2))
-
-    residual_spreads = residuals.rolling(window=PERIODS, min_periods=1).std()
-    noise_variance = residual_spreads.var()
-
-    print(f"Residuals after function call: {noise_variance}")
-
     # Run the Kalman Filter
-    slope, intercept, spreads = run_kalman_filter_momentum(log_asset1, log_asset2, NOISE_VARIANCE=noise_variance)
+    slope, intercept, spreads = run_kalman_filter_momentum(log_asset1, log_asset2)
 
     spreads = pd.Series(spreads, index=dates)
     slope = pd.Series(slope, index=dates)

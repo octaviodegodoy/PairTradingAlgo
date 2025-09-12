@@ -29,11 +29,11 @@ class TradeExecution:
         total_max_lots = min(max_lots_y, max_lots_x)
         total_lots_volume = self.mt5_conn.get_total_volume()
 
-        self.logger.info(f"Executing trade for : {symbolY},and : {symbolX}")
-                
+                       
          ## Get daily profit and highest z score period
 
         day_profit,highest_zscore_period,total_profit = self.mt5_conn.total_daily_risk()
+        self.logger.info(f"Day profit: {day_profit}, Highest Z-Score Period: {highest_zscore_period}")
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID
         elif highest_zscore_period == 0:

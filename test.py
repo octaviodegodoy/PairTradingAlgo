@@ -1,11 +1,13 @@
 import asyncio
+
+from sklearn.linear_model import LinearRegression
 from mt5_connector import MT5Connector
 from utils import get_dynamic_spread_zscores
 import logging
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from constants import TRADING_PAIR_Y, TRADING_PAIR_X
+from constants import NOISE_VARIANCE, PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X
 import seaborn as sns
 
 
@@ -59,7 +61,7 @@ async def main():
     await asyncio.sleep(1)
     print("Main function completed.")
 
-async def test_get_data_prices():
+async def plot_data_prices():
     logging.basicConfig(level=logging.INFO)
     mt5_conn = MT5Connector()
     if not mt5_conn.initialize():
@@ -72,7 +74,7 @@ async def test_get_data_prices():
     
     price1 = np.array(assets_y['close'])
     price2 = np.array(assets_x['close'])
-    dates = np.array(assets_y['time'])
+    dates = np.array(assets_y['time'])  # Use the last 300 dates for better visibility
 
     log_asset1 = np.log(price1)
     log_asset2 = np.log(price2)
@@ -92,7 +94,7 @@ async def test_get_data_prices():
     plt.plot(data.index, data['Return1'], label='Cumulative returns WDO', color='red')
     plt.plot(data.index, data['Return2'], label='Cumulative returns WIN', color='blue')
     plt.ylabel('Cumulative Return')
-    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[0]} and {TRADING_PAIR_X[0]} correlation {correlation}')
+    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[0]} and {TRADING_PAIR_X[0]} correlation {correlation} noise variance {NOISE_VARIANCE}')
     plt.axhline(0, color='black')
     plt.legend()
     plt.grid(True)
@@ -111,4 +113,40 @@ async def test_get_data_prices():
     plt.grid(True)
     plt.show()
 
-asyncio.run(test_get_data_prices())
+
+async def get_residuals_zscore_stdev():
+        mt5_conn = MT5Connector()
+        
+        assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
+        assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[0])
+
+        asset1_prices = np.array(assets_y['close'])
+        asset2_prices = np.array(assets_x['close'])
+
+        # Log-transform the prices
+        log_asset1 = np.log(asset1_prices)
+        log_asset2 = np.log(asset2_prices)
+
+        log_asset1 = pd.Series(log_asset1)
+        log_asset2 = pd.Series(log_asset2)
+
+        X = log_asset1.values.reshape(-1, 1)
+        y = log_asset2.values
+
+        model = LinearRegression()
+        model.fit(X, y)
+
+        # Predict log_price2 using the regression model
+        log_price2_pred = model.predict(X)
+
+        # Calculate residuals: actual - predicted
+        residuals = log_asset2 - log_price2_pred
+
+        residual_spreads = residuals.rolling(window=PERIODS, min_periods=1).std()
+        noise_variance = residual_spreads.std()
+        print(f"Residuals standard deviation: {residual_spreads.std()}")
+        print(f"Residuals variance: {residual_spreads.var():.10f}")
+        return noise_variance
+
+
+asyncio.run(plot_data_prices())

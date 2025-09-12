@@ -1,7 +1,11 @@
 import asyncio
 import logging
 from constants import (
-    MAGIC_NUMBER
+    MAGIC_NUMBER,
+    START_TIME_HOUR,
+    START_TIME_MINUTE,
+    TRADE_WINDOW_TIME_HOURS,
+    TRADE_WINDOW_TIME_MINUTES
 )
 
 from mt5_connector import MT5Connector
@@ -23,10 +27,10 @@ async def main():
         if not mt5_conn.initialize():
             logger.error("MT5 initialization failed")
             return
-
+        
+        logger.info(f"MT5 initialized successfully, trading will start at {START_TIME_HOUR}:{START_TIME_MINUTE} UTC for {TRADE_WINDOW_TIME_HOURS} hours and {TRADE_WINDOW_TIME_MINUTES} minutes")
         while True:
             if not check_trading_time():
-                logger.info("Outside trading hours. Sleeping for 5 seconds.")
                 await asyncio.sleep(5)
                 continue
             elif check_trading_time():

@@ -292,7 +292,7 @@ class MT5Connector:
 
     
     def total_daily_risk(self):
-        from_date = datetime.now() - timedelta(hours=10,minutes=0)
+        from_date = datetime.now() - timedelta(hours=12,minutes=0)
         #get the number of deals in history
         total_daily_risk = 0.0 
         to_date=datetime.now()
@@ -316,8 +316,7 @@ class MT5Connector:
 
         current_equity = mt5.account_info().equity
         total_day_risk = round(abs(total_profit/current_equity),3)
-        highest_score = 0.0
-        
+                
         return total_day_risk,highest_score,total_profit
     
     def get_symbol_info(self,symbol):
