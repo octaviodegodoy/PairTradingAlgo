@@ -32,8 +32,8 @@ class TradeExecution:
                        
          ## Get daily profit and highest z score period
 
-        day_profit,highest_zscore_period,total_profit = self.mt5_conn.total_daily_risk()
-        self.logger.info(f"Day profit: {day_profit}, Highest Z-Score Period: {highest_zscore_period}")
+        day_profit,highest_zscore_period,total_profit,total_traded_volumes = self.mt5_conn.total_daily_risk()
+        self.logger.info(f"Day profit: {day_profit}, Highest Z-Score Period: {highest_zscore_period} total volumes {total_lots_volume} and max lots {total_max_lots}")
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID
         elif highest_zscore_period == 0:
@@ -45,11 +45,12 @@ class TradeExecution:
         volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,total_max_lots,total_positions)
         self.logger.info(f"Calculated volumes - {symbolY}: {volumeY}, {symbolX}: {volume_X}")
         total_lots_volume = total_lots_volume + volumeY + volume_X
-        self.logger.info(f"Total lots volume after calculation: {total_lots_volume} and max lots {total_max_lots}")
+        total_traded_volumes = abs(total_traded_volumes) + volumeY + volume_X
+        self.logger.info(f"Total lots volume after calculation: {total_traded_volumes} and max lots {total_max_lots}")
         
          # Trading logic based on z-score and correlation
-        if (total_lots_volume < total_max_lots) and grid_count < MAX_GRIDS:
-        #if False:
+        if (total_traded_volumes < total_max_lots) and grid_count < MAX_GRIDS:
+            self.logger.info(f"Sending order with: current z-score {z_score} and updated zscore entry {updated_zscore_entry} and correlation {correlation}")
             if (correlation > 0):
                 if (z_score < -updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_SELL]

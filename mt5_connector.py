@@ -96,6 +96,16 @@ class MT5Connector:
 
         return current_symbol
     
+    def check_positions_type(self,symbol,position_type):
+        positions = mt5.positions_get(symbol=symbol)
+        if positions is None:
+            self.logger.error(f"Could not get positions for {symbol}")
+            return False
+        for pos in positions:
+            if pos.type == position_type:
+                return True
+        return False
+    
     def all_positions_stop_loss(self):
 
         while True:  
@@ -294,11 +304,11 @@ class MT5Connector:
     def total_daily_risk(self):
         from_date = datetime.now() - timedelta(hours=12,minutes=0)
         #get the number of deals in history
-        total_daily_risk = 0.0 
         to_date=datetime.now()
         print(f"From date {from_date} to date {to_date}")
         deals=mt5.history_deals_get(from_date, to_date) 
         total_profit = 0
+        total_volume = 0.0
         highest_score = 0.0
         comment = "" 
         if deals==None:   
@@ -313,11 +323,11 @@ class MT5Connector:
                     if (traded_zscore > highest_score):
                         highest_score = traded_zscore
                 total_profit = total_profit + deal.commission + deal.profit
+                total_volume = total_volume + deal.volume
 
         current_equity = mt5.account_info().equity
         total_day_risk = round(abs(total_profit/current_equity),3)
-                
-        return total_day_risk,highest_score,total_profit
+        return total_day_risk,highest_score,total_profit,total_volume
     
     def get_symbol_info(self,symbol):
         symbol_info = mt5.symbol_info(symbol)

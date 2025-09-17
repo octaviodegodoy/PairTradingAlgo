@@ -57,8 +57,8 @@ def run_kalman_filter_momentum(y, x):
     return slope, intercept, spreads
 
 def get_residuals_zscore_stdev(asset1_prices, asset2_prices):
-    pd.Series(log_asset1), 
-    pd.Series(log_asset2)
+    pd.Series(asset1_prices), 
+    pd.Series(asset2_prices)
 
     X = asset1_prices.values.reshape(-1, 1)
     y = asset2_prices.values

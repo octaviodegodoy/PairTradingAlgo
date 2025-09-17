@@ -113,6 +113,13 @@ async def plot_data_prices():
     plt.grid(True)
     plt.show()
 
+async def get_daily_data():
+    logging.basicConfig(level=logging.INFO)
+    mt5_conn = MT5Connector()
+    total_day_risk,highest_score,total_profit,total_volume = mt5_conn.total_daily_risk()
+    print(f"Total daily risk: {total_day_risk}, Highest score: {highest_score}, Total profit: {total_profit} and total volume {total_volume}")
+    
+
 
 async def get_residuals_zscore_stdev():
         mt5_conn = MT5Connector()
@@ -149,4 +156,4 @@ async def get_residuals_zscore_stdev():
         return noise_variance
 
 
-asyncio.run(plot_data_prices())
+asyncio.run(get_daily_data())
