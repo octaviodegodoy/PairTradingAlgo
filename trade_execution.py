@@ -26,20 +26,18 @@ class TradeExecution:
         total_margin = current_equity*MARGIN_PERCENT
         max_lots_y = total_margin/MARGIN_Y
         max_lots_x = total_margin/MARGIN_X
-        total_max_lots = min(max_lots_y, max_lots_x)
-        total_lots_volume = self.mt5_conn.get_total_volume()
-
+        total_max_lots = max_lots_y + max_lots_x
                        
          ## Get daily profit and highest z score period
 
         day_profit,highest_zscore_period,total_profit,total_traded_volumes = self.mt5_conn.total_daily_risk()
-        self.logger.info(f"Day profit: {day_profit}, Highest Z-Score Period: {highest_zscore_period} total volumes {total_lots_volume} and max lots {total_max_lots}")
+        self.logger.info(f"Day profit: {day_profit}, Highest Z-Score Period: {highest_zscore_period} total volumes {total_traded_volumes} and max lots {total_max_lots}")
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID
         elif highest_zscore_period == 0:
               updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (grid_count)*ADDITIONAL_GRID
         
-        self.logger.info(f"Max volume : {total_max_lots} and open positions volume {total_lots_volume} current zscore {z_score} updated zscore entry {updated_zscore_entry}  ")
+        self.logger.info(f"Max volume : {total_max_lots} and open positions volume {total_traded_volumes} current zscore {z_score} updated zscore entry {updated_zscore_entry}  ")
         min_lot_Y = self.mt5_conn.get_symbol_info(symbolY).volume_min
         min_lot_X = self.mt5_conn.get_symbol_info(symbolX).volume_min
         volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,total_max_lots,total_positions)

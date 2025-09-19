@@ -7,7 +7,7 @@ import logging
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from constants import NOISE_VARIANCE, PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X
+from constants import MARGIN_PERCENT, MARGIN_X, MARGIN_Y, NOISE_VARIANCE, PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X
 import seaborn as sns
 
 
@@ -124,6 +124,16 @@ async def get_group_name(symbol):
     group_name = symbol[:3]+'*'
     print(f"Getting group name for symbol: {group_name}")
 
+async def check_volumes():
+        mt5_conn = MT5Connector()
+        current_equity = mt5_conn.get_account_info().equity
+        total_margin = current_equity*MARGIN_PERCENT
+        max_lots_y = total_margin/MARGIN_Y
+        max_lots_x = total_margin/MARGIN_X
+        total_max_lots = max_lots_y + max_lots_x
+        print(f"Max lots for Y: {max_lots_y}, Max lots for X: {max_lots_x}, Total max lots: {total_max_lots}")
+    
+
 async def get_residuals_zscore_stdev():
         mt5_conn = MT5Connector()
         
@@ -159,4 +169,4 @@ async def get_residuals_zscore_stdev():
         return noise_variance
 
 
-asyncio.run(calculate_volumes("WDO*","WIN*",0.5,0.5,1.0,0))
+asyncio.run(check_volumes())
