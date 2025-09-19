@@ -45,7 +45,7 @@ class TradeExecution:
         volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,total_max_lots,total_positions)
         self.logger.info(f"Calculated volumes - {symbolY}: {volumeY}, {symbolX}: {volume_X}")
         total_lots_volume = total_lots_volume + volumeY + volume_X
-        total_traded_volumes = abs(total_traded_volumes) + volumeY + volume_X
+        total_traded_volumes = abs(total_traded_volumes)
         self.logger.info(f"Total lots volume after calculation: {total_traded_volumes} and max lots {total_max_lots}")
         
          # Trading logic based on z-score and correlation
