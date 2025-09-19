@@ -6,7 +6,7 @@ from constants import (
     MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
 )
 import time
-from utils import get_dynamic_spread_zscores
+from utils import get_dynamic_spread_zscores,get_group_name
 
 class TradeManager:
     def __init__(self):
@@ -72,8 +72,11 @@ class TradeManager:
                     self.logger.info(f"Position Y: {open_position_y}, Type: {type_position_y}, Stop Loss: {stop_loss_y}, Ticket: {ticket_y}")
                 if open_position_x:
                     self.logger.info(f"Position X: {open_position_x}, Type: {type_position_x}, Stop Loss: {stop_loss_x}, Ticket: {ticket_x}")
-                assets_y = self.mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
-                assets_x = self.mt5_conn.get_data_futures(TRADING_PAIR_X[0])
+
+                asset_group_y = get_group_name(open_position_y)
+                asset_group_x = get_group_name(open_position_x)
+                assets_y = self.mt5_conn.get_data_futures(asset_group_y)
+                assets_x = self.mt5_conn.get_data_futures(asset_group_x)
                 rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
                 self.logger.info(f"Sending new order to trade execution with z score {rolling_z_scores[-1]} and hedge ratio {hedge_ratio[-1]} and correlation {correlation}")
                 self.trade_execution.execute_trade(open_position_y, open_position_x, hedge_ratio[-1],rolling_z_scores[-1], correlation)
@@ -131,10 +134,10 @@ class TradeManager:
                 if position.sl == 0.0:
                     # Only set the stop loss if it is not already set
                     print(f"Setting stop loss for position {ticket} on {symbol} to {stop_loss_price}")
-                    result = mt5.order_send(request)
+                    result = self.mt5_conn.order_send(request)
                     print(f"Result of order check for ticket {ticket}: ", result)
            
-                if result.retcode != mt5.TRADE_RETCODE_DONE:
+                if result.retcode != self.mt5_conn.TRADE_RETCODE_DONE:
                     print(f"Failed to set stop loss for position {ticket}, error code: {result.retcode}")
                 all_set = False
 

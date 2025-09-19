@@ -159,4 +159,7 @@ def get_correlation(assetY,assetX):
     correlation = assetY['close'].corr(assetX['close'])
     return correlation
 
+def get_group_name(symbol):
+    return symbol[:3]+'*'
+
     

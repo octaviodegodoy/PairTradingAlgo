@@ -119,7 +119,10 @@ async def get_daily_data():
     total_day_risk,highest_score,total_profit,total_volume = mt5_conn.total_daily_risk()
     print(f"Total daily risk: {total_day_risk}, Highest score: {highest_score}, Total profit: {total_profit} and total volume {total_volume}")
     
-
+async def get_group_name(symbol):
+    logging.basicConfig(level=logging.INFO)
+    group_name = symbol[:3]+'*'
+    print(f"Getting group name for symbol: {group_name}")
 
 async def get_residuals_zscore_stdev():
         mt5_conn = MT5Connector()
@@ -156,4 +159,4 @@ async def get_residuals_zscore_stdev():
         return noise_variance
 
 
-asyncio.run(get_daily_data())
+asyncio.run(get_group_name("WDOV25"))
