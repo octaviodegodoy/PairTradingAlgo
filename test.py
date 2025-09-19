@@ -2,7 +2,7 @@ import asyncio
 
 from sklearn.linear_model import LinearRegression
 from mt5_connector import MT5Connector
-from utils import get_dynamic_spread_zscores
+from utils import get_dynamic_spread_zscores, calculate_volumes
 import logging
 import pandas as pd
 import numpy as np
@@ -159,4 +159,4 @@ async def get_residuals_zscore_stdev():
         return noise_variance
 
 
-asyncio.run(get_group_name("WDOV25"))
+asyncio.run(calculate_volumes("WDO*","WIN*",0.5,0.5,1.0,0))
