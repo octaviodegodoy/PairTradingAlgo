@@ -25,7 +25,7 @@ class PairTradingStrategy:
             return None, None, None, None, None, arbitrage_found
         
         ## Get daily profit and highest z score period
-        day_profit,highest_zscore_period,total_profit,total_volume = self.mt5_conn.total_daily_risk()
+        highest_zscore_period,total_profit,total_volume = self.mt5_conn.total_daily_risk()
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period)
         self.logger.info(f"Updated Z score entry : {updated_zscore_entry} total volumes {total_volume}")
@@ -33,8 +33,9 @@ class PairTradingStrategy:
      
         while True:
 
-            self.logger.info(f"Day profit: {day_profit}, Highest Z-Score Period: {highest_zscore_period}, Total Profit: {total_profit}, Total Volume traded : {total_volume}")
-
+            self.logger.info(f"Highest Z-Score Period: {highest_zscore_period}, Total Profit: {total_profit}, Total Volume traded : {total_volume}")
+            total_volume_risk = self.mt5_conn.get_max_lots()
+            self.logger.info(f"Total volume risk allowed : {total_volume_risk}")
             for i in range(len(pair_y)):
               for j in range(len(pair_x)):
                   self.logger.info(f"Scanning pairs: {pair_y[i]} and {pair_x[j]}")

@@ -73,6 +73,12 @@ class TradeManager:
                 if open_position_x:
                     self.logger.info(f"Position X: {open_position_x}, Type: {type_position_x}, Stop Loss: {stop_loss_x}, Ticket: {ticket_x}")
 
+                if not open_position_y or not open_position_x:
+                    self.logger.warning("One of the open positions is missing, skipping trade execution.")
+                    time.sleep(1)
+                    continue
+
+                 # Get group names and data for z-score calculation
                 asset_group_y = get_group_name(open_position_y)
                 asset_group_x = get_group_name(open_position_x)
                 assets_y = self.mt5_conn.get_data_futures(asset_group_y)

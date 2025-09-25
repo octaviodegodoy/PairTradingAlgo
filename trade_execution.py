@@ -22,16 +22,12 @@ class TradeExecution:
         total_positions = self.mt5_conn.get_total_positions()
         grid_count = (total_positions/2) # Example grid size, adjust as needed
         updated_zscore_entry = 0.0
-        current_equity = self.mt5_conn.get_account_info().equity
-        total_margin = current_equity*MARGIN_PERCENT
-        max_lots_y = total_margin/MARGIN_Y
-        max_lots_x = total_margin/MARGIN_X
-        total_max_lots = max_lots_y + max_lots_x
+        total_max_lots = self.mt5_conn.get_max_lots()
                        
          ## Get daily profit and highest z score period
 
-        day_profit,highest_zscore_period,total_profit,total_traded_volumes = self.mt5_conn.total_daily_risk()
-        self.logger.info(f"Day profit: {day_profit}, Highest Z-Score Period: {highest_zscore_period} total volumes {total_traded_volumes} and max lots {total_max_lots}")
+        highest_zscore_period,total_profit,total_traded_volumes = self.mt5_conn.total_daily_risk()
+        self.logger.info(f"Highest Z-Score Period: {highest_zscore_period} total volumes {total_traded_volumes} and max lots {total_max_lots}")
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID
         elif highest_zscore_period == 0:

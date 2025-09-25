@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 import time
 import pandas as pd
-from constants import MARGIN_PERCENT, PERIODS, SHIFT_PERIODS, TRAILING_DISTANCE_POINTS, UNIX_DAY, MAGIC_NUMBER
+from constants import MARGIN_PERCENT, MARGIN_X, MARGIN_Y, PERIODS, SHIFT_PERIODS, TRAILING_DISTANCE_POINTS, UNIX_DAY, MAGIC_NUMBER
 from utils import calculate_volumes
 
 class MT5Connector:
@@ -310,7 +310,7 @@ class MT5Connector:
         total_profit = 0
         total_volume = 0.0
         highest_score = 0.0
-        comment = "" 
+        traded_zscore = 0.0
         if deals==None:   
                 print("No deals , error code={}".format(mt5.last_error()))   
         elif len(deals) > 0:        
@@ -325,9 +325,7 @@ class MT5Connector:
                 total_profit = total_profit + deal.commission + deal.profit
                 total_volume = total_volume + deal.volume
 
-        current_equity = mt5.account_info().equity
-        total_day_risk = round(abs(total_profit/current_equity),3)
-        return total_day_risk,highest_score,total_profit,total_volume
+        return highest_score,total_profit,total_volume
     
     def get_symbol_info(self,symbol):
         symbol_info = mt5.symbol_info(symbol)
@@ -369,3 +367,11 @@ class MT5Connector:
     def get_profit(self):
         profit = mt5.account_info().profit
         return profit
+    
+    def get_max_lots(self):
+        current_equity = mt5.account_info().equity
+        total_margin = current_equity*MARGIN_PERCENT
+        max_lots_y = total_margin/MARGIN_Y
+        max_lots_x = total_margin/MARGIN_X
+        total_max_lots = max_lots_y + max_lots_x
+        return total_max_lots

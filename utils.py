@@ -82,10 +82,14 @@ def get_dynamic_spread_zscores(asset1_prices,asset2_prices):
 
     asset1_prices = np.array(asset1_prices['close'])
     asset2_prices = np.array(asset2_prices['close'])
-    
+
+        
     # Log-transform the prices
     log_asset1 = np.log(asset1_prices)
     log_asset2 = np.log(asset2_prices)
+
+
+    print(f"Counts - Asset 1: {len(log_asset1)}, Asset 2: {len(log_asset2)}")
 
     # Run the Kalman Filter
     slope, intercept, spreads = run_kalman_filter_momentum(log_asset1, log_asset2)
