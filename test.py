@@ -1,7 +1,6 @@
 import asyncio
 import math
 
-from sklearn.linear_model import LinearRegression
 from mt5_connector import MT5Connector
 from utils import get_dynamic_spread_zscores, calculate_volumes
 import logging
@@ -9,7 +8,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from constants import MARGIN_PERCENT, MARGIN_X, MARGIN_Y, NOISE_VARIANCE, PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X
-import seaborn as sns
 
 
 async def main():
