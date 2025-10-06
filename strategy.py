@@ -1,4 +1,5 @@
 import logging
+import math
 import numpy as np
 import pandas as pd
 from constants import TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
@@ -44,8 +45,8 @@ class PairTradingStrategy:
                   rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
                   zscore_condition = abs(rolling_z_scores[-1]) > updated_zscore_entry
                   ratio = hedge_ratio[-1]
-                  investment_asset_y = (total_volume_risk/(1 + ratio))
-                  investment_asset_x = (total_volume_risk - investment_asset_y)
+                  investment_asset_y = math.floor(total_volume_risk/(1 + ratio))
+                  investment_asset_x = math.floor(total_volume_risk - investment_asset_y)
                   self.logger.info(f"Current Z-Score: {rolling_z_scores[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} for minimum {updated_zscore_entry} Z-Score Condition Met: {zscore_condition}")
                  
                   

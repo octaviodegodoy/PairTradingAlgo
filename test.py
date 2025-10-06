@@ -1,4 +1,5 @@
 import asyncio
+import math
 
 from sklearn.linear_model import LinearRegression
 from mt5_connector import MT5Connector
@@ -68,50 +69,60 @@ async def plot_data_prices():
         print("MT5 initialization failed")
         return
     
-    assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
-    assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[0])
-    rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
+    for i in range(len(TRADING_PAIR_Y)):
+        for j in range(len(TRADING_PAIR_X)):
+            
+            print("Testing Index Y:", TRADING_PAIR_Y[i], "Index X:", TRADING_PAIR_X[j])
     
-    price1 = np.array(assets_y['close'])
-    price2 = np.array(assets_x['close'])
-    dates = np.array(assets_y['time'])  # Use the last 300 dates for better visibility
+            assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[i])
+            assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[j])
+            if len(assets_y) >= PERIODS and len(assets_x) >= PERIODS:
+                    rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
 
-    log_asset1 = np.log(price1)
-    log_asset2 = np.log(price2)
+                    ratio = hedge_ratio[-1]
+                    investment_asset_y = (20/(1 + ratio))
+                    investment_asset_x = (20 - investment_asset_y)
+                    print(f"Current Z-Score: {rolling_z_scores[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} ")
+                    
+                    price1 = np.array(assets_y['close'])
+                    price2 = np.array(assets_x['close'])
+                    dates = np.array(assets_y['time'])  # Use the last 300 dates for better visibility
 
-    print(f"Assets Y length: {len(assets_y)} and Assets X length: {len(assets_x)}")    
+                    log_asset1 = np.log(price1)
+                    log_asset2 = np.log(price2)
 
-    data = pd.DataFrame({'Price1': price1, 'Price2': price2,'LogPrice1': log_asset1, 'LogPrice2': log_asset2,'Rolling Z': rolling_z_scores,'Hedge Ratio': hedge_ratio}, index=dates)
-        
-    # Calculate cumulative returns
-    data['Return1'] = data['Price1'].pct_change().cumsum()
-    data['Return2'] = data['Price2'].pct_change().cumsum()
+                    print(f"Assets Y length: {len(assets_y)} and Assets X length: {len(assets_x)}")    
 
-    # Plot the cumulative returns
-    plt.figure(figsize=(12, 8),layout='constrained')
+                    data = pd.DataFrame({'Price1': price1, 'Price2': price2,'LogPrice1': log_asset1, 'LogPrice2': log_asset2,'Rolling Z': rolling_z_scores,'Hedge Ratio': hedge_ratio}, index=dates)
+                        
+                    # Calculate cumulative returns
+                    data['Return1'] = data['Price1'].pct_change().cumsum()
+                    data['Return2'] = data['Price2'].pct_change().cumsum()
 
-    plt.subplot(2, 1, 1)        
-    plt.plot(data.index, data['Return1'], label='Cumulative returns WDO', color='red')
-    plt.plot(data.index, data['Return2'], label='Cumulative returns WIN', color='blue')
-    plt.ylabel('Cumulative Return')
-    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[0]} and {TRADING_PAIR_X[0]} correlation {correlation} noise variance {NOISE_VARIANCE}')
-    plt.axhline(0, color='black')
-    plt.legend()
-    plt.grid(True)
+                    # Plot the cumulative returns
+                    plt.figure(figsize=(12, 8),layout='constrained')
 
-    plt.subplot(2, 1, 2)
-    #plt.plot(data.index, data['Z scores'], label='Z-scores', color='purple')
-    plt.plot(data.index, data['Rolling Z'],label='Z-scores Rolling', color='green')
-    plt.plot(data.index, data['Hedge Ratio'], label='Hedge Ratio', color='orange')
-    plt.axhline(0, color='black')
-    plt.axhline(1, color='blue',linestyle='--')
-    plt.axhline(2, color='green', linestyle='--', label='+2 Std Dev')
-    plt.axhline(-1, color='red', linestyle='--')
-    plt.axhline(-2, color='green', linestyle='--', label='-2 Std Dev')
-    plt.legend()
-    plt.tight_layout()
-    plt.grid(True)
-    plt.show()
+                    plt.subplot(2, 1, 1)        
+                    plt.plot(data.index, data['Return1'], label='Cumulative returns WDO', color='red')
+                    plt.plot(data.index, data['Return2'], label='Cumulative returns WIN', color='blue')
+                    plt.ylabel('Cumulative Return')
+                    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]} correlation {correlation} volume y {math.floor(investment_asset_y)} and x {math.floor(investment_asset_x)}')
+                    plt.axhline(0, color='black')
+                    plt.legend()
+                    plt.grid(True)
+
+                    plt.subplot(2, 1, 2)
+                    #plt.plot(data.index, data['Z scores'], label='Z-scores', color='purple')
+                    plt.plot(data.index, data['Rolling Z'],label='Z-scores Rolling', color='green')
+                    plt.plot(data.index, data['Hedge Ratio'], label='Hedge Ratio', color='orange')
+                    plt.axhline(0, color='black')
+                    plt.axhline(1, color='blue',linestyle='--')
+                    plt.axhline(2, color='green', linestyle='--', label='+2 Std Dev')
+                    plt.axhline(-1, color='red', linestyle='--')
+                    plt.axhline(-2, color='green', linestyle='--', label='-2 Std Dev')
+                    plt.legend()
+                    plt.grid(True)
+                    plt.show()
 
 async def get_daily_data():
     logging.basicConfig(level=logging.INFO)
@@ -169,4 +180,4 @@ async def get_residuals_zscore_stdev():
         return noise_variance
 
 
-asyncio.run(check_volumes())
+asyncio.run(plot_data_prices())
