@@ -1,6 +1,6 @@
 import asyncio
+from email import parser
 import math
-
 from mt5_connector import MT5Connector
 from utils import get_dynamic_spread_zscores, calculate_volumes
 import logging
@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from constants import MARGIN_PERCENT, MARGIN_X, MARGIN_Y, NOISE_VARIANCE, PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X
+from sklearn.linear_model import LinearRegression
 
 
 async def main():
@@ -74,6 +75,7 @@ async def plot_data_prices():
     
             assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[i])
             assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[j])
+            print(f"y data {len(assets_y)} and x data {len(assets_x)}")
             if len(assets_y) >= PERIODS and len(assets_x) >= PERIODS:
                     rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
 

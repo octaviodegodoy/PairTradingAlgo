@@ -31,8 +31,13 @@ async def main():
         logger.info(f"MT5 initialized successfully, trading will start at {START_TIME_HOUR}:{START_TIME_MINUTE} UTC for {TRADE_WINDOW_TIME_HOURS} hours and {TRADE_WINDOW_TIME_MINUTES} minutes")
         while True:
             if not check_trading_time():
-                await asyncio.sleep(5)
-                continue
+                positions = mt5_conn.get_open_positions()
+                if positions: 
+                    mt5_conn.close_all_positions()
+                    logger.info("Outside trading hours. Closed all positions.")
+                else:
+                    await asyncio.sleep(5)
+                    continue
             elif check_trading_time():
                 logger.info("Start scanning for trading opportunities...")
                 hedge_ratio, spreads, rolling_z_scores, pair, correlation, arbitrage_found = pair_trading_strategy.scan_pairs_arbitrage()                

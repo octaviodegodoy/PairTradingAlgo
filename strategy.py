@@ -2,7 +2,7 @@ import logging
 import math
 import numpy as np
 import pandas as pd
-from constants import TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
+from constants import MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
 import time
 import random
 from mt5_connector import MT5Connector
@@ -29,7 +29,7 @@ class PairTradingStrategy:
         highest_zscore_period,total_profit,total_volume = self.mt5_conn.total_daily_risk()
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period)
-        self.logger.info(f"Updated Z score entry : {updated_zscore_entry} total volumes {total_volume}")
+        self.logger.info(f"Updated Z score entry : {updated_zscore_entry} total volumes {total_volume} ")
 
      
         while True:
@@ -45,11 +45,17 @@ class PairTradingStrategy:
                   rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
                   zscore_condition = abs(rolling_z_scores[-1]) > updated_zscore_entry
                   ratio = hedge_ratio[-1]
+                  # Calculate volumes based on hedge ratio
                   investment_asset_y = math.floor(total_volume_risk/(1 + ratio))
                   investment_asset_x = math.floor(total_volume_risk - investment_asset_y)
                   self.logger.info(f"Current Z-Score: {rolling_z_scores[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} for minimum {updated_zscore_entry} Z-Score Condition Met: {zscore_condition}")
-                 
-                  
+                  current_equity = self.mt5_conn.get_account_info().equity
+                  # Calculate risk parameters
+                  total_margin = current_equity*MARGIN_PERCENT
+                  max_loss = total_margin*MAX_RISK
+                  trailing_start = max_loss*PROFIT_THRESHOLD
+                  self.logger.info(f"Max loss: {max_loss}, trailing start profit: {trailing_start}")
+
                   half_life = get_half_life(spreads)
                   half_life_condition = half_life < MAX_HALF_LIFE
                   self.logger.info(f"Calculated Half-Life: {half_life}, Half-Life Condition Met: {half_life_condition}")
