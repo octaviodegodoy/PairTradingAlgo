@@ -6,7 +6,7 @@ from constants import MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y
 import time
 import random
 from mt5_connector import MT5Connector
-from utils import check_cointegration, get_dynamic_spread_zscores, get_half_life
+from utils import check_cointegration, get_dynamic_spread_zscores, get_half_life, check_trading_time
 
 class PairTradingStrategy:
     def __init__(self):
@@ -70,12 +70,14 @@ class PairTradingStrategy:
                      self.logger.info(f"Arbitrage conditions met for pair: {pair}")
                      break         
                   
-
-            if not arbitrage_found:
+            if not check_trading_time():
+             self.logger.info(f"Outside trading hours, stopping scan.")
+             break
+            elif not arbitrage_found:
              self.logger.info(f"Arbitrage not yet found, continuing scan...")
              time.sleep(5)
              continue
-            break
+            elif arbitrage_found:
+             self.logger.info(f"Arbitrage opportunity found between {pair[0]} and {pair[1]}!")
 
-        self.logger.info(f"Arbitrage opportunity found between {pair[0]} and {pair[1]}!")
-        return hedge_ratio, spreads, rolling_z_scores, pair, correlation,arbitrage_found    
+        return hedge_ratio, spreads, rolling_z_scores, pair, correlation, arbitrage_found

@@ -38,7 +38,7 @@ async def main():
                 else:
                     await asyncio.sleep(5)
                     continue
-            elif check_trading_time():
+            while check_trading_time():
                 logger.info("Start scanning for trading opportunities...")
                 hedge_ratio, spreads, rolling_z_scores, pair, correlation, arbitrage_found = pair_trading_strategy.scan_pairs_arbitrage()                
                 if arbitrage_found:
