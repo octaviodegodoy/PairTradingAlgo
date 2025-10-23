@@ -63,21 +63,19 @@ class PairTradingStrategy:
                   self.logger.info(f"Cointegration Condition Met: {cointegration_condition}")
                   self.logger.info(f"Correlation between {pair_y[i]} and {pair_x[j]}: {correlation}")
                   arbitrage_found = zscore_condition and half_life_condition and cointegration_condition
+                  time.sleep(5)
                   if arbitrage_found:
                      y = self.mt5_conn.get_symbol_futures(pair_y[i])
                      x = self.mt5_conn.get_symbol_futures(pair_x[j])
                      pair = (y[1], x[1])
                      self.logger.info(f"Arbitrage conditions met for pair: {pair}")
-                     break         
+                     return hedge_ratio, spreads, rolling_z_scores, pair, correlation, arbitrage_found         
                   
             if not check_trading_time():
              self.logger.info(f"Outside trading hours, stopping scan.")
              break
             elif not arbitrage_found:
-             self.logger.info(f"Arbitrage not yet found, continuing scan...")
              time.sleep(5)
              continue
-            elif arbitrage_found:
-             self.logger.info(f"Arbitrage opportunity found between {pair[0]} and {pair[1]}!")
 
         return hedge_ratio, spreads, rolling_z_scores, pair, correlation, arbitrage_found
