@@ -6,7 +6,7 @@ from constants import (
     MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
 )
 import time
-from utils import get_dynamic_spread_zscores,get_group_name
+from utils import check_trading_time, get_dynamic_spread_zscores,get_group_name
 
 class TradeManager:
     def __init__(self):
@@ -39,6 +39,9 @@ class TradeManager:
                     self.mt5_conn.all_positions_stop_loss()
                 elif profit <= -max_loss:
                     self.mt5_conn.close_all_positions()
+                elif check_trading_time():
+                    self.mt5_conn.close_all_positions()
+                    break
 
 
                 positions = self.mt5_conn.get_open_positions()  #self.mt5_conn.positions_get()
