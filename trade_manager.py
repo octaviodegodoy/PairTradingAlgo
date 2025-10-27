@@ -37,9 +37,7 @@ class TradeManager:
 
                 if profit >= trailing_start:
                     self.mt5_conn.all_positions_stop_loss()
-                elif profit <= -max_loss:
-                    self.mt5_conn.close_all_positions()
-                elif check_trading_time():
+                elif (profit <= -max_loss) or check_trading_time():
                     self.mt5_conn.close_all_positions()
                     break
 
