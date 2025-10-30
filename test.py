@@ -1,8 +1,10 @@
 import asyncio
 from email import parser
 import math
+from statistics import correlation
+from turtle import color
 from mt5_connector import MT5Connector
-from utils import get_dynamic_spread_zscores, calculate_volumes
+from utils import get_dynamic_spread_zscores, calculate_volumes, get_linear_regression_spread_zscores
 import logging
 import pandas as pd
 import numpy as np
@@ -151,12 +153,11 @@ async def get_residuals_zscore_stdev():
         assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
         assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[0])
 
-        asset1_prices = np.array(assets_y['close'])
-        asset2_prices = np.array(assets_x['close'])
+        print(f"Data Y length: {len(assets_y)} and Data X length: {len(assets_x)}")
 
         # Log-transform the prices
-        log_asset1 = np.log(asset1_prices)
-        log_asset2 = np.log(asset2_prices)
+        log_asset1 = np.log(assets_y['close'])
+        log_asset2 = np.log(assets_x['close'])
 
         log_asset1 = pd.Series(log_asset1)
         log_asset2 = pd.Series(log_asset2)
@@ -179,5 +180,56 @@ async def get_residuals_zscore_stdev():
         print(f"Residuals variance: {residual_spreads.var():.10f}")
         return noise_variance
 
+async def print_linear_regression_spread_zscores():
+    mt5_conn = MT5Connector()
+    
+    assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
+    assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[0])
+
+    log_asset1 = np.log(assets_y['close'])
+    log_asset2 = np.log(assets_x['close'])
+
+    cum_log_return_asset1 = log_asset1 - log_asset1.iloc[0]
+    cum_log_return_asset2 = log_asset2 - log_asset2.iloc[0]
+
+    # Calculate cumulative percentage returns using natural log
+    # Cumulative percentage return = (exp(cumulative log return) - 1) * 100
+    cum_pct_return_asset1 = (np.exp(cum_log_return_asset1) - 1) * 100
+    cum_pct_return_asset2 = (np.exp(cum_log_return_asset2) - 1) * 100
+
+    rolling_z_scores, spreads, hedge_ratio, correlation = get_linear_regression_spread_zscores(assets_y, assets_x)
+    ratio = hedge_ratio
+    investment_asset_y = (20/(1 + ratio))
+    investment_asset_x = (20 - investment_asset_y)
+
+    dates = assets_y['time']
+
+    results = pd.DataFrame({
+    'cum_pct_return_asset1': cum_pct_return_asset1.values,
+    'cum_pct_return_asset2': cum_pct_return_asset2.values,
+    'residuals': spreads,
+    'zscores': rolling_z_scores
+}, index=dates)
+
+    fig, (ax2, ax3) = plt.subplots(2, 1, figsize=(20, 18))
+
+    ax2.plot(results.index, rolling_z_scores, label='Z-Score')
+    ax2.axhline(ratio, color='orange', linestyle='--', label='Hedge Ratio')
+    ax2.axhline(1, color='green', linestyle='--', label='Upper Threshold (+2)')
+    ax2.axhline(0, color='black', linestyle='--', label='Middle Threshold (0)')
+    ax2.axhline(-1, color='green', linestyle='--', label='Lower Threshold (-2)')
+    ax2.set_title(f'Z-Score of Residuals with ratio {ratio} correlation {correlation}')
+    ax2.legend()
+
+    ax3.plot(results.index, results['cum_pct_return_asset1'], color='blue', label='Cumulative Returns Asset Y')
+    ax3.plot(results.index, results['cum_pct_return_asset2'], color='red', label='Cumulative Returns Asset X')
+    ax3.set_title('Cumulative Returns')
+    ax3.set_xlabel('Date')
+    ax3.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+    print(f"Current Z-Score: {rolling_z_scores[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} correlation {correlation} ")
 
 asyncio.run(plot_data_prices())

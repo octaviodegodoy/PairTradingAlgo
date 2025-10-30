@@ -1,4 +1,7 @@
 from datetime import datetime, timezone, timedelta
+from xml.parsers.expat import model
+
+from matplotlib import dates
 from constants import FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR
 from filterpy.kalman import KalmanFilter
 from sklearn.linear_model import LinearRegression
@@ -104,6 +107,35 @@ def get_dynamic_spread_zscores(asset1_prices,asset2_prices):
 
     return rolling_z_scores, spreads, slope, correlation
 
+def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
+
+    dates = asset1_prices['time']
+
+    correlation = asset1_prices['close'].corr(asset2_prices['close'])
+        
+    # Log-transform the prices
+    log_asset1 = np.log(asset1_prices['close'])
+    log_asset2 = np.log(asset2_prices['close'])
+
+    X = log_asset2.values.reshape(-1, 1)
+    y = log_asset1.values
+
+    model = LinearRegression()
+    model.fit(X, y)
+
+    hedge_ratio = model.coef_[0]
+
+    # Step 2: Compute fitted values and residuals
+    fitted = model.predict(X)
+    residuals = y - fitted
+
+    # Step 3: Compute rolling z-score of residuals (window=60)
+    rolling_mean = pd.Series(residuals).rolling(window=ROLLING_PERIODS).mean()
+    rolling_std = pd.Series(residuals).rolling(window=ROLLING_PERIODS).std()
+    z_scores = (pd.Series(residuals) - rolling_mean) / rolling_std
+
+    return z_scores,residuals,hedge_ratio,correlation
+
 def get_half_life(spread):
     # Convert `dynamic_spread` to a pandas Series
     spread_series = pd.Series(spread, name="dynamic_spread")
@@ -146,7 +178,7 @@ def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_
 
     print(f"Grid count {grid_count} and fibo index {fibo_index} max lots {total_max_lots} and grid lot investment {grid_lot_investment}")
 
-    investment_asset_y = (grid_lot_investment/(1 + hedge_ratio))
+    investment_asset_y = (grid_lot_investment/(1 + abs(hedge_ratio)))
     investment_asset_x = (grid_lot_investment - investment_asset_y)
 
     volume_y = max(investment_asset_y,min_lot_Y)*FIBO_VOLUME_FACTORS[fibo_index]
