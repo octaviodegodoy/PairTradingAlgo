@@ -3,10 +3,10 @@ from mt5_connector import MT5Connector
 from trade_execution import TradeExecution  # Trade execution not implemented yet
 from strategy import PairTradingStrategy
 from constants import (
-    MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
+    ADDITIONAL_GRID, MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
 )
 import time
-from utils import check_trading_time, get_dynamic_spread_zscores,get_group_name
+from utils import check_trading_time, get_dynamic_spread_zscores,get_group_name, get_linear_regression_spread_zscores
 
 class TradeManager:
     def __init__(self):
@@ -36,9 +36,11 @@ class TradeManager:
                 self.logger.info(f"Current profit: {profit}, Trailing start: {trailing_start}, Max loss: {max_loss} ")
 
                 if profit >= trailing_start:
-                    self.mt5_conn.all_positions_stop_loss()
-                elif (profit <= -max_loss) or check_trading_time():
-                    self.mt5_conn.close_all_positions()
+                    #self.mt5_conn.all_positions_stop_loss()
+                    print("Ativaria o trailing stop para todas as posicoes")
+                elif (profit <= -max_loss) or not check_trading_time():
+                    print("Fecharia aqui todas as posicoes")
+                    #self.mt5_conn.close_all_positions()
                     break
 
 
@@ -66,7 +68,7 @@ class TradeManager:
                         self.mt5_conn.trailing_stop(open_position_y,type_position_y,stop_loss_y,ticket_y,position)
 
                 if (stop_active):
-                    time.sleep(1)
+                    time.sleep(15)
                     continue
    
                 if open_position_y:
@@ -76,7 +78,7 @@ class TradeManager:
 
                 if not open_position_y or not open_position_x:
                     self.logger.warning("One of the open positions is missing, skipping trade execution.")
-                    time.sleep(1)
+                    time.sleep(15)
                     continue
 
                  # Get group names and data for z-score calculation
@@ -84,10 +86,10 @@ class TradeManager:
                 asset_group_x = get_group_name(open_position_x)
                 assets_y = self.mt5_conn.get_data_futures(asset_group_y)
                 assets_x = self.mt5_conn.get_data_futures(asset_group_x)
-                rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
-                self.logger.info(f"Sending new order to trade execution with z score {rolling_z_scores[-1]} and hedge ratio {hedge_ratio[-1]} and correlation {correlation}")
-                self.trade_execution.execute_trade(open_position_y, open_position_x, hedge_ratio[-1],rolling_z_scores[-1], correlation)
-                time.sleep(1)
+                rolling_z_scores, spreads, hedge_ratio, correlation = get_linear_regression_spread_zscores(assets_y, assets_x)
+                self.logger.info(f"Sending new order to trade execution with z score {rolling_z_scores.iloc[-1]} and hedge ratio {hedge_ratio} grid add {ADDITIONAL_GRID} and correlation {correlation}")
+                self.trade_execution.execute_trade(open_position_y, open_position_x, hedge_ratio,rolling_z_scores.iloc[-1], correlation)
+                time.sleep(15)
                 
                 
             
@@ -97,7 +99,7 @@ class TradeManager:
             
             
             self.logger.info(f"Managing positions")
-            time.sleep(5)  # Sleep for a while before next management cycle
+            time.sleep(15)  # Sleep for a while before next management cycle
 
     def close_all_positions(self):
         # Implement closing logic

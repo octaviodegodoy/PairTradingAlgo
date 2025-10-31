@@ -133,7 +133,7 @@ def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
     rolling_mean = pd.Series(residuals).rolling(window=ROLLING_PERIODS).mean()
     rolling_std = pd.Series(residuals).rolling(window=ROLLING_PERIODS).std()
     z_scores = (pd.Series(residuals) - rolling_mean) / rolling_std
-
+    
     return z_scores,residuals,hedge_ratio,correlation
 
 def get_half_life(spread):

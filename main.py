@@ -39,28 +39,31 @@ async def main():
                     await asyncio.sleep(5)
                     continue
             while check_trading_time():
-                logger.info("Start scanning for trading opportunities...")
-                hedge_ratio, spreads, rolling_z_scores, pair, correlation, arbitrage_found = pair_trading_strategy.scan_pairs_arbitrage()                
-                if arbitrage_found:
-                    logger.info(f"Arbitrage was found : {arbitrage_found} for pair y as {pair[0]} and x as {pair[1]} hedge ratio is {hedge_ratio[-1]} and spreads length is {len(spreads)} and rolling z scores length is {len(rolling_z_scores)}")
-                    logger.info("Arbitrage opportunity detected. Executing trades...")
-                    # Here you would add logic to execute trades and manage them
-                    # For example:
-                    # trade_execution.execute_trade(...)
-                    logger.info(f"Starting trade execution for {pair[0]} and {pair[1]}")
-                    trade_execution.execute_trade(pair[0], pair[1], hedge_ratio[-1],rolling_z_scores[-1], correlation)
-                    # trade_manager.manage_trades(...)               
+                positions = mt5_conn.get_open_positions()
+                if positions:
+                    logger.info(f"Currently open positions: {len(positions)}")
+                    logger.info("Managing trades...")
+                    trade_manager.manage_trades()
+                else:
+                    logger.info("No open positions currently.")
+                    logger.info("Start scanning for trading opportunities...")
+                    hedge_ratio, spreads, rolling_z_scores, pair, correlation, arbitrage_found = pair_trading_strategy.scan_pairs_arbitrage()                
+                    if arbitrage_found:
+                        logger.info(f"Arbitrage was found : {arbitrage_found} for pair y as {pair[0]} and x as {pair[1]} hedge ratio is {hedge_ratio} and spreads length is {len(spreads)} and rolling z scores length is {len(rolling_z_scores)}")
+                        logger.info("Arbitrage opportunity detected. Executing trades...")
+                        # Here you would add logic to execute trades and manage them
+                        # For example:
+                        # trade_execution.execute_trade(...)
+                        logger.info(f"Starting trade execution for {pair[0]} and {pair[1]}")
+                        trade_execution.execute_trade(pair[0], pair[1], hedge_ratio, rolling_z_scores.iloc[-1], correlation)
                 
-                logger.info("Starting trade management...")
-                trade_manager.manage_trades()
-
-            await asyncio.sleep(5)
+            await asyncio.sleep(15)
     except KeyboardInterrupt:
         logger.info("Terminating script by user.")
     finally:
         mt5_conn.shutdown()
     logger.info("Outside trading hours. Sleeping for 5 seconds.")
     
-    await asyncio.sleep(5)
+    await asyncio.sleep(15)
 
 asyncio.run(main())

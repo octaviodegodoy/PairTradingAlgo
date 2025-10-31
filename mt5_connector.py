@@ -302,7 +302,7 @@ class MT5Connector:
 
     
     def total_daily_risk(self):
-        from_date = datetime.now() - timedelta(hours=12,minutes=0)
+        from_date = datetime.now() - timedelta(hours=0,minutes=0)
         #get the number of deals in history
         to_date=datetime.now()
         print(f"From date {from_date} to date {to_date}")

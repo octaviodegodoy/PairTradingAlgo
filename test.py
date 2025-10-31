@@ -228,6 +228,6 @@ async def print_linear_regression_spread_zscores():
 
     fig.show()
 
-    print(f"Current Z-Score: {rolling_z_scores[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} correlation {correlation} ")
+    print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} correlation {correlation} ")
 
 asyncio.run(print_linear_regression_spread_zscores())
