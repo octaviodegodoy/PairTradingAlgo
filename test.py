@@ -11,6 +11,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from constants import MARGIN_PERCENT, MARGIN_X, MARGIN_Y, NOISE_VARIANCE, PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X
 from sklearn.linear_model import LinearRegression
+import plotly.express as px
+import plotly.graph_objects as go
+
 
 
 async def main():
@@ -198,9 +201,9 @@ async def print_linear_regression_spread_zscores():
     cum_pct_return_asset2 = (np.exp(cum_log_return_asset2) - 1) * 100
 
     rolling_z_scores, spreads, hedge_ratio, correlation = get_linear_regression_spread_zscores(assets_y, assets_x)
-    ratio = hedge_ratio
-    investment_asset_y = (20/(1 + ratio))
-    investment_asset_x = (20 - investment_asset_y)
+    ratio = abs(hedge_ratio)
+    investment_asset_y = (50/(1 + ratio))
+    investment_asset_x = (50 - investment_asset_y)
 
     dates = assets_y['time']
 
@@ -211,25 +214,20 @@ async def print_linear_regression_spread_zscores():
     'zscores': rolling_z_scores
 }, index=dates)
 
-    fig, (ax2, ax3) = plt.subplots(2, 1, figsize=(20, 18))
+    fig = go.Figure()
 
-    ax2.plot(results.index, rolling_z_scores, label='Z-Score')
-    ax2.axhline(ratio, color='orange', linestyle='--', label='Hedge Ratio')
-    ax2.axhline(1, color='green', linestyle='--', label='Upper Threshold (+2)')
-    ax2.axhline(0, color='black', linestyle='--', label='Middle Threshold (0)')
-    ax2.axhline(-1, color='green', linestyle='--', label='Lower Threshold (-2)')
-    ax2.set_title(f'Z-Score of Residuals with ratio {ratio} correlation {correlation}')
-    ax2.legend()
+    fig.add_trace(go.Scatter(x=results.index, y=rolling_z_scores, mode='lines', name='Z-Score',line=dict(color='green')))
+    fig.add_hline(y=1, line_color='green', line_dash='dash', name='Upper Threshold (+2)')
+    fig.add_hline(y=0, line_color='black', line_dash='dash', name='Middle Threshold (0)')
+    fig.add_hline(y=-1, line_color='red', line_dash='dash', name='Lower Threshold (-2)')
+    fig.update_layout(title=f'Z-Score of Residuals with ratio {ratio} correlation {correlation}')
 
-    ax3.plot(results.index, results['cum_pct_return_asset1'], color='blue', label='Cumulative Returns Asset Y')
-    ax3.plot(results.index, results['cum_pct_return_asset2'], color='red', label='Cumulative Returns Asset X')
-    ax3.set_title('Cumulative Returns')
-    ax3.set_xlabel('Date')
-    ax3.legend()
+    fig.add_trace(go.Scatter(x=results.index, y=results['cum_pct_return_asset1'], mode='lines', name='Cumulative Returns Asset Y', line=dict(color='blue')))
+    fig.add_trace(go.Scatter(x=results.index, y=results['cum_pct_return_asset2'], mode='lines', name='Cumulative Returns Asset X', line=dict(color='red')))
+    fig.update_layout(title=f'Cumulative Returns Hedge Ratio {abs(ratio):.2f} asset y {investment_asset_y:.2f} asset x {investment_asset_x:.2f}', xaxis_title='Date')
 
-    plt.tight_layout()
-    plt.show()
+    fig.show()
 
     print(f"Current Z-Score: {rolling_z_scores[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} correlation {correlation} ")
 
-asyncio.run(plot_data_prices())
+asyncio.run(print_linear_regression_spread_zscores())
