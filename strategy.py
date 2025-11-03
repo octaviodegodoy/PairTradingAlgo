@@ -59,7 +59,7 @@ class PairTradingStrategy:
                   half_life = get_half_life(spreads)
                   half_life_condition = half_life < MAX_HALF_LIFE
                   self.logger.info(f"Calculated Half-Life: {half_life}, Half-Life Condition Met: {half_life_condition}")
-                  cointegration_condition = True #check_cointegration(spreads)
+                  cointegration_condition = True # check_cointegration(spreads)
                   self.logger.info(f"Cointegration Condition Met: {cointegration_condition}")
                   self.logger.info(f"Correlation between {pair_y[i]} and {pair_x[j]}: {correlation}")
                   arbitrage_found = zscore_condition and half_life_condition and cointegration_condition

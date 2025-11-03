@@ -36,11 +36,11 @@ class TradeManager:
                 self.logger.info(f"Current profit: {profit}, Trailing start: {trailing_start}, Max loss: {max_loss} ")
 
                 if profit >= trailing_start:
-                    #self.mt5_conn.all_positions_stop_loss()
-                    print("Ativaria o trailing stop para todas as posicoes")
+                    self.mt5_conn.all_positions_stop_loss()
+                    self.logger.info("Trailing stop activated for all positions.")
                 elif (profit <= -max_loss) or not check_trading_time():
-                    print("Fecharia aqui todas as posicoes")
-                    #self.mt5_conn.close_all_positions()
+                    self.logger.info("Profit below max loss or outside trading time, closing all positions.")
+                    self.mt5_conn.close_all_positions()
                     break
 
 
