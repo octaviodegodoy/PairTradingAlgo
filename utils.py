@@ -108,12 +108,7 @@ def get_dynamic_spread_zscores(asset1_prices,asset2_prices):
     return rolling_z_scores, spreads, slope, correlation
 
 def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
-
-    dates = asset1_prices['time']
-
-    correlation = asset1_prices['close'].corr(asset2_prices['close'])
-    print(f"Correlation between assets: {correlation}")
-        
+     
     # Log-transform the prices
     log_asset1 = np.log(asset1_prices['close'])
     log_asset2 = np.log(asset2_prices['close'])
@@ -135,7 +130,7 @@ def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
     rolling_std = pd.Series(residuals).rolling(window=ROLLING_PERIODS).std()
     z_scores = (pd.Series(residuals) - rolling_mean) / rolling_std
     
-    return z_scores,residuals,hedge_ratio,correlation
+    return z_scores,residuals,hedge_ratio
 
 def get_half_life(spread):
     # Convert `dynamic_spread` to a pandas Series

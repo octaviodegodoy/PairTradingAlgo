@@ -191,13 +191,13 @@ async def test_get_data_futures():
     print(f"BTG Data Y length: {len(dataY)}")
     dataX = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0])
     print(f"BTG Data X length: {len(dataX)}")
-    rolling_z_scores, spreads, hedge_ratio, correlation = get_linear_regression_spread_zscores(dataY, dataX)
+    rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(dataY, dataX)
     print(f"Hedge ratio: {hedge_ratio}, Z-Score: {rolling_z_scores.iloc[-1]}")
     grid_lot_investment = 100
     ratio = abs(hedge_ratio)    
     investment_asset_x = (grid_lot_investment/(1 + ratio))
     investment_asset_y = (grid_lot_investment - investment_asset_x)
-    print(f"hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} correlation {correlation} ")
+    print(f"hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} correlation {hedge_ratio} ")
 
 
 async def print_linear_regression_spread_zscores():

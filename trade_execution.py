@@ -17,7 +17,7 @@ class TradeExecution:
         self.mt5_conn = MT5Connector()
         self.logger = logging.getLogger(__name__)
     
-    def execute_trade(self, symbolY, symbolX, slope, z_score, correlation):
+    def execute_trade(self, symbolY, symbolX, slope, z_score):
         # Implement actual trade logic; replace with MetaTrader 5 API calls
         total_positions = self.mt5_conn.get_total_positions()
         grid_count = (total_positions/2) # Example grid size, adjust as needed
@@ -44,7 +44,7 @@ class TradeExecution:
          # Trading logic based on z-score and correlation
         if (total_traded_volumes < total_max_lots) and grid_count < MAX_GRIDS:
             self.logger.info(f"Sending order with: current z-score {z_score} and updated zscore entry {updated_zscore_entry} and correlation {correlation}")
-            if (correlation > 0):
+            if (slope > 0):
                 if (z_score < -updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_SELL]
                     self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
@@ -53,7 +53,7 @@ class TradeExecution:
                     orders_type = [self.mt5_conn.ORDER_TYPE_SELL, self.mt5_conn.ORDER_TYPE_BUY]
                     self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
 
-            elif (correlation < 0):
+            elif (slope < 0):
                 if (z_score < -updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_BUY]
                     self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
