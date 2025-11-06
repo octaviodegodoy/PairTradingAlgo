@@ -119,7 +119,7 @@ async def plot_data_prices():
                     plt.grid(True)
 
                     plt.subplot(2, 1, 2)
-                    plt.title(f'Rolling Z-scores from server {account_info.server}')
+                    plt.title(f'Rolling Z-scores from server {account_info.server} Z SCORE {rolling_z_scores.iloc[-1]:.2f}')
                     plt.plot(data.index, data['Rolling Z'],label='Z-scores Rolling', color='green')
                     plt.plot(data.index, data['Hedge Ratio'], label='Hedge Ratio', color='orange')
                     plt.axhline(0, color='black')
