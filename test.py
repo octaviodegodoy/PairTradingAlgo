@@ -71,26 +71,29 @@ async def plot_data_prices():
     if not mt5_conn.initialize():
         print("MT5 initialization failed")
         return
-    
+    account_info = mt5_conn.get_account_info()
     for i in range(len(TRADING_PAIR_Y)):
         for j in range(len(TRADING_PAIR_X)):
             
             print("Testing Index Y:", TRADING_PAIR_Y[i], "Index X:", TRADING_PAIR_X[j])
     
-            assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[i])
-            assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[j])
+            assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[i])
+            assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[j])
             print(f"y data {len(assets_y)} and x data {len(assets_x)}")
             if len(assets_y) >= PERIODS and len(assets_x) >= PERIODS:
-                    rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
+                    rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
 
-                    ratio = hedge_ratio[-1]
+                    
+                    ratio = hedge_ratio
                     investment_asset_y = (20/(1 + ratio))
                     investment_asset_x = (20 - investment_asset_y)
-                    print(f"Current Z-Score: {rolling_z_scores[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} ")
+                    print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} ")
                     
                     price1 = np.array(assets_y['close'])
                     price2 = np.array(assets_x['close'])
                     dates = np.array(assets_y['time'])  # Use the last 300 dates for better visibility
+
+                    rolling_z_scores.index = dates
 
                     log_asset1 = np.log(price1)
                     log_asset2 = np.log(price2)
@@ -98,7 +101,7 @@ async def plot_data_prices():
                     print(f"Assets Y length: {len(assets_y)} and Assets X length: {len(assets_x)}")    
 
                     data = pd.DataFrame({'Price1': price1, 'Price2': price2,'LogPrice1': log_asset1, 'LogPrice2': log_asset2,'Rolling Z': rolling_z_scores,'Hedge Ratio': hedge_ratio}, index=dates)
-                        
+                    print(f"Data head:\n{data['Rolling Z'].head()}\nData tail:\n{data['Rolling Z'].tail()} and rolling z {rolling_z_scores.tail()}")    
                     # Calculate cumulative returns
                     data['Return1'] = data['Price1'].pct_change().cumsum()
                     data['Return2'] = data['Price2'].pct_change().cumsum()
@@ -110,13 +113,13 @@ async def plot_data_prices():
                     plt.plot(data.index, data['Return1'], label='Cumulative returns WDO', color='red')
                     plt.plot(data.index, data['Return2'], label='Cumulative returns WIN', color='blue')
                     plt.ylabel('Cumulative Return')
-                    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]} correlation {correlation} volume y {math.floor(investment_asset_y)} and x {math.floor(investment_asset_x)}')
+                    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]} correlation {ratio} volume y {math.floor(investment_asset_y)} and x {math.floor(investment_asset_x)}')
                     plt.axhline(0, color='black')
                     plt.legend()
                     plt.grid(True)
 
                     plt.subplot(2, 1, 2)
-                    #plt.plot(data.index, data['Z scores'], label='Z-scores', color='purple')
+                    plt.title(f'Rolling Z-scores from server {account_info.server}')
                     plt.plot(data.index, data['Rolling Z'],label='Z-scores Rolling', color='green')
                     plt.plot(data.index, data['Hedge Ratio'], label='Hedge Ratio', color='orange')
                     plt.axhline(0, color='black')
@@ -200,7 +203,7 @@ async def test_get_data_futures():
 
 async def print_linear_regression_spread_zscores():
     mt5_conn = MT5Connector()
-
+    account_info = mt5_conn.get_account_info()
     print(f"Account Info: {mt5_conn.get_account_info()}")
     
     assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0])
@@ -249,14 +252,15 @@ async def print_linear_regression_spread_zscores():
     fig.add_hline(y=1, line_color='green', line_dash='dash', name='Upper Threshold (+2)')
     fig.add_hline(y=0, line_color='black', line_dash='dash', name='Middle Threshold (0)')
     fig.add_hline(y=-1, line_color='red', line_dash='dash', name='Lower Threshold (-2)')
-    fig.update_layout(title=f'Z-Score of Residuals with ratio {ratio} correlation {hedge_ratio}')
 
     fig.add_trace(go.Scatter(x=results.index, y=results['cum_pct_return_asset1'], mode='lines', name='Cumulative Returns Asset Y', line=dict(color='blue')))
     fig.add_trace(go.Scatter(x=results.index, y=results['cum_pct_return_asset2'], mode='lines', name='Cumulative Returns Asset X', line=dict(color='red')))
-    fig.update_layout(title=f'Cumulative Returns Hedge Ratio {abs(ratio):.2f} asset y {investment_asset_y:.2f} asset x {investment_asset_x:.2f}', xaxis_title='Date')
+    fig.update_layout(title=f'Server {account_info.server} Hedge Ratio {abs(ratio):.2f} asset y {investment_asset_y:.2f} asset x {investment_asset_x:.2f}', xaxis_title='Date')
 
     fig.show()
 
     print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x}")
 
-asyncio.run(print_linear_regression_spread_zscores())
+
+
+asyncio.run(plot_data_prices())
