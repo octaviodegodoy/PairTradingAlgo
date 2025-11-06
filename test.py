@@ -193,11 +193,9 @@ async def test_get_data_futures():
     print(f"BTG Data X length: {len(dataX)}")
     rolling_z_scores, spreads, hedge_ratio, correlation = get_linear_regression_spread_zscores(dataY, dataX)
     print(f"Hedge ratio: {hedge_ratio}, Z-Score: {rolling_z_scores.iloc[-1]}")
-    rolling_z_scores_old, spreads, hedge_ratio_old, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
-    print(f"Hedge ratio old: {hedge_ratio_old.iloc[-1]}, Z-Score: {rolling_z_scores_old.iloc[-1]}")
     grid_lot_investment = 100
     ratio = abs(hedge_ratio)    
-    investment_asset_x = (grid_lot_investment/(1 + abs(hedge_ratio)))
+    investment_asset_x = (grid_lot_investment/(1 + ratio))
     investment_asset_y = (grid_lot_investment - investment_asset_x)
     print(f"hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} correlation {correlation} ")
 

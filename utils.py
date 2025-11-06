@@ -112,6 +112,7 @@ def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
     dates = asset1_prices['time']
 
     correlation = asset1_prices['close'].corr(asset2_prices['close'])
+    print(f"Correlation between assets: {correlation}")
         
     # Log-transform the prices
     log_asset1 = np.log(asset1_prices['close'])
