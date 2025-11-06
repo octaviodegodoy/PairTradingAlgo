@@ -178,8 +178,8 @@ def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_
 
     print(f"Grid count {grid_count} and fibo index {fibo_index} max lots {total_max_lots} and grid lot investment {grid_lot_investment}")
 
-    investment_asset_y = (grid_lot_investment/(1 + abs(hedge_ratio)))
-    investment_asset_x = (grid_lot_investment - investment_asset_y)
+    investment_asset_x = (grid_lot_investment/(1 + abs(hedge_ratio)))
+    investment_asset_y = (grid_lot_investment - investment_asset_x)
 
     volume_y = max(investment_asset_y,min_lot_Y)*FIBO_VOLUME_FACTORS[fibo_index]
     volume_x = max(investment_asset_x,min_lot_X)*FIBO_VOLUME_FACTORS[fibo_index]
