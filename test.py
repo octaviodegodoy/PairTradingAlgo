@@ -1,7 +1,6 @@
 import asyncio
 from email import parser
 import math
-from statistics import correlation
 from turtle import color
 from mt5_connector import MT5Connector
 from utils import get_dynamic_spread_zscores, calculate_volumes, get_linear_regression_spread_zscores
@@ -183,14 +182,32 @@ async def get_residuals_zscore_stdev():
         print(f"Residuals variance: {residual_spreads.var():.10f}")
         return noise_variance
 
+async def test_get_data_futures():
+    mt5_conn = MT5Connector()
+    assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
+    assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[0])
+    print(f"Data Y length: {len(assets_y)} and Data X length: {len(assets_x)}")
+    dataY = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0])
+    print(f"BTG Data Y length: {len(dataY)}")
+    dataX = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0])
+    print(f"BTG Data X length: {len(dataX)}")
+    rolling_z_scores, spreads, hedge_ratio, correlation = get_linear_regression_spread_zscores(dataY, dataX)
+    print(f"Hedge ratio: {hedge_ratio}, Z-Score: {rolling_z_scores.iloc[-1]}")
+    rolling_z_scores_old, spreads, hedge_ratio_old, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
+    print(f"Hedge ratio old: {hedge_ratio_old[-1]}, Z-Score: {rolling_z_scores_old.iloc[-1]}")
+
 async def print_linear_regression_spread_zscores():
     mt5_conn = MT5Connector()
     
-    assets_y = mt5_conn.get_data_futures(TRADING_PAIR_Y[0])
-    assets_x = mt5_conn.get_data_futures(TRADING_PAIR_X[0])
+    assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0])
+    assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0])
 
     log_asset1 = np.log(assets_y['close'])
     log_asset2 = np.log(assets_x['close'])
+
+    print(f"Tail y : {assets_y.tail(2)} and Data X tail: {assets_x.tail(2)}")
+
+    print(f"Assets Y length: {len(assets_y)} and Assets X length: {len(assets_x)}")
 
     cum_log_return_asset1 = log_asset1 - log_asset1.iloc[0]
     cum_log_return_asset2 = log_asset2 - log_asset2.iloc[0]
@@ -230,4 +247,4 @@ async def print_linear_regression_spread_zscores():
 
     print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} correlation {correlation} ")
 
-asyncio.run(print_linear_regression_spread_zscores())
+asyncio.run(test_get_data_futures())

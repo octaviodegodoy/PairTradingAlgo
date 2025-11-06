@@ -29,7 +29,49 @@ class MT5Connector:
             # Filter out weekends (keep only weekdays)
             df = df[df['time'].dt.weekday < 5]  # 0=Monday, ..., 4=Friday
             return df
-    
+        
+    def get_data_futures_btg(self, symbol):
+        futures_symbols = mt5.symbols_get(symbol)
+        time_now = int(time.time())
+        next_symbols_fut = {}
+        for s in futures_symbols:
+            if s.expiration_time > time_now:
+               next_symbols_fut[s.expiration_time] = s.name
+
+        sorted_next_futures = dict(sorted(next_symbols_fut.items()))
+        current_symbol = list(sorted_next_futures.items())[0]
+        print(f"Current future symbol for {symbol} is {current_symbol[1]}")
+
+        fut_history_symbols = [current_symbol[1]]
+        fut_history_symbols.append(symbol.replace("*", "$"))  # Append the historical symbol
+
+        dataframes = []
+
+        for fut_symbol in fut_history_symbols:
+            rates = mt5.copy_rates_from_pos(fut_symbol, mt5.TIMEFRAME_D1, SHIFT_PERIODS, PERIODS)
+            if rates is not None and len(rates) > 0:
+               df = pd.DataFrame(rates)
+               df['symbol'] = symbol  # Optionally keep track of the symbol
+               dataframes.append(df)
+
+        if dataframes:
+            all_data = pd.concat(dataframes, ignore_index=True)
+            # Remove duplicates based on the index (in this case, you might want to remove by 'time' or another column)
+            all_data = all_data.drop_duplicates(subset=['time', 'symbol'])  # Adjust subset as needed
+        else:
+            print("No data retrieved.")
+
+        # If 'time' is not already datetime, convert it
+        all_data['time'] = pd.to_datetime(all_data['time'], unit='s')  # or remove unit if already datetime
+        # Sort by date (most recent last)
+        all_data = all_data.sort_values('time')
+        futures_data = all_data[all_data['time'].dt.weekday < 5].tail(PERIODS)
+
+        print(f"Retrieved without weekends {len(futures_data)} with weekend records {len(all_data)} for futures data of {symbol}")
+
+        return futures_data
+
+
     def get_data_futures(self, symbol):
         futures_symbols = mt5.symbols_get(symbol)
         time_now = int(time.time())
