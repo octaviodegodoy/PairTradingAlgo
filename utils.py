@@ -113,6 +113,11 @@ def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
     log_asset1 = np.log(asset1_prices['close'])
     log_asset2 = np.log(asset2_prices['close'])
 
+    # Get minimum length and trim both series to equal length
+    min_length = min(len(log_asset1), len(log_asset2))
+    log_asset1 = log_asset1.iloc[:min_length]
+    log_asset2 = log_asset2.iloc[:min_length]
+
     X = log_asset2.values.reshape(-1, 1)
     y = log_asset1.values
 

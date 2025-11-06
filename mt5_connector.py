@@ -49,6 +49,7 @@ class MT5Connector:
 
         for fut_symbol in fut_history_symbols:
             rates = mt5.copy_rates_from_pos(fut_symbol, mt5.TIMEFRAME_D1, SHIFT_PERIODS, PERIODS)
+            print(f"Retrieved {len(rates) if rates is not None else 0} records for symbol {fut_symbol}")
             if rates is not None and len(rates) > 0:
                df = pd.DataFrame(rates)
                df['symbol'] = symbol  # Optionally keep track of the symbol
@@ -67,7 +68,7 @@ class MT5Connector:
         all_data = all_data.sort_values('time')
         futures_data = all_data[all_data['time'].dt.weekday < 5].tail(PERIODS)
 
-        print(f"Retrieved without weekends {len(futures_data)} with weekend records {len(all_data)} for futures data of {symbol}")
+        #print(f"Retrieved without weekends {len(futures_data)} with weekend records {len(all_data)} for futures data of {symbol}")
 
         return futures_data
 

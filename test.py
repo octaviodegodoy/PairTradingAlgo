@@ -186,12 +186,10 @@ async def test_get_data_futures():
     mt5_conn = MT5Connector()
     assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0])
     assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0])
+    print(f"Data Y: {assets_y.tail(2)}")
+    print(f"Data X: {assets_x.tail(2)}")
     print(f"Data Y length: {len(assets_y)} and Data X length: {len(assets_x)}")
-    dataY = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0])
-    print(f"BTG Data Y length: {len(dataY)}")
-    dataX = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0])
-    print(f"BTG Data X length: {len(dataX)}")
-    rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(dataY, dataX)
+    rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
     print(f"Hedge ratio: {hedge_ratio}, Z-Score: {rolling_z_scores.iloc[-1]}")
     grid_lot_investment = 100
     ratio = abs(hedge_ratio)    
@@ -202,6 +200,8 @@ async def test_get_data_futures():
 
 async def print_linear_regression_spread_zscores():
     mt5_conn = MT5Connector()
+
+    print(f"Account Info: {mt5_conn.get_account_info()}")
     
     assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0])
     assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0])
@@ -221,12 +221,20 @@ async def print_linear_regression_spread_zscores():
     cum_pct_return_asset1 = (np.exp(cum_log_return_asset1) - 1) * 100
     cum_pct_return_asset2 = (np.exp(cum_log_return_asset2) - 1) * 100
 
-    rolling_z_scores, spreads, hedge_ratio, correlation = get_linear_regression_spread_zscores(assets_y, assets_x)
+    # Get minimum length and trim both series to equal length
+    min_length = min(len(cum_pct_return_asset1), len(cum_pct_return_asset2))
+    cum_pct_return_asset1 = cum_pct_return_asset1[:min_length]
+    cum_pct_return_asset2 = cum_pct_return_asset2[:min_length]
+    
+
+    rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
     ratio = abs(hedge_ratio)
     investment_asset_y = (50/(1 + ratio))
     investment_asset_x = (50 - investment_asset_y)
 
-    dates = assets_y['time']
+    dates = assets_y['time'][:min_length]
+
+    print(f"Lengths after trimming - Asset 1: {len(cum_pct_return_asset1)}, Asset 2: {len(cum_pct_return_asset2)}, Spreads: {len(spreads)}, Z-Scores: {len(rolling_z_scores)}")
 
     results = pd.DataFrame({
     'cum_pct_return_asset1': cum_pct_return_asset1.values,
@@ -241,7 +249,7 @@ async def print_linear_regression_spread_zscores():
     fig.add_hline(y=1, line_color='green', line_dash='dash', name='Upper Threshold (+2)')
     fig.add_hline(y=0, line_color='black', line_dash='dash', name='Middle Threshold (0)')
     fig.add_hline(y=-1, line_color='red', line_dash='dash', name='Lower Threshold (-2)')
-    fig.update_layout(title=f'Z-Score of Residuals with ratio {ratio} correlation {correlation}')
+    fig.update_layout(title=f'Z-Score of Residuals with ratio {ratio} correlation {hedge_ratio}')
 
     fig.add_trace(go.Scatter(x=results.index, y=results['cum_pct_return_asset1'], mode='lines', name='Cumulative Returns Asset Y', line=dict(color='blue')))
     fig.add_trace(go.Scatter(x=results.index, y=results['cum_pct_return_asset2'], mode='lines', name='Cumulative Returns Asset X', line=dict(color='red')))
@@ -251,4 +259,4 @@ async def print_linear_regression_spread_zscores():
 
     print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} correlation {correlation} ")
 
-asyncio.run(test_get_data_futures())
+asyncio.run(print_linear_regression_spread_zscores())
