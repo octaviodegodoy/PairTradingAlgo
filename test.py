@@ -84,9 +84,9 @@ async def plot_data_prices():
                     rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
 
                     
-                    ratio = hedge_ratio
-                    investment_asset_y = (20/(1 + ratio))
-                    investment_asset_x = (20 - investment_asset_y)
+                    ratio = abs(hedge_ratio)
+                    investment_asset_x = (20/(1 + ratio))
+                    investment_asset_y = (20 - investment_asset_x)
                     print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} ")
                     
                     price1 = np.array(assets_y['close'])

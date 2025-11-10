@@ -39,8 +39,8 @@ class PairTradingStrategy:
             for i in range(len(pair_y)):
               for j in range(len(pair_x)):
                   self.logger.info(f"Scanning pairs: {pair_y[i]} and {pair_x[j]}")
-                  assets_y = self.mt5_conn.get_data_futures(pair_y[i])
-                  assets_x = self.mt5_conn.get_data_futures(pair_x[j])
+                  assets_y = self.mt5_conn.get_data_futures_btg(pair_y[i])
+                  assets_x = self.mt5_conn.get_data_futures_btg(pair_x[j])
                   #rolling_z_scores, spreads, hedge_ratio, correlation = get_dynamic_spread_zscores(assets_y, assets_x)
                   rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
                   zscore_condition = abs(rolling_z_scores.iloc[-1]) > updated_zscore_entry

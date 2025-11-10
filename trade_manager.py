@@ -84,8 +84,8 @@ class TradeManager:
                  # Get group names and data for z-score calculation
                 asset_group_y = get_group_name(open_position_y)
                 asset_group_x = get_group_name(open_position_x)
-                assets_y = self.mt5_conn.get_data_futures(asset_group_y)
-                assets_x = self.mt5_conn.get_data_futures(asset_group_x)
+                assets_y = self.mt5_conn.get_data_futures_btg(asset_group_y)
+                assets_x = self.mt5_conn.get_data_futures_btg(asset_group_x)
                 rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
                 self.logger.info(f"Sending new order to trade execution with z score {rolling_z_scores.iloc[-1]} and hedge ratio {hedge_ratio} grid add {ADDITIONAL_GRID} and correlation {hedge_ratio}")
                 self.trade_execution.execute_trade(open_position_y, open_position_x, hedge_ratio,rolling_z_scores.iloc[-1])
