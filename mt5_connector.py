@@ -391,8 +391,10 @@ class MT5Connector:
         return total_volume
     
     def get_total_positions(self):
+        total_orders = mt5.orders_total()
         total_positions = mt5.positions_total()
-        return total_positions
+        total_orders_positions = total_orders + total_positions
+        return total_orders_positions
     
     def last_error():
         last_error = mt5.last_error()

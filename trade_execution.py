@@ -30,7 +30,7 @@ class TradeExecution:
         self.logger.info(f"Highest Z-Score Period: {highest_zscore_period} total volumes {total_traded_volumes} and max lots {total_max_lots}")
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID
-        elif highest_zscore_period == 0:
+        else :
               updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (grid_count)*ADDITIONAL_GRID
         
         self.logger.info(f"Max volume : {total_max_lots} and open positions volume {total_traded_volumes} current zscore {z_score} updated zscore entry {updated_zscore_entry}  ")
@@ -43,7 +43,7 @@ class TradeExecution:
         
          # Trading logic based on z-score and correlation
         if (total_traded_volumes < total_max_lots) and grid_count < MAX_GRIDS:
-            self.logger.info(f"Sending order with: current z-score {z_score} and updated zscore entry {updated_zscore_entry} and correlation {correlation}")
+            self.logger.info(f"Sending order with: current z-score {z_score} and updated zscore entry {updated_zscore_entry} and correlation {slope}")
             if (slope > 0):
                 if (z_score < -updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_SELL]

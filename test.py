@@ -3,7 +3,7 @@ from email import parser
 import math
 from turtle import color
 from mt5_connector import MT5Connector
-from utils import get_dynamic_spread_zscores, calculate_volumes, get_linear_regression_spread_zscores
+from utils import get_dynamic_spread_zscores, calculate_volumes, get_linear_regression_spread_zscores,check_cointegration
 import logging
 import pandas as pd
 import numpy as np
@@ -12,6 +12,7 @@ from constants import MARGIN_PERCENT, MARGIN_X, MARGIN_Y, NOISE_VARIANCE, PERIOD
 from sklearn.linear_model import LinearRegression
 import plotly.express as px
 import plotly.graph_objects as go
+from statsmodels.tsa.stattools import coint
 
 
 
@@ -82,12 +83,18 @@ async def plot_data_prices():
             print(f"y data {len(assets_y)} and x data {len(assets_x)}")
             if len(assets_y) >= PERIODS and len(assets_x) >= PERIODS:
                     rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
+                    cointegration_condition = check_cointegration(spreads)
+                    log_asset1 = np.log(assets_y['close'])
+                    log_asset2 = np.log(assets_x['close'])
 
+                    t_stat, pval, crit = coint(log_asset1, log_asset2, trend='c', autolag='AIC')
+                    print("\nEngle–Granger coint test:")
+                    print(f"t-stat={t_stat:.3f}, p-value={pval:.4f}, crit={crit}")
                     
-                    ratio = hedge_ratio
+                    ratio = abs(hedge_ratio)
                     investment_asset_y = (20/(1 + ratio))
                     investment_asset_x = (20 - investment_asset_y)
-                    print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} ")
+                    print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} cointegrated {cointegration_condition} ")
                     
                     price1 = np.array(assets_y['close'])
                     price2 = np.array(assets_x['close'])
@@ -113,7 +120,7 @@ async def plot_data_prices():
                     plt.plot(data.index, data['Return1'], label='Cumulative returns WDO', color='red')
                     plt.plot(data.index, data['Return2'], label='Cumulative returns WIN', color='blue')
                     plt.ylabel('Cumulative Return')
-                    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]} correlation {ratio} volume y {math.floor(investment_asset_y)} and x {math.floor(investment_asset_x)}')
+                    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]} cointegrated ? {cointegration_condition} correlation {hedge_ratio:.2f} volume y {math.floor(investment_asset_y)} and x {math.floor(investment_asset_x)}')
                     plt.axhline(0, color='black')
                     plt.legend()
                     plt.grid(True)
