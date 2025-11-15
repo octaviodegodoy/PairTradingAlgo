@@ -125,6 +125,7 @@ def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
     model.fit(X, y)
 
     hedge_ratio = model.coef_[0]
+    print(f"Olha o hedge ratio aqui -> {hedge_ratio}")
 
     # Step 2: Compute fitted values and residuals
     fitted = model.predict(X)

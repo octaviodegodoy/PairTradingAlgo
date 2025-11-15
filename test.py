@@ -92,9 +92,9 @@ async def plot_data_prices():
                     print(f"t-stat={t_stat:.3f}, p-value={pval:.4f}, crit={crit}")
                     
                     ratio = abs(hedge_ratio)
-                    investment_asset_y = (20/(1 + ratio))
-                    investment_asset_x = (20 - investment_asset_y)
-                    print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} cointegrated {cointegration_condition} ")
+                    investment_asset_x = (20/(1 + ratio))
+                    investment_asset_y = (20 - investment_asset_x)
+                    print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} ")
                     
                     price1 = np.array(assets_y['close'])
                     price2 = np.array(assets_x['close'])
