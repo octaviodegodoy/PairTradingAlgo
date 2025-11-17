@@ -253,49 +253,101 @@ class MT5Connector:
 
 
     def place_order(self,symbolY,symbolX,volumeY,volumeX,orders_type,zscore):
-
-      # prepare the Short request
-        #volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,available_margin,total_positions)
-        request_y = {
-           "action": mt5.TRADE_ACTION_DEAL,
-           "symbol": symbolY,
-           "volume": volumeY,
-           "type": orders_type[0],
-           "zscore": mt5.symbol_info_tick(symbolY).bid,
-           "sl": 0.0,
-           "tp": 0.0,
-           "deviation": 10,
-           "magic": MAGIC_NUMBER,
-           "comment": "y,{:.2f}".format(zscore),
-           "type_time": mt5.ORDER_TIME_GTC,
-           "type_filling": mt5.ORDER_FILLING_IOC,
-        }
-        result_y_check = mt5.order_check(request_y)
-        print("Resultado do short check order (dependente) ", result_y_check)       
+        """
+        Place orders with retry logic for both symbols.
+        Returns True if both orders succeeded, False otherwise.
+        """
+        max_retries = 3
+        retry_delay = 0.5  # seconds
         
-        # prepare the Long request
-        point=mt5.symbol_info(symbolX).point
-        request_x = {
-           "action": mt5.TRADE_ACTION_DEAL,
-           "symbol": symbolX,
-           "volume": volumeX,
-           "type": orders_type[1],
-           "zscore": mt5.symbol_info_tick(symbolX).ask,
-           "sl": 0.0,
-           "tp": 0.0,
-           "deviation": 10,
-           "magic": MAGIC_NUMBER,
-           "comment": "x,{:.2f}".format(zscore),
-           "type_time": mt5.ORDER_TIME_GTC,
-           "type_filling": mt5.ORDER_FILLING_IOC,
-        }
-        result_x_order_check = mt5.order_check(request_x)
-        print("Resultado do long check order (independente) ", result_x_order_check)
-
-        result_y_order = mt5.order_send(request_y)
-        result_x_order = mt5.order_send(request_x)
-        print("Resultado do short (dependente) ", result_y_order)
-        print("Resultado do long (independente) ", result_x_order) 
+        # Retry-able error codes
+        retryable_codes = [
+            mt5.TRADE_RETCODE_REQUOTE,      # 10004
+            mt5.TRADE_RETCODE_PRICE_OFF,    # 10015
+            mt5.TRADE_RETCODE_TIMEOUT,      # 10012
+            mt5.TRADE_RETCODE_PRICE_CHANGED # 10016
+        ]
+        
+        # Place Y order with retry logic
+        result_y_order = None
+        for attempt in range(max_retries):
+            # Get fresh price for each attempt
+            tick_y = mt5.symbol_info_tick(symbolY)
+            price_y = tick_y.bid if orders_type[0] == mt5.ORDER_TYPE_SELL else tick_y.ask
+            
+            request_y = {
+                "action": mt5.TRADE_ACTION_DEAL,
+                "symbol": symbolY,
+                "volume": volumeY,
+                "type": orders_type[0],
+                "price": price_y,
+                "sl": 0.0,
+                "tp": 0.0,
+                "deviation": 10,
+                "magic": MAGIC_NUMBER,
+                "comment": "y,{:.2f}".format(zscore),
+                "type_time": mt5.ORDER_TIME_GTC,
+                "type_filling": mt5.ORDER_FILLING_IOC,
+            }
+            
+            result_y_order = mt5.order_send(request_y)
+            
+            if result_y_order.retcode == mt5.TRADE_RETCODE_DONE:
+                print(f"✓ Order Y ({symbolY}) executed successfully on attempt {attempt + 1}")
+                break
+            elif result_y_order.retcode in retryable_codes:
+                print(f"⚠ Order Y attempt {attempt + 1} failed with retcode {result_y_order.retcode}: {result_y_order.comment}. Retrying...")
+                time.sleep(retry_delay)
+            else:
+                print(f"✗ Order Y failed with non-retryable error {result_y_order.retcode}: {result_y_order.comment}")
+                return False
+        
+        if result_y_order.retcode != mt5.TRADE_RETCODE_DONE:
+            print(f"✗ Order Y failed after {max_retries} attempts")
+            return False
+        
+        # Place X order with retry logic
+        result_x_order = None
+        for attempt in range(max_retries):
+            # Get fresh price for each attempt
+            tick_x = mt5.symbol_info_tick(symbolX)
+            price_x = tick_x.ask if orders_type[1] == mt5.ORDER_TYPE_BUY else tick_x.bid
+            
+            request_x = {
+                "action": mt5.TRADE_ACTION_DEAL,
+                "symbol": symbolX,
+                "volume": volumeX,
+                "type": orders_type[1],
+                "price": price_x,
+                "sl": 0.0,
+                "tp": 0.0,
+                "deviation": 10,
+                "magic": MAGIC_NUMBER,
+                "comment": "x,{:.2f}".format(zscore),
+                "type_time": mt5.ORDER_TIME_GTC,
+                "type_filling": mt5.ORDER_FILLING_IOC,
+            }
+            
+            result_x_order = mt5.order_send(request_x)
+            
+            if result_x_order.retcode == mt5.TRADE_RETCODE_DONE:
+                print(f"✓ Order X ({symbolX}) executed successfully on attempt {attempt + 1}")
+                break
+            elif result_x_order.retcode in retryable_codes:
+                print(f"⚠ Order X attempt {attempt + 1} failed with retcode {result_x_order.retcode}: {result_x_order.comment}. Retrying...")
+                time.sleep(retry_delay)
+            else:
+                print(f"✗ Order X failed with non-retryable error {result_x_order.retcode}: {result_x_order.comment}")
+                # Y order succeeded but X failed - consider closing Y position here
+                return False
+        
+        if result_x_order.retcode != mt5.TRADE_RETCODE_DONE:
+            print(f"✗ Order X failed after {max_retries} attempts")
+            # Y order succeeded but X failed - consider closing Y position here
+            return False
+        
+        print(f"✓ Both orders executed successfully!")
+        return True 
     
     def close_all_positions(self):
         # Get all open positions
@@ -335,7 +387,28 @@ class MT5Connector:
             # Send the close request
                 if (position_magic != MAGIC_NUMBER):
                     continue
-                result = mt5.order_send(request)
+                # Retry logic for closing position
+                max_retries = 3
+                retry_delay = 0.5
+                result = None
+                
+                for attempt in range(max_retries):
+                    result = mt5.order_send(request)
+                    
+                    if result.retcode == mt5.TRADE_RETCODE_DONE:
+                        break
+                    elif result.retcode in [mt5.TRADE_RETCODE_REQUOTE, mt5.TRADE_RETCODE_PRICE_OFF, 
+                                           mt5.TRADE_RETCODE_TIMEOUT, mt5.TRADE_RETCODE_PRICE_CHANGED]:
+                        print(f"⚠ Close attempt {attempt + 1} failed for {symbol}, retcode {result.retcode}. Retrying...")
+                        # Update price for retry
+                        if order_type == mt5.ORDER_TYPE_SELL:
+                            request["zscore"] = mt5.symbol_info_tick(symbol).bid
+                        else:
+                            request["zscore"] = mt5.symbol_info_tick(symbol).ask
+                        time.sleep(retry_delay)
+                    else:
+                        print(f"✗ Close failed with non-retryable error {result.retcode}: {result.comment}")
+                        break
 
             # Check the result
                 if result.retcode != mt5.TRADE_RETCODE_DONE:
