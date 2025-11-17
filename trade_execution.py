@@ -30,7 +30,7 @@ class TradeExecution:
         self.logger.info(f"Highest Z-Score Period: {highest_zscore_period} total volumes {total_traded_volumes} and max lots {total_max_lots}")
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID
-        elif highest_zscore_period == 0:
+        else :
               updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (grid_count)*ADDITIONAL_GRID
         
         self.logger.info(f"Max volume : {total_max_lots} and open positions volume {total_traded_volumes} current zscore {z_score} updated zscore entry {updated_zscore_entry}  ")
