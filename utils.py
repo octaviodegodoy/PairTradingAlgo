@@ -30,35 +30,6 @@ def check_trading_time():
 
     return trading_time
 
-# Define measurement function H (dynamic, depends on x_t)
-def update_H(x_t):
-    return np.array([[x_t, 1]])  # y_t = slope * x_t + intercept + noise
-
-def run_kalman_filter_momentum(y, x):
-    kf = KalmanFilter(dim_x=2, dim_z=1)  # State: [slope, intercept], Measurement: y
-    # Define state transition matrix (random walk for slope and intercept)
-    kf.F = np.array([[1, 0],  # Slope stays constant (random walk)
-                [0, 1]]) # Intercept stays constant (random walk)
-
-    # Initial state and covariance
-    kf.x = np.array([0.5, 0])  # Initial guess: slope = 0.5, intercept = 0
-    kf.P *= 0.01  # Initial uncertainty
-    kf.R = NOISE_VARIANCE   # Measurement noise variance
-    kf.Q = np.eye(2) * 1e-5  # Process noise (small for slow evolution)
-
-        # Step 3: Run Kalman Filter and compute dynamic spread
-    spreads = []
-    for t in range(PERIODS):
-        kf.H = update_H(x[t])  # Update measurement matrix with current x_t
-        kf.predict()
-        kf.update(y[t])
-        slope, intercept = kf.x
-        spread = y[t] - (slope * x[t] + intercept)  # Dynamic spread
-        spreads.append(spread)
-
-
-    return slope, intercept, spreads
-
 def get_residuals_zscore_stdev(asset1_prices, asset2_prices):
     pd.Series(asset1_prices), 
     pd.Series(asset2_prices)
@@ -76,36 +47,6 @@ def get_residuals_zscore_stdev(asset1_prices, asset2_prices):
     residuals = asset2_prices - log_price2_pred
 
     return residuals
-
-def get_dynamic_spread_zscores(asset1_prices,asset2_prices):
-
-    dates = asset1_prices['time']
-
-    correlation = asset1_prices['close'].corr(asset2_prices['close'])
-
-    asset1_prices = np.array(asset1_prices['close'])
-    asset2_prices = np.array(asset2_prices['close'])
-
-        
-    # Log-transform the prices
-    log_asset1 = np.log(asset1_prices)
-    log_asset2 = np.log(asset2_prices)
-
-
-    print(f"Counts - Asset 1: {len(log_asset1)}, Asset 2: {len(log_asset2)}")
-
-    # Run the Kalman Filter
-    slope, intercept, spreads = run_kalman_filter_momentum(log_asset1, log_asset2)
-
-    spreads = pd.Series(spreads, index=dates)
-    slope = pd.Series(slope, index=dates)
-
-    # Step 4: Compute z-scores of the spread
-    rolling_mean_spread = spreads.rolling(window=ROLLING_PERIODS, min_periods=1).mean()
-    rolling_std_spread = spreads.rolling(window=ROLLING_PERIODS, min_periods=1).std()
-    rolling_z_scores = (spreads - rolling_mean_spread) / rolling_std_spread
-
-    return rolling_z_scores, spreads, slope, correlation
 
 def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
      
