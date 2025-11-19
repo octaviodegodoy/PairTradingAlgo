@@ -6,7 +6,7 @@ from constants import (
     ADDITIONAL_GRID, MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
 )
 import time
-from utils import check_trading_time, get_dynamic_spread_zscores,get_group_name, get_linear_regression_spread_zscores
+from utils import check_trading_time,get_group_name, get_linear_regression_spread_zscores
 
 class TradeManager:
     def __init__(self):

@@ -6,7 +6,7 @@ from constants import MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y
 import time
 import random
 from mt5_connector import MT5Connector
-from utils import check_cointegration, get_dynamic_spread_zscores, get_half_life, check_trading_time, get_linear_regression_spread_zscores
+from utils import check_cointegration, get_half_life, check_trading_time, get_linear_regression_spread_zscores
 
 class PairTradingStrategy:
     def __init__(self):
