@@ -31,7 +31,7 @@ class TradeExecution:
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
               updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID
         elif(abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD) and (grid_count == 0):
-              updated_zscore_entry = abs(highest_zscore_period) + ADDITIONAL_GRID
+              updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
         else :
               updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (grid_count)*ADDITIONAL_GRID
         
