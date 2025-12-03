@@ -3,7 +3,7 @@ from email import parser
 import math
 from turtle import color
 from mt5_connector import MT5Connector
-from utils import get_dynamic_spread_zscores, calculate_volumes, get_linear_regression_spread_zscores,check_cointegration
+from utils import calculate_volumes, get_linear_regression_spread_zscores,check_cointegration
 import logging
 import pandas as pd
 import numpy as np
