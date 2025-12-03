@@ -35,7 +35,8 @@ class MT5Connector:
         time_now = int(time.time())
         next_symbols_fut = {}
         for s in futures_symbols:
-            if s.expiration_time > time_now:
+            if s.expiration_time > time_now and len(s.name) == 6:
+               #print(f"Found future symbol {s.name} expiring at {datetime.fromtimestamp(s.expiration_time)}")
                next_symbols_fut[s.expiration_time] = s.name
 
         sorted_next_futures = dict(sorted(next_symbols_fut.items()))
@@ -78,9 +79,9 @@ class MT5Connector:
         next_symbols_fut = {}
         past_symbols_fut = {}
         for s in futures_symbols:
-            if s.expiration_time > time_now:
+            if s.expiration_time > time_now and len(s.name) == 6:
                next_symbols_fut[s.expiration_time] = s.name
-            elif s.expiration_time < time_now:
+            elif s.expiration_time < time_now and len(s.name) == 6:
                past_symbols_fut[s.expiration_time] = s.name
         
         sorted_next_futures = dict(sorted(next_symbols_fut.items()))
