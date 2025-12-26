@@ -8,7 +8,7 @@ import logging
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from constants import MARGIN_PERCENT, MARGIN_X, MARGIN_Y, NOISE_VARIANCE, PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X
+from constants import ADDITIONAL_GRID, MARGIN_PERCENT, MARGIN_X, MARGIN_Y, NOISE_VARIANCE, PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X, Z_SCORE_ENTRY_THRESHOLD
 from sklearn.linear_model import LinearRegression
 import plotly.express as px
 import plotly.graph_objects as go
@@ -268,6 +268,22 @@ async def print_linear_regression_spread_zscores():
 
     print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x}")
 
+async def zscores_calculation_test():
+    mt5_conn = MT5Connector()
+    highest_zscore_period,total_profit,total_traded_volumes,total_deals = mt5_conn.total_daily_risk()
+    positions = mt5_conn.get_open_positions()
+    total_grids = len(positions)/2
+    total_grids_history = total_deals/2
+    updated_zscore_entry = 0.0
+    print(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {total_grids}")
+    if total_grids == 0 and total_grids_history == 0:
+        updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
+    elif total_grids > 0.0:
+         updated_zscore_entry = float(highest_zscore_period) + (ADDITIONAL_GRID * total_grids)       
+    elif total_grids_history > 0.0:
+         updated_zscore_entry = float(highest_zscore_period) + (ADDITIONAL_GRID * total_grids_history)
+         
+    
+    print(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {total_grids}") 
 
-
-asyncio.run(plot_data_prices())
+asyncio.run(zscores_calculation_test())
