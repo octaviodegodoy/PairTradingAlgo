@@ -103,12 +103,14 @@ def get_half_life(spread):
 
 def check_cointegration(spreads):
     # Perform Augmented Dickey-Fuller test on the spread
+    print("Checking cointegration using ADF test")
     adf_result = adfuller(spreads)
     p_value = adf_result[1]
     coint_t = adf_result[0]
-    critical_value = adf_result[4]['5%']
+    critical_value = adf_result[4]['10%']
     t_check = coint_t < critical_value
-    coint_flag = p_value < 0.05 and t_check
+    coint_flag = p_value < 0.10 and t_check
+    print(f"ADF Test Result: p-value={p_value}, coint_t={coint_t}, critical_value(10%)={critical_value}, Cointegration Flag={coint_flag}")
     return coint_flag
 
 def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_lots,total_positions):
