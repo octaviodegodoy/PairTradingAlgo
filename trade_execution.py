@@ -1,6 +1,6 @@
 import logging
 from mt5_connector import MT5Connector
-from utils import calculate_volumes
+from utils import calculate_volumes, updates_zscore_entry
 from constants import (
     ADDITIONAL_GRID,
     MARGIN_PERCENT,
@@ -31,16 +31,7 @@ class TradeExecution:
 
         highest_zscore_period,total_profit,total_traded_volumes,grid_count_history = self.mt5_conn.total_daily_risk()
         self.logger.info(f"Highest Z-Score Period: {highest_zscore_period} total volumes {total_traded_volumes} and max lots {total_max_lots}")
-        if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD) and (grid_count == 0):
-              updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID
-        elif(abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD) and (grid_count == 0):
-              updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
-        elif grid_count_history > 0.0:
-              updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (grid_count_history)*ADDITIONAL_GRID
-        elif grid_count > 0.0:
-              updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (grid_count)*ADDITIONAL_GRID
-        elif grid_count == 0 and grid_count_history == 0:
-              updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + ADDITIONAL_GRID
+        updated_zscore_entry = updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes,grid_count_history,grid_count)
         
         self.logger.info(f"Max volume : {total_max_lots} and open positions volume {total_traded_volumes} current zscore {z_score} updated zscore entry {updated_zscore_entry}  ")
         min_lot_Y = self.mt5_conn.get_symbol_info(symbolY).volume_min
