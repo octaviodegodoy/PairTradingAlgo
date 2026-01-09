@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 from xml.parsers.expat import model
 
 from matplotlib import dates
-from constants import FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR
+from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD
 from filterpy.kalman import KalmanFilter
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller
@@ -142,5 +142,26 @@ def get_correlation(assetY,assetX):
 
 def get_group_name(symbol):
     return symbol[:3]+'*'
+
+def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes,total_grids_history,current_grids):
+
+    updated_zscore_entry = 0.0
+    if current_grids > 0.0 or total_grids_history > 0.0:
+        print(f"Total open grids: {current_grids} and total grids history: {total_grids_history}")
+        grids_total = current_grids + total_grids_history
+
+    print(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {total_grids}")
+    if grids_total == 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
+        updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
+    elif grids_total == 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
+         updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + ADDITIONAL_GRID
+    elif grids_total > 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
+         updated_zscore_entry = float(highest_zscore_period) + (ADDITIONAL_GRID * total_grids)
+    elif grids_total > 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
+         updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (ADDITIONAL_GRID * total_grids)
+
+    print(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {total_grids}")
+
+    return updated_zscore_entry 
 
     

@@ -29,7 +29,7 @@ class TradeExecution:
                        
          ## Get daily profit and highest z score period
 
-        highest_zscore_period,total_profit,total_traded_volumes = self.mt5_conn.total_daily_risk()
+        highest_zscore_period,total_profit,total_traded_volumes,grid_count_history = self.mt5_conn.total_daily_risk()
         self.logger.info(f"Highest Z-Score Period: {highest_zscore_period} total volumes {total_traded_volumes} and max lots {total_max_lots}")
         if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD) and (grid_count == 0):
               updated_zscore_entry = float(highest_zscore_period) + (grid_count)*ADDITIONAL_GRID

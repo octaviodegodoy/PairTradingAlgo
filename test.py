@@ -141,8 +141,8 @@ async def plot_data_prices():
 async def get_daily_data():
     logging.basicConfig(level=logging.INFO)
     mt5_conn = MT5Connector()
-    total_day_risk,highest_score,total_profit,total_volume = mt5_conn.total_daily_risk()
-    print(f"Total daily risk: {total_day_risk}, Highest score: {highest_score}, Total profit: {total_profit} and total volume {total_volume}")
+    highest_score,total_profit,total_volume,grid_deals_count = mt5_conn.total_daily_risk()
+    print(f" Highest score: {highest_score}, Total profit: {total_profit} and total volume {total_volume} with grid deals count {grid_deals_count}")
     
 async def get_group_name(symbol):
     logging.basicConfig(level=logging.INFO)
@@ -275,15 +275,22 @@ async def zscores_calculation_test():
     total_grids = len(positions)/2
     total_grids_history = total_deals/2
     updated_zscore_entry = 0.0
+    if total_grids > 0.0 or total_grids_history > 0.0:
+        print(f"Total open grids: {total_grids} and total grids history: {total_grids_history}")
+        grids_total = total_grids + total_grids_history
+
     print(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {total_grids}")
-    if total_grids == 0 and total_grids_history == 0:
+    if grids_total == 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
         updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
-    elif total_grids > 0.0:
-         updated_zscore_entry = float(highest_zscore_period) + (ADDITIONAL_GRID * total_grids)       
-    elif total_grids_history > 0.0:
-         updated_zscore_entry = float(highest_zscore_period) + (ADDITIONAL_GRID * total_grids_history)
-         
-    
-    print(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {total_grids}") 
+    elif grids_total == 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
+         updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + ADDITIONAL_GRID
+    elif grids_total > 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
+         updated_zscore_entry = float(highest_zscore_period) + (ADDITIONAL_GRID * total_grids)
+    elif grids_total > 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
+         updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (ADDITIONAL_GRID * total_grids)
+
+    print(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {total_grids}")
+
+    return updated_zscore_entry 
 
 asyncio.run(zscores_calculation_test())

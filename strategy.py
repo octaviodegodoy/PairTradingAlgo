@@ -6,7 +6,7 @@ from constants import MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y
 import time
 import random
 from mt5_connector import MT5Connector
-from utils import check_cointegration, get_half_life, check_trading_time, get_linear_regression_spread_zscores
+from utils import check_cointegration, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry
 
 class PairTradingStrategy:
     def __init__(self):
@@ -26,9 +26,9 @@ class PairTradingStrategy:
             return None, None, None, None, None, arbitrage_found
         
         ## Get daily profit and highest z score period
-        highest_zscore_period,total_profit,total_volume = self.mt5_conn.total_daily_risk()
-        if (abs(highest_zscore_period) > Z_SCORE_ENTRY_THRESHOLD):
-              updated_zscore_entry = float(highest_zscore_period)
+        highest_zscore_period,total_profit,total_volume,grid_history = self.mt5_conn.total_daily_risk()
+        grids_count = total_positions/2
+        updated_zscore_entry = updates_zscore_entry(highest_zscore_period,total_profit,total_volume,grid_history,grids_count)
         self.logger.info(f"Updated Z score entry : {updated_zscore_entry} total volumes {total_volume} ")
      
         while True:
