@@ -293,4 +293,4 @@ async def zscores_calculation_test():
 
     return updated_zscore_entry 
 
-asyncio.run(zscores_calculation_test())
+asyncio.run(plot_data_prices())

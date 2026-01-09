@@ -154,11 +154,11 @@ def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes
     if grids_total == 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
         updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
     elif grids_total == 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
-         updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + ADDITIONAL_GRID
+         updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD
     elif grids_total > 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
-         updated_zscore_entry = float(highest_zscore_period) + (ADDITIONAL_GRID * total_grids)
+         updated_zscore_entry = float(highest_zscore_period) + (ADDITIONAL_GRID * grids_total)
     elif grids_total > 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
-         updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (ADDITIONAL_GRID * total_grids)
+         updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (ADDITIONAL_GRID * grids_total)
 
     print(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {total_grids}")
 
