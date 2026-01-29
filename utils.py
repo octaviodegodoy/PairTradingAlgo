@@ -148,10 +148,10 @@ def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes
     updated_zscore_entry = 0.0
     grids_total = 0.0
     if current_grids > 0.0 or total_grids_history > 0.0:
-        print(f"Total open grids: {current_grids} and total grids history: {total_grids_history}")
+        logging.info(f"Total open grids: {current_grids} and total grids history: {total_grids_history}")
         grids_total = max(current_grids, total_grids_history)
 
-    print(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {grids_total}")
+    logging.info(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {grids_total}")
     if grids_total == 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
         updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
     elif grids_total == 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
@@ -161,7 +161,7 @@ def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes
     elif grids_total > 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
          updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (ADDITIONAL_GRID * grids_total)
 
-    print(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {grids_total}")
+    logging.info(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {grids_total}")
 
     return updated_zscore_entry 
 

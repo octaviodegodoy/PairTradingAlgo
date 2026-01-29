@@ -29,7 +29,7 @@ class PairTradingStrategy:
         highest_zscore_period,total_profit,total_volume,grid_history = self.mt5_conn.total_daily_risk()
         grids_count = total_positions/2
         updated_zscore_entry = updates_zscore_entry(highest_zscore_period,total_profit,total_volume,grid_history,grids_count)
-        self.logger.info(f"Updated Z score entry : {updated_zscore_entry} total volumes {total_volume} ")
+        self.logger.info(f"Updated Z score entry : {updated_zscore_entry} total volumes {total_volume} grids history is {grid_history} how is grids count {grids_count} and total profit {total_profit}")
      
         while True:
 
