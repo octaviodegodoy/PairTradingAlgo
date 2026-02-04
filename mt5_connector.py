@@ -377,21 +377,24 @@ class MT5Connector:
         total_volume = 0.0
         highest_score = 0.0
         traded_zscore = 0.0
+        total_valid_deals = 0
         grid_deals_count = 0
         if deals==None:   
-                print("No deals , error code={}".format(mt5.last_error()))   
+                logging.error("No deals , error code={}".format(mt5.last_error()))   
         elif len(deals) > 0:        
             for deal in deals:
-                if (len(deal.comment) > 1):
+                logging.info(f"Deal info: ticket={deal.ticket}, symbol={deal.symbol}, volume={deal.volume}, profit={deal.profit}, commission={deal.commission}, comment={deal.comment}")
+                if (len(deal.comment) > 1) and (deal.symbol != ''):
                     comment_deal = deal.comment.split(",")
-                    
+                    total_valid_deals += 1
                     if (comment_deal[0] == 'y') or (comment_deal[0] == 'x'):
                         traded_zscore = abs(float(comment_deal[1]))
                     if (traded_zscore > highest_score):
                         highest_score = traded_zscore
                 total_profit = total_profit + deal.commission + deal.profit
                 total_volume = total_volume + deal.volume
-        grid_deals_count = len(deals)/2
+        grid_deals_count = total_valid_deals/2
+        
         return highest_score,total_profit,total_volume,grid_deals_count
     
     def get_symbol_info(self,symbol):
