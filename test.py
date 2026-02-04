@@ -117,8 +117,8 @@ async def plot_data_prices():
                     plt.figure(figsize=(12, 8),layout='constrained')
 
                     plt.subplot(2, 1, 1)        
-                    plt.plot(data.index, data['Return1'], label='Cumulative returns WDO', color='red')
-                    plt.plot(data.index, data['Return2'], label='Cumulative returns WIN', color='blue')
+                    plt.plot(data.index, data['Return1'], label='Cumulative returns WIN', color='red')
+                    plt.plot(data.index, data['Return2'], label='Cumulative returns WDO', color='blue')
                     plt.ylabel('Cumulative Return')
                     plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]} cointegrated ? {cointegration_condition} correlation {hedge_ratio:.2f} volume y {math.floor(investment_asset_y)} and x {math.floor(investment_asset_x)}')
                     plt.axhline(0, color='black')

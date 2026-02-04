@@ -109,7 +109,7 @@ def check_cointegration(spreads):
     coint_t = adf_result[0]
     critical_value = adf_result[4]['10%']
     t_check = coint_t < critical_value
-    coint_flag = p_value < 0.10 and t_check
+    coint_flag = p_value < 0.15 and t_check
     print(f"ADF Test Result: p-value={p_value}, coint_t={coint_t}, critical_value(10%)={critical_value}, Cointegration Flag={coint_flag}")
     return coint_flag
 
@@ -144,14 +144,14 @@ def get_group_name(symbol):
     return symbol[:3]+'*'
 
 def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes,total_grids_history,current_grids):
-
+    logger = logging.getLogger(__name__)
     updated_zscore_entry = 0.0
     grids_total = 0.0
     if current_grids > 0.0 or total_grids_history > 0.0:
-        print(f"Total open grids: {current_grids} and total grids history: {total_grids_history}")
+        logger.info(f"Total open grids: {current_grids} and total grids history: {total_grids_history}")
         grids_total = max(current_grids, total_grids_history)
 
-    print(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {grids_total}")
+    logger.info(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {grids_total}")
     if grids_total == 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
         updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
     elif grids_total == 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
@@ -161,7 +161,7 @@ def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes
     elif grids_total > 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
          updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (ADDITIONAL_GRID * grids_total)
 
-    print(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {grids_total}")
+    logger.info(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {grids_total}")
 
     return updated_zscore_entry 
 
