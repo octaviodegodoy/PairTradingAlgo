@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 from typing import Optional, Dict, List
 import matplotlib.pyplot as plt
-import seaborn as sns
+
+from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
+
 
 class KalmanPairsTradingStrategy:
     """
