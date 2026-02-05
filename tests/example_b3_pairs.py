@@ -4,8 +4,13 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from mt5_connector import MT5Connector
 from kalman_pairs_strategy import KalmanPairsTradingStrategy
 import matplotlib.pyplot as plt
+
 
 # Download B3 data
 def download_b3_data(tickers: list, period: str = '1y'):
@@ -22,15 +27,11 @@ if __name__ == "__main__":
     
     print("🇧🇷 KALMAN FILTER PAIRS TRADING - B3 MARKET")
     print("="*60)
-    
-    # Example: PETR4 vs PETR3 (same company, different share classes)
-    tickers = ['PETR4', 'PETR3']
-    
-    print(f"\n📊 Downloading data for {tickers}...")
-    prices = download_b3_data(tickers, period='1y')
-    
-    print(f"✅ Downloaded {len(prices)} days of data")
-    print(f"   Date range: {prices.index[0].date()} to {prices.index[-1].date()}")
+
+    mt5_connector = MT5Connector()
+
+    assets_y = mt5_connector.get_data_futures_btg('WIN*')
+    assets_x = mt5_connector.get_data_futures_btg('WDO*')
     
     # Initialize strategy
     strategy = KalmanPairsTradingStrategy(
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     
     # Fit the model
     print(f"\n🔧 Fitting Kalman Filter...")
-    results = strategy.fit(prices['PETR4'], prices['PETR3'])
+    results = strategy.fit(assets_y['close'], assets_x['close'])
     
     # Backtest
     print(f"📈 Running backtest...")

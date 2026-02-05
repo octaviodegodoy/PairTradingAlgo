@@ -262,8 +262,8 @@ class KalmanPairsTradingStrategy:
         ax1 = axes[0]
         ax1_twin = ax1.twinx()
         
-        ax1.plot(df.index, df['stock_a'], label='Stock A', color='blue', alpha=0.7)
-        ax1.plot(df.index, df['stock_b'], label='Stock B', color='red', alpha=0.7)
+        ax1.plot(df.index, df['stock_a'], label='WIN', color='blue', alpha=0.7)
+        ax1.plot(df.index, df['stock_b'], label='WDO', color='red', alpha=0.7)
         ax1_twin.plot(df.index, df['hedge_ratio'], label='Hedge Ratio (β)', 
                      color='green', linestyle='--', linewidth=2)
         
