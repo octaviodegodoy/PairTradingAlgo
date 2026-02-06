@@ -82,14 +82,14 @@ async def plot_data_prices():
             assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[j])
             print(f"y data {len(assets_y)} and x data {len(assets_x)}")
             if len(assets_y) >= PERIODS and len(assets_x) >= PERIODS:
-                    rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
+                    result = get_linear_regression_spread_zscores(assets_y, assets_x)
                     # Kalman Filter implementation
-                    kalman_z_scores, kalman_spreads, kalman_hedge_ratio = get_dynamic_spread_zscores(assets_y, assets_x)
-                    print(f"Hedge ratio: {hedge_ratio}, Z-Score: {rolling_z_scores.iloc[-1]}")
-                    print(f"Kalman Hedge ratio: {kalman_hedge_ratio}, Kalman Z-Score: {len(kalman_z_scores)} kalman spread {len(kalman_spreads)}")
+                    result_kalman = get_dynamic_spread_zscores(assets_y, assets_x)
+                    print(f"Hedge ratio: {result['hedge_ratio'].iloc[-1]}, Z-Score: {result['z_scores'].iloc[-1]}")
+                    print(f"Kalman Hedge ratio: {result_kalman['hedge_ratio'].iloc[-1]}, Kalman Z-Score: {len(result_kalman['z_scores'])} kalman spread {len(result_kalman['spread'])}")
                     correlation = assets_y['close'].corr(assets_x['close'])
                     print(f"Correlation is {correlation} between {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]}")
-                    cointegration_condition = check_cointegration(spreads)
+                    cointegration_condition = check_cointegration(result['spread'])
                     log_asset1 = np.log(assets_y['close'])
                     log_asset2 = np.log(assets_x['close'])
 
@@ -97,12 +97,12 @@ async def plot_data_prices():
                     print("\nEngle–Granger coint test:")
                     print(f"t-stat={t_stat:.3f}, p-value={pval:.4f}, crit={crit}")
                     
-                    ratio = abs(hedge_ratio)
+                    ratio = abs(result['hedge_ratio'].iloc[-1])
                     investment_asset_x = (20/(1 + ratio))
                     investment_asset_y = (20 - investment_asset_x)
-                    print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} ")
+                    print(f"Current Z-Score: {result['z_scores'].iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} ")
                     
-                    k_ratio = abs(kalman_hedge_ratio)
+                    k_ratio = abs(result_kalman['hedge_ratio'].iloc[-1])
                     k_investment_asset_x = (20/(1 + k_ratio))
                     k_investment_asset_y = (20 - k_investment_asset_x)
                     
@@ -110,8 +110,8 @@ async def plot_data_prices():
                     price2 = np.array(assets_x['close'])
                     dates = np.array(assets_y['time'])  # Use the last 300 dates for better visibility
 
-                    rolling_z_scores.index = dates
-                    kalman_z_scores.index = dates
+                    result.index = dates
+                    result_kalman.index = dates
 
                     log_asset1 = np.log(price1)
                     log_asset2 = np.log(price2)
@@ -122,13 +122,13 @@ async def plot_data_prices():
                                          'Price2': price2,
                                          'LogPrice1': log_asset1, 
                                          'LogPrice2': log_asset2,
-                                         'Rolling Z': rolling_z_scores,
-                                         'Hedge Ratio': hedge_ratio,
-                                         'Kalman Hedge Ratio': kalman_hedge_ratio,
-                                         'Kalman Z': kalman_z_scores,
-                                         'Kalman Spread': kalman_spreads}, index=dates)
+                                         'Rolling Z': result['z_scores'],
+                                         'Hedge Ratio': result['hedge_ratio'],
+                                         'Kalman Hedge Ratio': result_kalman['hedge_ratio'],
+                                         'Kalman Z': result_kalman['z_scores'],
+                                         'Kalman Spread': result_kalman['spread']}, index=dates)
                     
-                    print(f"Data head:\n{data['Rolling Z'].head()}\nData tail:\n{data['Rolling Z'].tail()} and rolling z {rolling_z_scores.tail()}")    
+                    print(f"Data head:\n{data['Rolling Z'].head()}\nData tail:\n{data['Rolling Z'].tail()} and rolling z {result['z_scores'].tail()}")    
                     # Calculate cumulative returns
                     data['Return1'] = data['Price1'].pct_change().cumsum()
                     data['Return2'] = data['Price2'].pct_change().cumsum()
@@ -141,13 +141,13 @@ async def plot_data_prices():
                     plt.plot(data.index, data['Return1'], label='Cumulative returns WIN', color='red')
                     plt.plot(data.index, data['Return2'], label='Cumulative returns WDO', color='blue')
                     plt.ylabel('Cumulative Return')
-                    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]} cointegrated ? {cointegration_condition} correlation {hedge_ratio:.2f} volume y {math.floor(investment_asset_y)} and x {math.floor(investment_asset_x)}')
+                    plt.title(f'Pair Trade Cumulative Returns of {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]} cointegrated ? {cointegration_condition} correlation {result["hedge_ratio"].iloc[-1]:.2f} volume y {math.floor(investment_asset_y)} and x {math.floor(investment_asset_x)}')
                     plt.axhline(0, color='black')
                     plt.legend()
                     plt.grid(True)
 
                     plt.subplot(3, 1, 2)
-                    plt.title(f'Rolling Z-scores from server {account_info.server} Z SCORE {rolling_z_scores.iloc[-1]:.2f}')
+                    plt.title(f'Rolling Z-scores from server {account_info.server} Z SCORE {result["z_scores"].iloc[-1]:.2f}')
                     plt.plot(data.index, data['Rolling Z'],label='Z-scores Rolling', color='green')
                     plt.plot(data.index, data['Hedge Ratio'], label='Hedge Ratio', color='orange')
                     plt.axhline(0, color='black')
@@ -159,7 +159,7 @@ async def plot_data_prices():
 
 
                     plt.subplot(3, 1, 3)
-                    plt.title(f'Kalman Z-scores from server {account_info.server} Z SCORE {kalman_z_scores.iloc[-1]:.2f} and Hedge Ratio {kalman_hedge_ratio:.2f} and volume {TRADING_PAIR_Y[i]} is {math.floor(k_investment_asset_x)} and volume {TRADING_PAIR_X[j]} is {math.floor(k_investment_asset_y)}' )
+                    plt.title(f'Kalman Z-scores from server {account_info.server} Z SCORE {result_kalman["z_scores"].iloc[-1]:.2f} and Hedge Ratio {result_kalman["hedge_ratio"].iloc[-1]:.2f} and volume {TRADING_PAIR_Y[i]} is {math.floor(k_investment_asset_x)} and volume {TRADING_PAIR_X[j]} is {math.floor(k_investment_asset_y)}' )
                     plt.plot(data.index, data['Kalman Z'],label='Z-scores Kalman', color='purple')
                     plt.axhline(0, color='black')
                     plt.axhline(1, color='blue',linestyle='--')

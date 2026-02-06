@@ -131,7 +131,7 @@ class KalmanFilter:
         results = pd.DataFrame({
             'y': y,
             'x': x,
-            'hedge_ratio': self.state_means,
+            'kalman_hedge_ratio': self.state_means,
             'hedge_ratio_variance': self.state_variances,
             'spread': y - np.array(self.state_means) * x,
         })

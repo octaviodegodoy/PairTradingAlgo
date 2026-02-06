@@ -76,8 +76,14 @@ def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
     rolling_mean = pd.Series(residuals).rolling(window=ROLLING_PERIODS).mean()
     rolling_std = pd.Series(residuals).rolling(window=ROLLING_PERIODS).std()
     z_scores = (pd.Series(residuals) - rolling_mean) / rolling_std
+
+    results = pd.DataFrame({
+           'z_scores': z_scores,
+           'spread': residuals,
+           'hedge_ratio': hedge_ratio,
+    })
     
-    return z_scores,residuals,hedge_ratio
+    return results
 
 def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
     # Log-transform the prices
@@ -103,10 +109,10 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
         )
 
     # Run Kalman Filter to get dynamic hedge ratios
-    results = kf.filter_batch(y, x)
+    filter_results = kf.filter_batch(y, x)
 
     # Extract spread
-    spread = results['spread'].values
+    spread = filter_results['spread'].values
     
 
     # Compute rolling statistics for z-score
@@ -117,7 +123,13 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
 
     print(f"Dynamic Z scores from Kalman Filter: {z_scores.head()} and spread {spread_series.head()}")
 
-    return z_scores, spread, results['hedge_ratio'].values[-1]
+    results = pd.DataFrame({
+           'z_scores': z_scores,
+           'spread': spread,
+           'hedge_ratio': filter_results['kalman_hedge_ratio'].values[-1],
+    })
+
+    return results
 
 def get_half_life(spread):
     # Convert `dynamic_spread` to a pandas Series

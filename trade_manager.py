@@ -87,13 +87,14 @@ class TradeManager:
                 assets_y = self.mt5_conn.get_data_futures_btg(asset_group_y)
                 assets_x = self.mt5_conn.get_data_futures_btg(asset_group_x)
                 correlation = get_correlation(assets_y,assets_x)
+                result = None
                 if KALMAN_FILTER_METHOD:
-                     rolling_z_scores, spreads, hedge_ratio = get_dynamic_spread_zscores(assets_y, assets_x)
+                     result = get_dynamic_spread_zscores(assets_y, assets_x)
                 else:
-                     rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
+                     result = get_linear_regression_spread_zscores(assets_y, assets_x)
 
-                self.logger.info(f"Sending new order to trade execution with z score {rolling_z_scores.iloc[-1]} and hedge ratio {hedge_ratio} grid add {ADDITIONAL_GRID} and correlation {hedge_ratio}")
-                self.trade_execution.execute_trade(open_position_y, open_position_x, correlation, hedge_ratio, rolling_z_scores.iloc[-1])
+                self.logger.info(f"Sending new order to trade execution with z score {result['z_scores'].iloc[-1]} and hedge ratio {result['hedge_ratio'].iloc[-1]} grid add {ADDITIONAL_GRID} and correlation {result['hedge_ratio'].iloc[-1]}")
+                self.trade_execution.execute_trade(open_position_y, open_position_x, correlation, result['hedge_ratio'].iloc[-1], result['z_scores'].iloc[-1])
                 time.sleep(15)
                 
                 
