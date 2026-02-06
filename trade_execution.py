@@ -46,7 +46,7 @@ class TradeExecution:
          # Trading logic based on z-score and correlation
         if (total_traded_volumes < total_max_lots) and grid_count < MAX_GRIDS:
             self.logger.info(f"Sending order with: current z-score {z_score} and updated zscore entry {updated_zscore_entry} and correlation {slope}")
-            if (slope > 0):
+            if (correlation > 0):
                 if (z_score < -updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_SELL]
                     self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
@@ -55,7 +55,7 @@ class TradeExecution:
                     orders_type = [self.mt5_conn.ORDER_TYPE_SELL, self.mt5_conn.ORDER_TYPE_BUY]
                     self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
 
-            elif (slope < 0):
+            elif (correlation < 0):
                 if (z_score < -updated_zscore_entry):
                     orders_type = [self.mt5_conn.ORDER_TYPE_BUY, self.mt5_conn.ORDER_TYPE_BUY]
                     self.mt5_conn.place_order(symbolY,symbolX,volumeY,volume_X,orders_type,z_score)
