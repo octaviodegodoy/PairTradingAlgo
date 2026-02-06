@@ -177,6 +177,7 @@ def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_
 
 def get_correlation(assetY,assetX):
     # Calculate the Pearson correlation coefficient between the two assets
+    print(f"Calculating correlation between {assetY['close'].iloc[0]} and {assetX['close'].iloc[0]}")
     correlation = assetY['close'].corr(assetX['close'])
     return correlation
 

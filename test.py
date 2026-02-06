@@ -3,7 +3,7 @@ from email import parser
 import math
 from turtle import color
 from mt5_connector import MT5Connector
-from utils import calculate_volumes, get_dynamic_spread_zscores, get_linear_regression_spread_zscores,check_cointegration
+from utils import calculate_volumes, get_dynamic_spread_zscores, get_linear_regression_spread_zscores,check_cointegration,get_correlation
 import logging
 import pandas as pd
 import numpy as np
@@ -102,6 +102,10 @@ async def plot_data_prices():
                     investment_asset_y = (20 - investment_asset_x)
                     print(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} ")
                     
+                    k_ratio = abs(kalman_hedge_ratio)
+                    k_investment_asset_x = (20/(1 + k_ratio))
+                    k_investment_asset_y = (20 - k_investment_asset_x)
+                    
                     price1 = np.array(assets_y['close'])
                     price2 = np.array(assets_x['close'])
                     dates = np.array(assets_y['time'])  # Use the last 300 dates for better visibility
@@ -155,14 +159,13 @@ async def plot_data_prices():
 
 
                     plt.subplot(3, 1, 3)
-                    plt.title(f'Kalman Z-scores from server {account_info.server} Z SCORE {kalman_z_scores.iloc[-1]:.2f}')
+                    plt.title(f'Kalman Z-scores from server {account_info.server} Z SCORE {kalman_z_scores.iloc[-1]:.2f} and Hedge Ratio {kalman_hedge_ratio:.2f} and volume {TRADING_PAIR_Y[i]} is {math.floor(k_investment_asset_x)} and volume {TRADING_PAIR_X[j]} is {math.floor(k_investment_asset_y)}' )
                     plt.plot(data.index, data['Kalman Z'],label='Z-scores Kalman', color='purple')
                     plt.axhline(0, color='black')
                     plt.axhline(1, color='blue',linestyle='--')
                     plt.axhline(2, color='green', linestyle='--', label='+2 Std Dev')
                     plt.axhline(-1, color='red', linestyle='--')
                     plt.axhline(-2, color='green', linestyle='--', label='-2 Std Dev')
-                    plt.legend()
                     plt.grid(True)
                     plt.show()
 
@@ -320,5 +323,12 @@ async def zscores_calculation_test():
     print(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {total_grids}")
 
     return updated_zscore_entry 
+
+async def get_correlation_test():
+    mt5_conn = MT5Connector()
+    assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0])
+    assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0])
+    correlation = get_correlation(assets_y,assets_x)
+    print(f"Correlation between {TRADING_PAIR_Y[0]} and {TRADING_PAIR_X[0]} is {correlation}")
 
 asyncio.run(plot_data_prices())
