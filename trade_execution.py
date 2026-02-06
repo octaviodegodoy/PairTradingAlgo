@@ -38,6 +38,8 @@ class TradeExecution:
         min_lot_X = self.mt5_conn.get_symbol_info(symbolX).volume_min
         volumeY, volume_X = calculate_volumes(symbolY,symbolX,slope,min_lot_Y,min_lot_X,total_max_lots,total_positions)
         self.logger.info(f"Calculated volumes - {symbolY}: {volumeY}, {symbolX}: {volume_X}")
+        correlation = self.mt5_conn.get_correlation(symbolY,symbolX)
+        self.logger.info(f"Correlation is {correlation} between {symbolY} and {symbolX}")
         
         self.logger.info(f"Total lots volume after calculation: {total_traded_volumes} and max lots {total_max_lots}")
         
