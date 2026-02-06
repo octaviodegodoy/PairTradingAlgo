@@ -3,7 +3,7 @@ from xml.parsers.expat import model
 
 from matplotlib import dates
 from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD
-from filterpy.kalman import KalmanFilter
+from functions.kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller
 import math
@@ -78,6 +78,46 @@ def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
     z_scores = (pd.Series(residuals) - rolling_mean) / rolling_std
     
     return z_scores,residuals,hedge_ratio
+
+def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
+    # Log-transform the prices
+    log_asset1 = np.log(asset1_prices['close'])
+    log_asset2 = np.log(asset2_prices['close'])
+
+    # Get minimum length and trim both series to equal length
+    min_length = min(len(log_asset1), len(log_asset2))
+    log_asset1 = log_asset1.iloc[:min_length]
+    log_asset2 = log_asset2.iloc[:min_length]
+
+    y = log_asset1.values
+    x = log_asset2.values
+
+    initial_beta = estimate_initial_hedge_ratio(y, x, lookback=60)
+   
+    # Initialize Kalman Filter
+    kf = KalmanFilter(
+            delta=1e-4,
+            ve=1e-3,
+            initial_state=initial_beta,
+            initial_variance=1.0
+        )
+
+    # Run Kalman Filter to get dynamic hedge ratios
+    results = kf.filter_batch(y, x)
+
+    # Extract spread
+    spread = results['spread'].values
+    
+
+    # Compute rolling statistics for z-score
+    spread_series = pd.Series(spread)
+    rolling_mean = pd.Series(spread_series).rolling(window=ROLLING_PERIODS).mean()
+    rolling_std = pd.Series(spread_series).rolling(window=ROLLING_PERIODS).std()
+    z_scores = (pd.Series(spread_series) - rolling_mean) / rolling_std
+
+    print(f"Dynamic Z scores from Kalman Filter: {z_scores.head()} and spread {spread_series.head()}")
+
+    return z_scores, spread, results['hedge_ratio'].values
 
 def get_half_life(spread):
     # Convert `dynamic_spread` to a pandas Series

@@ -3,7 +3,7 @@ from email import parser
 import math
 from turtle import color
 from mt5_connector import MT5Connector
-from utils import calculate_volumes, get_linear_regression_spread_zscores,check_cointegration
+from utils import calculate_volumes, get_dynamic_spread_zscores, get_linear_regression_spread_zscores,check_cointegration
 import logging
 import pandas as pd
 import numpy as np
@@ -83,6 +83,11 @@ async def plot_data_prices():
             print(f"y data {len(assets_y)} and x data {len(assets_x)}")
             if len(assets_y) >= PERIODS and len(assets_x) >= PERIODS:
                     rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
+                    # Kalman Filter implementation
+                    kalman_z_scores, kalman_spreads, kalman_hedge_ratio = get_dynamic_spread_zscores(assets_y, assets_x)
+                    print(f"Hedge ratio: {hedge_ratio}, Z-Score: {rolling_z_scores.iloc[-1]}")
+                    print(f"Kalman Hedge ratio: {len(kalman_hedge_ratio)}, Kalman Z-Score: {len(kalman_z_scores)} kalman spread {len(kalman_spreads)}")
+
                     cointegration_condition = check_cointegration(spreads)
                     log_asset1 = np.log(assets_y['close'])
                     log_asset2 = np.log(assets_x['close'])
@@ -101,22 +106,33 @@ async def plot_data_prices():
                     dates = np.array(assets_y['time'])  # Use the last 300 dates for better visibility
 
                     rolling_z_scores.index = dates
+                    kalman_z_scores.index = dates
 
                     log_asset1 = np.log(price1)
                     log_asset2 = np.log(price2)
 
                     print(f"Assets Y length: {len(assets_y)} and Assets X length: {len(assets_x)}")    
 
-                    data = pd.DataFrame({'Price1': price1, 'Price2': price2,'LogPrice1': log_asset1, 'LogPrice2': log_asset2,'Rolling Z': rolling_z_scores,'Hedge Ratio': hedge_ratio}, index=dates)
+                    data = pd.DataFrame({'Price1': price1, 
+                                         'Price2': price2,
+                                         'LogPrice1': log_asset1, 
+                                         'LogPrice2': log_asset2,
+                                         'Rolling Z': rolling_z_scores,
+                                         'Hedge Ratio': hedge_ratio,
+                                         'Kalman Hedge Ratio': kalman_hedge_ratio,
+                                         'Kalman Z': kalman_z_scores,
+                                         'Kalman Spread': kalman_spreads}, index=dates)
+                    
                     print(f"Data head:\n{data['Rolling Z'].head()}\nData tail:\n{data['Rolling Z'].tail()} and rolling z {rolling_z_scores.tail()}")    
                     # Calculate cumulative returns
                     data['Return1'] = data['Price1'].pct_change().cumsum()
                     data['Return2'] = data['Price2'].pct_change().cumsum()
+                    print(f"Kalman data returns:\n{data[['Kalman Z']].tail()}")
 
                     # Plot the cumulative returns
                     plt.figure(figsize=(12, 8),layout='constrained')
 
-                    plt.subplot(2, 1, 1)        
+                    plt.subplot(3, 1, 1)        
                     plt.plot(data.index, data['Return1'], label='Cumulative returns WIN', color='red')
                     plt.plot(data.index, data['Return2'], label='Cumulative returns WDO', color='blue')
                     plt.ylabel('Cumulative Return')
@@ -125,10 +141,21 @@ async def plot_data_prices():
                     plt.legend()
                     plt.grid(True)
 
-                    plt.subplot(2, 1, 2)
+                    plt.subplot(3, 1, 2)
                     plt.title(f'Rolling Z-scores from server {account_info.server} Z SCORE {rolling_z_scores.iloc[-1]:.2f}')
                     plt.plot(data.index, data['Rolling Z'],label='Z-scores Rolling', color='green')
                     plt.plot(data.index, data['Hedge Ratio'], label='Hedge Ratio', color='orange')
+                    plt.axhline(0, color='black')
+                    plt.axhline(1, color='blue',linestyle='--')
+                    plt.axhline(2, color='green', linestyle='--', label='+2 Std Dev')
+                    plt.axhline(-1, color='red', linestyle='--')
+                    plt.axhline(-2, color='green', linestyle='--', label='-2 Std Dev')
+                    plt.grid(True)
+
+
+                    plt.subplot(3, 1, 3)
+                    plt.title(f'Kalman Z-scores from server {account_info.server} Z SCORE {kalman_z_scores.iloc[-1]:.2f}')
+                    plt.plot(data.index, data['Kalman Z'],label='Z-scores Kalman', color='purple')
                     plt.axhline(0, color='black')
                     plt.axhline(1, color='blue',linestyle='--')
                     plt.axhline(2, color='green', linestyle='--', label='+2 Std Dev')
