@@ -3,7 +3,7 @@ from xml.parsers.expat import model
 
 from matplotlib import dates
 from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD
-from functions.kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
+from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller
 import math
@@ -92,7 +92,7 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
     y = log_asset1.values
     x = log_asset2.values
 
-    initial_beta = estimate_initial_hedge_ratio(y, x, lookback=60)
+    initial_beta = estimate_initial_hedge_ratio(y, x, lookback=PERIODS)
    
     # Initialize Kalman Filter
     kf = KalmanFilter(
@@ -117,7 +117,7 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
 
     print(f"Dynamic Z scores from Kalman Filter: {z_scores.head()} and spread {spread_series.head()}")
 
-    return z_scores, spread, results['hedge_ratio'].values
+    return z_scores, spread, results['hedge_ratio'].values[-1]
 
 def get_half_life(spread):
     # Convert `dynamic_spread` to a pandas Series

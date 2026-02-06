@@ -2,11 +2,10 @@ import logging
 import math
 import numpy as np
 import pandas as pd
-from constants import MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
+from constants import KALMAN_FILTER_METHOD, MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
 import time
-import random
 from mt5_connector import MT5Connector
-from utils import check_cointegration, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry
+from utils import get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores
 
 class PairTradingStrategy:
     def __init__(self):
@@ -41,9 +40,13 @@ class PairTradingStrategy:
                   self.logger.info(f"Scanning pairs: {pair_y[i]} and {pair_x[j]}")
                   assets_y = self.mt5_conn.get_data_futures_btg(pair_y[i])
                   assets_x = self.mt5_conn.get_data_futures_btg(pair_x[j])
-                  rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
+                  if KALMAN_FILTER_METHOD:
+                     rolling_z_scores, spreads, hedge_ratio = get_dynamic_spread_zscores(assets_y, assets_x)
+                  else:
+                     rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
                   zscore_condition = abs(rolling_z_scores.iloc[-1]) > updated_zscore_entry
                   ratio = abs(hedge_ratio)
+                  print(f"Z-Score Condition Met: {zscore_condition} and hedge ratio is {hedge_ratio}")
                   # Calculate volumes based on hedge ratio
                   investment_asset_y = math.floor(total_volume_risk/(1 + ratio))
                   investment_asset_x = math.floor(total_volume_risk - investment_asset_y)

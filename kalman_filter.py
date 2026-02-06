@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from typing import Tuple, Dict
 import warnings
+from constants import ROLLING_PERIODS
 warnings.filterwarnings('ignore')
 
 class KalmanFilter:
@@ -136,8 +137,8 @@ class KalmanFilter:
         })
         
         # Add spread statistics
-        results['spread_mean'] = results['spread'].rolling(window=30).mean()
-        results['spread_std'] = results['spread'].rolling(window=30).std()
+        results['spread_mean'] = results['spread'].rolling(window=ROLLING_PERIODS).mean()
+        results['spread_std'] = results['spread'].rolling(window=ROLLING_PERIODS).std()
         results['zscore'] = (results['spread'] - results['spread_mean']) / results['spread_std']
         
         return results

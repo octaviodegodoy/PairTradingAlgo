@@ -86,7 +86,7 @@ async def plot_data_prices():
                     # Kalman Filter implementation
                     kalman_z_scores, kalman_spreads, kalman_hedge_ratio = get_dynamic_spread_zscores(assets_y, assets_x)
                     print(f"Hedge ratio: {hedge_ratio}, Z-Score: {rolling_z_scores.iloc[-1]}")
-                    print(f"Kalman Hedge ratio: {kalman_hedge_ratio[-1]}, Kalman Z-Score: {len(kalman_z_scores)} kalman spread {len(kalman_spreads)}")
+                    print(f"Kalman Hedge ratio: {kalman_hedge_ratio}, Kalman Z-Score: {len(kalman_z_scores)} kalman spread {len(kalman_spreads)}")
                     correlation = assets_y['close'].corr(assets_x['close'])
                     print(f"Correlation is {correlation} between {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]}")
                     cointegration_condition = check_cointegration(spreads)
