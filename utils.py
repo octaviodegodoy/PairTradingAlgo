@@ -121,8 +121,6 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
     rolling_std = pd.Series(spread_series).rolling(window=ROLLING_PERIODS).std()
     z_scores = (pd.Series(spread_series) - rolling_mean) / rolling_std
 
-    print(f"Dynamic Z scores from Kalman Filter: {z_scores.head()} and spread {spread_series.head()}")
-
     results = pd.DataFrame({
            'z_scores': z_scores,
            'spread': spread,

@@ -49,13 +49,13 @@ async def main():
                     logger.info("Start scanning for trading opportunities...")
                     correlation, hedge_ratio, spreads, rolling_z_scores, pair, arbitrage_found = pair_trading_strategy.scan_pairs_arbitrage()                
                     if arbitrage_found:
-                        logger.info(f"Arbitrage was found : {arbitrage_found} for pair y as {pair[0]} and x as {pair[1]} hedge ratio is {hedge_ratio} and spreads length is {len(spreads)} and rolling z scores length is {len(rolling_z_scores)}")
+                        logger.info(f"Arbitrage was found : {arbitrage_found} for pair y as {pair[0]} and x as {pair[1]} hedge ratio is {hedge_ratio} and spreads is {spreads} and rolling z scores is {rolling_z_scores}")
                         logger.info("Arbitrage opportunity detected. Executing trades...")
                         # Here you would add logic to execute trades and manage them
                         # For example:
                         # trade_execution.execute_trade(...)
-                        logger.info(f"Starting trade execution for {pair[0]} and {pair[1]}")
-                        trade_execution.execute_trade(pair[0], pair[1], correlation,hedge_ratio, rolling_z_scores.iloc[-1])
+                        logger.info(f"Starting trade execution for {pair[0]} and {pair[1]} and hedge ratio {hedge_ratio} and z score {rolling_z_scores} and spreads {spreads}")
+                        trade_execution.execute_trade(pair[0], pair[1], correlation,hedge_ratio, rolling_z_scores)
                 
             await asyncio.sleep(15)
     except KeyboardInterrupt:

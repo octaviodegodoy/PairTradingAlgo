@@ -43,16 +43,18 @@ class PairTradingStrategy:
                   correlation = get_correlation(assets_y,assets_x)
                   self.logger.info(f"Correlation between {pair_y[i]} and {pair_x[j]} is {correlation}")
                   if KALMAN_FILTER_METHOD:
-                     rolling_z_scores, spreads, hedge_ratio = get_dynamic_spread_zscores(assets_y, assets_x)
+                     results = get_dynamic_spread_zscores(assets_y, assets_x)
                   else:
-                     rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
-                  zscore_condition = abs(rolling_z_scores.iloc[-1]) > updated_zscore_entry
-                  ratio = abs(hedge_ratio)
-                  print(f"Z-Score Condition Met: {zscore_condition} and hedge ratio is {hedge_ratio}")
+                     results = get_linear_regression_spread_zscores(assets_y, assets_x)
+                  
+                  self.logger.info(f"Z score {results['z_scores'].iloc[-1]} for pair {pair_y[i]} and {pair_x[j]}")
+                  zscore_condition = abs(results['z_scores'].iloc[-1]) > updated_zscore_entry
+                  ratio = results['hedge_ratio'].iloc[-1]
+                  print(f"Z-Score Condition Met: {zscore_condition} and hedge ratio is {ratio}")
                   # Calculate volumes based on hedge ratio
                   investment_asset_y = math.floor(total_volume_risk/(1 + ratio))
                   investment_asset_x = math.floor(total_volume_risk - investment_asset_y)
-                  self.logger.info(f"Current Z-Score: {rolling_z_scores.iloc[-1]} hedge ratio is {hedge_ratio}, volume y is {investment_asset_y} and volume x {investment_asset_x} for minimum {updated_zscore_entry} Z-Score Condition Met: {zscore_condition}")
+                  self.logger.info(f"Current Z-Score: {results['z_scores'].iloc[-1]} hedge ratio is {results['hedge_ratio'].iloc[-1]}, volume y is {investment_asset_y} and volume x {investment_asset_x} for minimum {updated_zscore_entry} Z-Score Condition Met: {zscore_condition}")
                   current_equity = self.mt5_conn.get_account_info().equity
                   # Calculate risk parameters
                   total_margin = current_equity*MARGIN_PERCENT
@@ -60,12 +62,12 @@ class PairTradingStrategy:
                   trailing_start = max_loss*PROFIT_THRESHOLD
                   self.logger.info(f"Max loss: {max_loss}, trailing start profit: {trailing_start}")
 
-                  half_life = get_half_life(spreads)
+                  half_life = get_half_life(results['spread'])
                   half_life_condition = half_life < MAX_HALF_LIFE
                   self.logger.info(f"Calculated Half-Life: {half_life}, Half-Life Condition Met: {half_life_condition}")
-                  cointegration_condition = True # check_cointegration(spreads)
+                  cointegration_condition = True # check_cointegration(results['spread'])
                   self.logger.info(f"Cointegration Condition Met: {cointegration_condition}")
-                  self.logger.info(f"Hedge ratio between {pair_y[i]} and {pair_x[j]}: {hedge_ratio}")
+                  self.logger.info(f"Hedge ratio between {pair_y[i]} and {pair_x[j]}: {results['hedge_ratio'].iloc[-1]} and z score is {results['z_scores'].iloc[-1]} and spread is {results['spread'].iloc[-1]}")
                   arbitrage_found = zscore_condition and half_life_condition and cointegration_condition
                   print(f"Arbitrage Found: {arbitrage_found}")
                   time.sleep(15)
@@ -74,7 +76,7 @@ class PairTradingStrategy:
                      x = self.mt5_conn.get_symbol_futures(pair_x[j])
                      pair = (y[1], x[1])
                      self.logger.info(f"Arbitrage conditions met for pair: {pair}")
-                     return correlation, hedge_ratio, spreads, rolling_z_scores, pair, arbitrage_found         
+                     return correlation, results['hedge_ratio'].iloc[-1], results['spread'].iloc[-1], results['z_scores'].iloc[-1], pair, arbitrage_found         
                   
             if not check_trading_time():
              self.logger.info(f"Outside trading hours, stopping scan.")
@@ -83,4 +85,4 @@ class PairTradingStrategy:
              time.sleep(15)
              continue
 
-        return correlation,hedge_ratio, spreads, rolling_z_scores, pair, arbitrage_found
+        return correlation, results['hedge_ratio'], results['spread'], results['z_scores'], pair, arbitrage_found
