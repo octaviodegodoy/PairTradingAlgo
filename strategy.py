@@ -2,11 +2,10 @@ import logging
 import math
 import numpy as np
 import pandas as pd
-from constants import MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
+from constants import KALMAN_FILTER_METHOD, MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
 import time
-import random
 from mt5_connector import MT5Connector
-from utils import check_cointegration, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry
+from utils import get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores
 
 class PairTradingStrategy:
     def __init__(self):
@@ -23,7 +22,7 @@ class PairTradingStrategy:
         self.logger.info(f"Total current positions: {total_positions}")
         if total_positions > 0:
             self.logger.info("Existing positions detected, skipping new pair scanning.")
-            return None, None, None, None, None, arbitrage_found
+            return None, None, None, None, None, None, arbitrage_found
         
         ## Get daily profit and highest z score period
         highest_zscore_period,total_profit,total_volume,grid_history = self.mt5_conn.total_daily_risk()
@@ -41,9 +40,15 @@ class PairTradingStrategy:
                   self.logger.info(f"Scanning pairs: {pair_y[i]} and {pair_x[j]}")
                   assets_y = self.mt5_conn.get_data_futures_btg(pair_y[i])
                   assets_x = self.mt5_conn.get_data_futures_btg(pair_x[j])
-                  rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
+                  correlation = get_correlation(assets_y,assets_x)
+                  self.logger.info(f"Correlation between {pair_y[i]} and {pair_x[j]} is {correlation}")
+                  if KALMAN_FILTER_METHOD:
+                     rolling_z_scores, spreads, hedge_ratio = get_dynamic_spread_zscores(assets_y, assets_x)
+                  else:
+                     rolling_z_scores, spreads, hedge_ratio = get_linear_regression_spread_zscores(assets_y, assets_x)
                   zscore_condition = abs(rolling_z_scores.iloc[-1]) > updated_zscore_entry
                   ratio = abs(hedge_ratio)
+                  print(f"Z-Score Condition Met: {zscore_condition} and hedge ratio is {hedge_ratio}")
                   # Calculate volumes based on hedge ratio
                   investment_asset_y = math.floor(total_volume_risk/(1 + ratio))
                   investment_asset_x = math.floor(total_volume_risk - investment_asset_y)
@@ -69,7 +74,7 @@ class PairTradingStrategy:
                      x = self.mt5_conn.get_symbol_futures(pair_x[j])
                      pair = (y[1], x[1])
                      self.logger.info(f"Arbitrage conditions met for pair: {pair}")
-                     return hedge_ratio, spreads, rolling_z_scores, pair, arbitrage_found         
+                     return correlation, hedge_ratio, spreads, rolling_z_scores, pair, arbitrage_found         
                   
             if not check_trading_time():
              self.logger.info(f"Outside trading hours, stopping scan.")
@@ -78,4 +83,4 @@ class PairTradingStrategy:
              time.sleep(15)
              continue
 
-        return hedge_ratio, spreads, rolling_z_scores, pair, arbitrage_found
+        return correlation,hedge_ratio, spreads, rolling_z_scores, pair, arbitrage_found

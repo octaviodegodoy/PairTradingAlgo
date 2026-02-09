@@ -3,7 +3,7 @@ from xml.parsers.expat import model
 
 from matplotlib import dates
 from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD
-from filterpy.kalman import KalmanFilter
+from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller
 import math
@@ -76,8 +76,60 @@ def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
     rolling_mean = pd.Series(residuals).rolling(window=ROLLING_PERIODS).mean()
     rolling_std = pd.Series(residuals).rolling(window=ROLLING_PERIODS).std()
     z_scores = (pd.Series(residuals) - rolling_mean) / rolling_std
+
+    results = pd.DataFrame({
+           'z_scores': z_scores,
+           'spread': residuals,
+           'hedge_ratio': hedge_ratio,
+    })
     
-    return z_scores,residuals,hedge_ratio
+    return results
+
+def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
+    # Log-transform the prices
+    log_asset1 = np.log(asset1_prices['close'])
+    log_asset2 = np.log(asset2_prices['close'])
+
+    # Get minimum length and trim both series to equal length
+    min_length = min(len(log_asset1), len(log_asset2))
+    log_asset1 = log_asset1.iloc[:min_length]
+    log_asset2 = log_asset2.iloc[:min_length]
+
+    y = log_asset1.values
+    x = log_asset2.values
+
+    initial_beta = estimate_initial_hedge_ratio(y, x, lookback=PERIODS)
+   
+    # Initialize Kalman Filter
+    kf = KalmanFilter(
+            delta=1e-4,
+            ve=1e-3,
+            initial_state=initial_beta,
+            initial_variance=1.0
+        )
+
+    # Run Kalman Filter to get dynamic hedge ratios
+    filter_results = kf.filter_batch(y, x)
+
+    # Extract spread
+    spread = filter_results['spread'].values
+    
+
+    # Compute rolling statistics for z-score
+    spread_series = pd.Series(spread)
+    rolling_mean = pd.Series(spread_series).rolling(window=ROLLING_PERIODS).mean()
+    rolling_std = pd.Series(spread_series).rolling(window=ROLLING_PERIODS).std()
+    z_scores = (pd.Series(spread_series) - rolling_mean) / rolling_std
+
+    print(f"Dynamic Z scores from Kalman Filter: {z_scores.head()} and spread {spread_series.head()}")
+
+    results = pd.DataFrame({
+           'z_scores': z_scores,
+           'spread': spread,
+           'hedge_ratio': filter_results['kalman_hedge_ratio'].values[-1],
+    })
+
+    return results
 
 def get_half_life(spread):
     # Convert `dynamic_spread` to a pandas Series
@@ -109,7 +161,7 @@ def check_cointegration(spreads):
     coint_t = adf_result[0]
     critical_value = adf_result[4]['10%']
     t_check = coint_t < critical_value
-    coint_flag = p_value < 0.10 and t_check
+    coint_flag = p_value < 0.15 and t_check
     print(f"ADF Test Result: p-value={p_value}, coint_t={coint_t}, critical_value(10%)={critical_value}, Cointegration Flag={coint_flag}")
     return coint_flag
 
@@ -137,6 +189,7 @@ def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_
 
 def get_correlation(assetY,assetX):
     # Calculate the Pearson correlation coefficient between the two assets
+    print(f"Calculating correlation between {assetY['close'].iloc[0]} and {assetX['close'].iloc[0]}")
     correlation = assetY['close'].corr(assetX['close'])
     return correlation
 
@@ -144,14 +197,14 @@ def get_group_name(symbol):
     return symbol[:3]+'*'
 
 def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes,total_grids_history,current_grids):
-
+    logger = logging.getLogger(__name__)
     updated_zscore_entry = 0.0
     grids_total = 0.0
     if current_grids > 0.0 or total_grids_history > 0.0:
-        logging.info(f"Total open grids: {current_grids} and total grids history: {total_grids_history}")
+        logger.info(f"Total open grids: {current_grids} and total grids history: {total_grids_history}")
         grids_total = max(current_grids, total_grids_history)
 
-    logging.info(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {grids_total}")
+    logger.info(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {grids_total}")
     if grids_total == 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
         updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
     elif grids_total == 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
@@ -161,7 +214,7 @@ def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes
     elif grids_total > 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
          updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (ADDITIONAL_GRID * grids_total)
 
-    logging.info(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {grids_total}")
+    logger.info(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {grids_total}")
 
     return updated_zscore_entry 
 
