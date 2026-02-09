@@ -383,7 +383,6 @@ class MT5Connector:
                 logging.error("No deals , error code={}".format(mt5.last_error()))   
         elif len(deals) > 0:        
             for deal in deals:
-                logging.info(f"Deal info: ticket={deal.ticket}, symbol={deal.symbol}, volume={deal.volume}, profit={deal.profit}, commission={deal.commission}, comment={deal.comment}")
                 if (len(deal.comment) > 1) and (deal.symbol != ''):
                     comment_deal = deal.comment.split(",")
                     total_valid_deals += 1
