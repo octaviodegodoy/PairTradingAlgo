@@ -5,7 +5,7 @@ import pandas as pd
 from constants import KALMAN_FILTER_METHOD, MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD
 import time
 from mt5_connector import MT5Connector
-from utils import get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores
+from utils import check_cointegration, get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores
 
 class PairTradingStrategy:
     def __init__(self):
@@ -65,7 +65,8 @@ class PairTradingStrategy:
                   half_life = get_half_life(results['spread'])
                   half_life_condition = half_life < MAX_HALF_LIFE
                   self.logger.info(f"Calculated Half-Life: {half_life}, Half-Life Condition Met: {half_life_condition}")
-                  cointegration_condition = True # check_cointegration(results['spread'])
+                  cointegration_condition = check_cointegration(results['spread'])
+
                   self.logger.info(f"Cointegration Condition Met: {cointegration_condition}")
                   self.logger.info(f"Hedge ratio between {pair_y[i]} and {pair_x[j]}: {results['hedge_ratio'].iloc[-1]} and z score is {results['z_scores'].iloc[-1]} and spread is {results['spread'].iloc[-1]}")
                   arbitrage_found = zscore_condition and half_life_condition and cointegration_condition
