@@ -439,6 +439,10 @@ class MT5Connector:
         profit = mt5.account_info().profit
         return profit
     
+    def get_order_calc_margin(self, order_type, symbol, volume, price):
+        margin = mt5.order_calc_margin(order_type, symbol, volume, price)
+        return margin
+    
     def get_max_lots(self):
         current_equity = mt5.account_info().equity
         total_margin = current_equity*MARGIN_PERCENT

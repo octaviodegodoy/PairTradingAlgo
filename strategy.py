@@ -71,19 +71,29 @@ class PairTradingStrategy:
                   self.logger.info(f"Hedge ratio between {pair_y[i]} and {pair_x[j]}: {results['hedge_ratio'].iloc[-1]} and z score is {results['z_scores'].iloc[-1]} and spread is {results['spread'].iloc[-1]}")
                   arbitrage_found = zscore_condition and half_life_condition and cointegration_condition
                   print(f"Arbitrage Found: {arbitrage_found}")
+                  scan_results = {
+                      'pair_y': pair_y[i],
+                      'pair_x': pair_x[j],
+                      'correlation': correlation,
+                      'hedge_ratio': results['hedge_ratio'].iloc[-1],
+                      'spread': results['spread'].iloc[-1],
+                      'z_score': results['z_scores'].iloc[-1],
+                      'arbitrage_found': arbitrage_found
+                    }
                   time.sleep(15)
-                  if arbitrage_found:
+
+                  if scan_results['arbitrage_found']:
                      y = self.mt5_conn.get_symbol_futures(pair_y[i])
                      x = self.mt5_conn.get_symbol_futures(pair_x[j])
                      pair = (y[1], x[1])
                      self.logger.info(f"Arbitrage conditions met for pair: {pair}")
-                     return correlation, results['hedge_ratio'].iloc[-1], results['spread'].iloc[-1], results['z_scores'].iloc[-1], pair, arbitrage_found         
+                     return correlation, results['hedge_ratio'].iloc[-1], results['spread'].iloc[-1], results['z_scores'].iloc[-1], pair, scan_results['arbitrage_found']         
                   
             if not check_trading_time():
              self.logger.info(f"Outside trading hours, stopping scan.")
              break
-            elif not arbitrage_found:
+            elif not scan_results['arbitrage_found']:
              time.sleep(15)
              continue
 
-        return correlation, results['hedge_ratio'], results['spread'], results['z_scores'], pair, arbitrage_found
+        return correlation, results['hedge_ratio'], results['spread'], results['z_scores'], pair, scan_results['arbitrage_found']
