@@ -330,6 +330,121 @@ async def get_correlation_test():
     correlation = get_correlation(assets_y,assets_x)
     print(f"Correlation between {TRADING_PAIR_Y[0]} and {TRADING_PAIR_X[0]} is {correlation}")
 
+
+def test_calculate_volumes_notional():
+    symbolY,symbolX,hedge_ratio,total_positions = "WINJ26","WDOJ26",1.41,0
+    """
+    Calculate volumes using METHOD 3: Notional Value Balanced
+    
+    This ensures proper pairs trading by balancing notional exposure according to hedge ratio:
+    Notional_X = hedge_ratio × Notional_Y
+    
+    Args:
+        symbolY: Symbol name for asset Y
+        symbolX: Symbol name for asset X
+        hedge_ratio: Beta/slope from regression
+        min_lot_Y: Minimum volume for asset Y
+        min_lot_X: Minimum volume for asset X
+        total_max_lots: Total available margin/lots budget
+        total_positions: Current number of open positions
+        
+    Returns:
+        volume_y, volume_x: Calculated volumes for each asset
+    """
+    import MetaTrader5 as mt5
+    
+    print(f"Volume calculation for {symbolY} and {symbolX} with hedge ratio {hedge_ratio}")
+
+    # Get symbol information
+    info_y = mt5.symbol_info(symbolY)
+    info_x = mt5.symbol_info(symbolX)
+    print(f"Symbol info {symbolY}: {info_y}")
+    print(f"Symbol info {symbolX}: {info_x}")
+    min_lot_X = float(info_x.volume_min) 
+    min_lot_Y = float(info_y.volume_min)
+    total_max_lots = mt5.account_info().margin_free / 0.5  # Example: use margin free as budget
+    print(f"Min lot {symbolY}: {min_lot_Y}, Min lot {symbolX}: {min_lot_X}")    
+    # Get current prices and contract sizes
+    price_y = info_y.ask if info_y.ask > 0 else info_y.last
+    price_x = info_x.ask if info_x.ask > 0 else info_x.last
+    contract_y = info_y.trade_contract_size
+    print(f"Contract size {symbolY}: {contract_y}")
+    contract_x = info_x.trade_contract_size
+    print(f"Contract size {symbolX}: {contract_x}")
+    
+    # Calculate margin per lot for each asset
+    margin_y_per_lot = mt5.order_calc_margin(mt5.ORDER_TYPE_BUY, symbolY, 1.0, price_y)
+    print(f"Margin per lot {symbolY}: {margin_y_per_lot}")
+    margin_x_per_lot = mt5.order_calc_margin(mt5.ORDER_TYPE_BUY, symbolX, 1.0, price_x)
+    print(f"Margin per lot {symbolX}: {margin_x_per_lot}")
+    
+    # Apply grid/position scaling
+    grid_count = (total_positions/2)
+    fibo_index = min(int(grid_count), len(FIBO_VOLUME_FACTORS) - 1)
+    fibo_multiplier = FIBO_VOLUME_FACTORS[fibo_index]
+    
+    # Calculate available risk for this trade (scaled by grid position and volume factor)
+    risk_per_trade = (total_max_lots / VOLUME_FACTOR) * fibo_multiplier
+    
+    # METHOD 3: Notional Value Balanced
+    # We want: Notional_X = hedge_ratio × Notional_Y
+    # Where: Notional = Price × Contract_Size × Volume
+    # Therefore: (price_x × contract_x × volume_x) = hedge_ratio × (price_y × contract_y × volume_y)
+    
+    abs_hedge_ratio = abs(hedge_ratio)
+    
+    # Calculate the notional ratio
+    # volume_x = notional_ratio × volume_y
+    notional_ratio = abs_hedge_ratio * (price_y * contract_y) / (price_x * contract_x)
+    
+    # Solve for volume_y:
+    # margin_y × volume_y + margin_x × notional_ratio × volume_y = risk_per_trade
+    # volume_y × (margin_y + margin_x × notional_ratio) = risk_per_trade
+    # volume_y = risk_per_trade / (margin_y + margin_x × notional_ratio)
+    
+    denominator = margin_y_per_lot + (margin_x_per_lot * notional_ratio)
+    
+    if denominator > 0:
+        volume_y_calculated = risk_per_trade / denominator
+        volume_x_calculated = volume_y_calculated * notional_ratio
+    else:
+        # Fallback to equal allocation if calculation fails
+        print(f"Warning: Invalid denominator in METHOD 3 calculation, using equal allocation")
+        volume_y_calculated = risk_per_trade / (2 * margin_y_per_lot)
+        volume_x_calculated = risk_per_trade / (2 * margin_x_per_lot)
+    
+    # Round to volume steps
+    volume_y = round(volume_y_calculated / info_y.volume_step) * info_y.volume_step
+    volume_x = round(volume_x_calculated / info_x.volume_step) * info_x.volume_step
+    
+    # Enforce minimum volumes
+    volume_y = max(volume_y, min_lot_Y)
+    volume_x = max(volume_x, min_lot_X)
+    
+    # Enforce maximum volumes
+    volume_y = min(volume_y, info_y.volume_max)
+    volume_x = min(volume_x, info_x.volume_max)
+    
+    # Calculate actual notional values for verification
+    notional_y = price_y * contract_y * volume_y
+    notional_x = price_x * contract_x * volume_x
+    notional_ratio_actual = notional_x / notional_y if notional_y > 0 else 0
+    
+    # Calculate actual margin usage
+    margin_used_y = volume_y * margin_y_per_lot
+    margin_used_x = volume_x * margin_x_per_lot
+    total_margin_used = margin_used_y + margin_used_x
+    
+    print(f"Grid count: {grid_count}, Fibo index: {fibo_index}, Multiplier: {fibo_multiplier}")
+    print(f"Risk per trade: ${risk_per_trade:.2f}")
+    print(f"Hedge ratio: {hedge_ratio:.4f}")
+    print(f"Volume {symbolY}: {volume_y:.2f} lots (notional: ${notional_y:.2f}, margin: ${margin_used_y:.2f})")
+    print(f"Volume {symbolX}: {volume_x:.2f} lots (notional: ${notional_x:.2f}, margin: ${margin_used_x:.2f})")
+    print(f"Notional ratio: {notional_ratio_actual:.4f} (target: {abs_hedge_ratio:.4f})")
+    print(f"Total margin used: ${total_margin_used:.2f}")
+    
+    return float(volume_y), float(volume_x)
+
 async def test_calculate_volumes():
 
     """
@@ -351,8 +466,8 @@ async def test_calculate_volumes():
         volume_y, volume_x: Calculated volumes for each asset
     """
     mt5_conn = MT5Connector()
-    symbolY = 'WING26'
-    symbolX = 'WDOH26'
+    symbolY = 'WINJ26'
+    symbolX = 'WDOJ26'
     total_positions = 0
     hedge_ratio = 1.41  # Example hedge ratio
 
