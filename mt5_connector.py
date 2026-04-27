@@ -95,7 +95,7 @@ class MT5Connector:
             self.logger.error(f"Could not get positions for {symbol}")
             return False
         for pos in positions:
-            if pos.type == position_type:
+            if pos.magic == MAGIC_NUMBER and pos.type == position_type:
                 return True
         return False
     
@@ -111,6 +111,8 @@ class MT5Connector:
             all_set = True
 
             for position in positions:
+                if position.magic != MAGIC_NUMBER:
+                    continue
                 symbol = position.symbol
                 ticket = position.ticket
                 position_type = position.type
@@ -383,6 +385,8 @@ class MT5Connector:
                 logging.error("No deals , error code={}".format(mt5.last_error()))   
         elif len(deals) > 0:        
             for deal in deals:
+                if deal.magic != MAGIC_NUMBER:
+                    continue
                 if (len(deal.comment) > 1) and (deal.symbol != ''):
                     comment_deal = deal.comment.split(",")
                     total_valid_deals += 1
@@ -406,21 +410,25 @@ class MT5Connector:
 
     def get_open_positions(self):
         positions = mt5.positions_get()
-        return positions
+        if positions is None:
+            return []
+        return [p for p in positions if p.magic == MAGIC_NUMBER]
     
     def get_total_volume(self):
         total_volume = 0.0
         positions = mt5.positions_get()
         if positions is not None:
             for pos in positions:
-                total_volume += pos.volume
+                if pos.magic == MAGIC_NUMBER:
+                    total_volume += pos.volume
         return total_volume
     
     def get_total_positions(self):
-        total_orders = mt5.orders_total()
-        total_positions = mt5.positions_total()
-        total_orders_positions = total_orders + total_positions
-        return total_orders_positions
+        positions = mt5.positions_get()
+        orders = mt5.orders_get()
+        pos_count = sum(1 for p in positions if p.magic == MAGIC_NUMBER) if positions else 0
+        ord_count = sum(1 for o in orders if o.magic == MAGIC_NUMBER) if orders else 0
+        return pos_count + ord_count
     
     def last_error():
         last_error = mt5.last_error()

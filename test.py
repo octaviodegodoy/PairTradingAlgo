@@ -562,4 +562,28 @@ async def test_calculate_volumes():
     
     return float(volume_y), float(volume_x)
 
-asyncio.run(plot_data_prices())
+async def test_open_positions():
+    """Check if the account has any open positions managed by this trading algorithm (MAGIC_NUMBER)."""
+    from constants import MAGIC_NUMBER
+    mt5_conn = MT5Connector()
+    if not mt5_conn.initialize():
+        print("MT5 initialization failed")
+        return
+
+    positions = mt5_conn.get_open_positions()  # Already filtered by MAGIC_NUMBER
+
+    if not positions:
+        print(f"No open positions found for this algorithm (magic={MAGIC_NUMBER})")
+    else:
+        print(f"Found {len(positions)} open position(s) for magic={MAGIC_NUMBER}:")
+        for pos in positions:
+            direction = "BUY" if pos.type == 0 else "SELL"
+            print(
+                f"  Ticket={pos.ticket} | Symbol={pos.symbol} | {direction} | "
+                f"Volume={pos.volume} | Open Price={pos.price_open:.5f} | "
+                f"Profit={pos.profit:.2f} | Comment='{pos.comment}'"
+            )
+
+    mt5_conn.shutdown()
+
+asyncio.run(test_open_positions())
