@@ -29,3 +29,4 @@ NOISE_VARIANCE = 0.004
 KALMAN_FILTER_METHOD = True
 VECM_ECT_THRESHOLD = 1.5   # Minimum |VECM ECT z-score| required to open orders
 HURST_THRESHOLD = 0.5      # Spread Hurst exponent must be below this (mean-reverting)
+WAVELET_LEVEL = 2          # DWT decomposition levels for spread denoising (higher = more smoothing)

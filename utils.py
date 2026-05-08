@@ -1,12 +1,10 @@
 from datetime import datetime, timezone, timedelta
-from xml.parsers.expat import model
-
-from matplotlib import dates
-from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD
+from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL
 from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
+import pywt
 import math
 import numpy as np
 import logging
@@ -86,6 +84,21 @@ def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
     
     return results
 
+def wavelet_denoise_spread(spread: np.ndarray, wavelet: str = 'db4', level: int = WAVELET_LEVEL) -> np.ndarray:
+    """
+    Denoise spread using Discrete Wavelet Transform (DWT).
+    Zeroes out detail (high-frequency / noise) coefficients at all levels,
+    keeping only the approximation (low-frequency / signal).
+    Uses 'periodization' mode to preserve the original array length.
+    """
+    max_level = pywt.dwt_max_level(len(spread), wavelet)
+    level = min(level, max_level)
+    coeffs = pywt.wavedec(spread, wavelet, mode='periodization', level=level)
+    # Zero all detail levels — keep only the approximation
+    coeffs[1:] = [np.zeros_like(c) for c in coeffs[1:]]
+    denoised = pywt.waverec(coeffs, wavelet, mode='periodization')
+    return denoised[:len(spread)]
+
 def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
     # Log-transform the prices
     log_asset1 = np.log(asset1_prices['close'])
@@ -112,9 +125,9 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
     # Run Kalman Filter to get dynamic hedge ratios
     filter_results = kf.filter_batch(y, x)
 
-    # Extract spread
+    # Extract spread and denoise with wavelet transform
     spread = filter_results['spread'].values
-    
+    spread = wavelet_denoise_spread(spread)
 
     # Compute rolling statistics for z-score
     spread_series = pd.Series(spread)
