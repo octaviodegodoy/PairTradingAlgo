@@ -6,6 +6,7 @@ from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, STAR
 from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.vector_ar.vecm import coint_johansen
 import math
 import numpy as np
 import logging
@@ -151,6 +152,26 @@ def get_half_life(spread):
 
     return half_life
 
+def get_hurst_exponent(spread: np.ndarray, max_lag: int = 100) -> float:
+    """
+    Estimate Hurst exponent via variance-of-lags method.
+    H < 0.5  -> mean-reverting spread (good for pairs trading)
+    H ~ 0.5  -> random walk
+    H > 0.5  -> trending / persistent
+    """
+    spread = np.asarray(spread, dtype=float)
+    max_lag = min(max_lag, len(spread) // 2)
+    lags = range(2, max_lag)
+    tau = [np.std(spread[lag:] - spread[:-lag]) for lag in lags]
+    # Remove zero-std lags to avoid log(0)
+    valid = [(lag, t) for lag, t in zip(lags, tau) if t > 0]
+    if len(valid) < 2:
+        return 0.5  # not enough data, return neutral value
+    log_lags = np.log([v[0] for v in valid])
+    log_tau  = np.log([v[1] for v in valid])
+    poly = np.polyfit(log_lags, log_tau, 1)
+    return float(poly[0])
+
 def check_cointegration(spreads):
     # Perform Augmented Dickey-Fuller test on the spread
     print("Checking cointegration using ADF test")
@@ -190,6 +211,33 @@ def get_correlation(assetY,assetX):
     print(f"Calculating correlation between {assetY['close'].iloc[0]} and {assetX['close'].iloc[0]}")
     correlation = assetY['close'].corr(assetX['close'])
     return correlation
+
+def get_vecm_ect_zscore(asset1_prices, asset2_prices) -> float:
+    """
+    Compute the VECM Error Correction Term (ECT) z-score using the Johansen
+    cointegrating vector.  Returns the most recent normalized ECT value.
+    A high absolute value means prices are far from long-run equilibrium.
+    """
+    log_y = np.log(asset1_prices['close'])
+    log_x = np.log(asset2_prices['close'])
+    min_length = min(len(log_y), len(log_x))
+    log_y = log_y.iloc[:min_length].values
+    log_x = log_x.iloc[:min_length].values
+
+    data = np.column_stack([log_y, log_x])
+    johansen_result = coint_johansen(data, det_order=0, k_ar_diff=1)
+
+    # First eigenvector is the dominant cointegrating vector
+    ev = johansen_result.evec[:, 0]
+    beta = ev[0] / ev[1]   # normalise so log_x coefficient = 1
+
+    ect = log_y - beta * log_x
+    ect_series = pd.Series(ect)
+    rolling_mean = ect_series.rolling(window=ROLLING_PERIODS).mean()
+    rolling_std  = ect_series.rolling(window=ROLLING_PERIODS).std()
+    ect_zscore = (ect_series - rolling_mean) / rolling_std
+
+    return float(ect_zscore.iloc[-1])
 
 def get_group_name(symbol):
     return symbol[:3]+'*'

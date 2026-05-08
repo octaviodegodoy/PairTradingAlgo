@@ -3,12 +3,12 @@ from email import parser
 import math
 from turtle import color
 from mt5_connector import MT5Connector
-from utils import calculate_volumes, get_dynamic_spread_zscores, get_linear_regression_spread_zscores,check_cointegration,get_correlation
+from utils import calculate_volumes, get_dynamic_spread_zscores, get_linear_regression_spread_zscores, check_cointegration, get_correlation, get_half_life
 import logging
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, MARGIN_PERCENT, MARGIN_X, MARGIN_Y, NOISE_VARIANCE, PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD
+from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, KALMAN_FILTER_METHOD, MARGIN_PERCENT, MARGIN_X, MARGIN_Y, MAX_HALF_LIFE, MAX_RISK, NOISE_VARIANCE, PERIODS, ROLLING_PERIODS, START_TIME_HOUR, START_TIME_MINUTE, TRADE_WINDOW_TIME_HOURS, TRADE_WINDOW_TIME_MINUTES, TRADING_PAIR_Y, TRADING_PAIR_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD
 from sklearn.linear_model import LinearRegression
 import plotly.express as px
 import plotly.graph_objects as go
@@ -586,4 +586,350 @@ async def test_open_positions():
 
     mt5_conn.shutdown()
 
-asyncio.run(test_open_positions())
+async def backtest_strategy():
+    """
+    Backtests the pair trading strategy from main.py using the current constants parameters.
+
+    Entry logic mirrors main.py / PairTradingStrategy.scan_pairs_arbitrage():
+      - Compute spread and z-score via Kalman Filter (KALMAN_FILTER_METHOD=True) or OLS.
+      - Enter when |z_score| > Z_SCORE_ENTRY_THRESHOLD AND half-life < MAX_HALF_LIFE
+        AND ADF cointegration test passes.
+      - Direction: z < -threshold → long spread (BUY Y / SELL X for positive correlation);
+                   z > +threshold → short spread (SELL Y / BUY X).
+    Exit logic:
+      - z-score crosses zero (mean reversion complete).
+      - Stop-loss: |z_score| > 2.5 × Z_SCORE_ENTRY_THRESHOLD (adverse move).
+      - Force-close at the last bar.
+
+    Volumes are sized the same way as TradeExecution.execute_trade():
+      grid_lot_investment = equity * MARGIN_PERCENT / VOLUME_FACTOR
+      vol_x = grid_lot_investment / (1 + |hedge_ratio|)
+      vol_y = grid_lot_investment - vol_x
+
+    Reports: total trades, win rate, total P&L (points), total return,
+             max drawdown and Sharpe ratio. Plots equity curve, z-scores
+             and prices.
+    """
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    mt5_conn = MT5Connector()
+
+    # ── Date filter (set to None to use all available bars) ───────────────────
+    BACKTEST_START = "2024-04-01"   # e.g. pd.Timestamp("2025-01-01")
+    BACKTEST_END   = "2026-04-30"   # e.g. pd.Timestamp("2025-12-31")
+    # ─────────────────────────────────────────────────────────────────────────
+
+    if not mt5_conn.initialize():
+        logger.error("MT5 initialization failed")
+        return
+
+    logger.info("MT5 initialized. Starting backtest...")
+
+    try:
+        # Fetch enough bars: 60-bar rolling lookback + simulation window buffer.
+        # At each bar in the sim window the model sees only the preceding PERIODS bars
+        # (Kalman is causal, rolling z-score uses ROLLING_PERIODS). We request 3×PERIODS
+        # (~180 bars) so a full month simulation always has 60 bars of prior history.
+        FETCH_BARS = PERIODS * 3
+        assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0], n_bars=FETCH_BARS)
+        assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0], n_bars=FETCH_BARS)
+
+        min_required = PERIODS  # need at least 60 bars of history before simulating
+        if assets_y is None or assets_x is None or len(assets_y) < min_required or len(assets_x) < min_required:
+            logger.error(f"Insufficient data: need at least {min_required} bars (got {len(assets_y) if assets_y is not None else 0})")
+            return
+
+        min_len = min(len(assets_y), len(assets_x))
+        prices_y  = assets_y['close'].values[:min_len]   # session-close  (z-score / indicators)
+        prices_x  = assets_x['close'].values[:min_len]
+        opens_y   = assets_y['open'].values[:min_len]    # session-open   (trade entry price)
+        opens_x   = assets_x['open'].values[:min_len]
+        dates     = pd.to_datetime(assets_y['time'].values[:min_len])
+
+        # Trading window: START_TIME_HOUR:START_TIME_MINUTE UTC, duration TRADE_WINDOW_TIME_HOURS:TRADE_WINDOW_TIME_MINUTES
+        # With D1 bars each bar = one trading session → positions must be closed by session end (no overnight carry).
+        # Entry uses session open; end-of-session force-close uses session close.
+        session_start_utc = f"{START_TIME_HOUR:02d}:{START_TIME_MINUTE:02d} UTC"
+        session_end_minutes = START_TIME_HOUR * 60 + START_TIME_MINUTE + TRADE_WINDOW_TIME_HOURS * 60 + TRADE_WINDOW_TIME_MINUTES
+        session_end_utc = f"{session_end_minutes // 60:02d}:{session_end_minutes % 60:02d} UTC"
+        logger.info(f"Trading window: {session_start_utc} → {session_end_utc}  (no overnight carry enforced)")
+
+        logger.info(f"Data loaded: {min_len} bars | {TRADING_PAIR_Y[0]} / {TRADING_PAIR_X[0]}")
+
+        # Compute spread and z-scores over the full series (all bars used for warmup)
+        full_df_y = pd.DataFrame({'close': prices_y, 'time': dates})
+        full_df_x = pd.DataFrame({'close': prices_x, 'time': dates})
+
+        if KALMAN_FILTER_METHOD:
+            results = get_dynamic_spread_zscores(full_df_y, full_df_x)
+        else:
+            results = get_linear_regression_spread_zscores(full_df_y, full_df_x)
+
+        z_scores = results['z_scores'].values
+        hedge_ratios = results['hedge_ratio'].values
+        spreads_series = pd.Series(results['spread'].values)
+
+        # Determine simulation window — date filter restricts trading, not indicator warmup
+        sim_start = 0
+        sim_end = min_len
+        if BACKTEST_START is not None:
+            start_ts = pd.Timestamp(BACKTEST_START)
+            idx = np.searchsorted(dates, start_ts)
+            sim_start = max(sim_start, int(idx))
+        if BACKTEST_END is not None:
+            end_ts = pd.Timestamp(BACKTEST_END)
+            idx = np.searchsorted(dates, end_ts, side='right')
+            sim_end = min(sim_end, int(idx))
+
+        sim_bars = sim_end - sim_start
+        if sim_bars < 1:
+            logger.error(f"No bars found in date range {BACKTEST_START} → {BACKTEST_END}")
+            return
+        logger.info(f"Simulation window: {dates[sim_start].date()} → {dates[sim_end - 1].date()} ({sim_bars} bars)")
+
+        # Pre-compute cointegration and half-life on the full spread
+        half_life = get_half_life(spreads_series)
+        cointegration_ok = check_cointegration(spreads_series)
+        logger.info(f"Half-life: {half_life:.2f} | Cointegrated: {cointegration_ok} | "
+                    f"Kalman: {KALMAN_FILTER_METHOD} | Z threshold: {Z_SCORE_ENTRY_THRESHOLD}")
+
+        if not cointegration_ok or half_life >= MAX_HALF_LIFE:
+            logger.warning(
+                f"Pre-conditions not met (cointegration={cointegration_ok}, "
+                f"half_life={half_life:.2f}). Backtest aborted."
+            )
+            return
+
+        # ── Walk-forward simulation ────────────────────────────────────────────
+        # Correlation sign determines order types, mirroring trade_execution.py:
+        #   correlation > 0 → long_spread: BUY Y / SELL X  |  short_spread: SELL Y / BUY X
+        #   correlation < 0 → long_spread: BUY Y / BUY X   |  short_spread: SELL Y / SELL X
+        # Correlation is computed at each entry using the preceding PERIODS bars,
+        # exactly as the live strategy does via get_correlation(assets_y, assets_x)
+        # where assets_y/assets_x are fetched with n_bars=PERIODS (default 60).
+
+        # Seed equity from the real MT5 account so P&L is in account currency (BRL)
+        account_info = mt5_conn.get_account_info()
+        INITIAL_EQUITY = float(account_info.equity) if account_info is not None else 10_000.0
+        logger.info(f"Account equity (backtest seed): {INITIAL_EQUITY:.2f}")
+        equity = INITIAL_EQUITY
+        equity_curve = [equity]
+
+        trades = []
+        in_trade = False
+        direction = None          # 'long_spread' | 'short_spread'
+        entry_price_y = None
+        entry_price_x = None
+        inv_y = 0.0               # monetary allocation at entry (equity fraction)
+        inv_x = 0.0
+        x_long_sign = -1          # will be set at each entry
+        x_short_sign = 1
+        max_loss_pts = 0.0        # set at each entry: equity * MARGIN_PERCENT * MAX_RISK
+
+        for i in range(sim_start, sim_end):
+            z = z_scores[i]
+            if np.isnan(z):
+                equity_curve.append(equity)
+                continue
+
+            hedge_ratio_i = float(hedge_ratios[i])
+            # Volume sizing mirrors TradeExecution / strategy logic
+            grid_lot_investment = equity * MARGIN_PERCENT / VOLUME_FACTOR
+            inv_x = grid_lot_investment / (1 + abs(hedge_ratio_i))
+            inv_y = grid_lot_investment - inv_x
+
+            if not in_trade:
+                if z < -Z_SCORE_ENTRY_THRESHOLD or z > Z_SCORE_ENTRY_THRESHOLD:
+                    # Compute correlation over the same PERIODS lookback the live strategy uses
+                    corr_start = max(0, i - PERIODS)
+                    corr_y = pd.Series(prices_y[corr_start:i])
+                    corr_x = pd.Series(prices_x[corr_start:i])
+                    entry_correlation = corr_y.corr(corr_x)
+                    x_long_sign  =  1 if entry_correlation < 0 else -1
+                    x_short_sign = -1 if entry_correlation < 0 else  1
+                    entry_dir = 'long_spread' if z < -Z_SCORE_ENTRY_THRESHOLD else 'short_spread'
+                    in_trade = True
+                    direction = entry_dir
+                    # Entry at session OPEN (trade_manager starts at session open, not close)
+                    entry_price_y = opens_y[i]
+                    entry_price_x = opens_x[i]
+                    # inv_y / inv_x = monetary allocation (equity fraction); used for % PnL calc
+                    # max_loss mirrors trade_manager.py: equity * MARGIN_PERCENT * MAX_RISK
+                    entry_equity = equity
+                    max_loss_pts = entry_equity * MARGIN_PERCENT * MAX_RISK
+                    logger.info(
+                        f"ENTRY bar={i} date={dates[i].date()} dir={direction} "
+                        f"z={z:.3f} corr={entry_correlation:.4f} "
+                        f"x_sign={'BUY' if x_long_sign==1 else 'SELL'} X  "
+                        f"max_loss={max_loss_pts:.4f}"
+                    )
+                    trades.append({
+                        'entry_bar': i, 'entry_date': dates[i],
+                        'entry_z': z, 'direction': direction,
+                        'entry_correlation': entry_correlation,
+                        'order_y': 'BUY' if direction == 'long_spread' else 'SELL',
+                        'order_x': ('BUY' if x_long_sign == 1 else 'SELL') if direction == 'long_spread'
+                                   else ('SELL' if x_short_sign == -1 else 'BUY'),
+                    })
+
+            # ── Exit checks (run even on the same bar as entry) ────────────────
+            if in_trade:
+                # Exit price: session close (end-of-window approximation with D1 bars)
+                exit_price_y = prices_y[i]   # close = end-of-session price
+                exit_price_x = prices_x[i]
+                # PnL in % return × invested capital (same unit as equity).
+                # pnl = (price_change / entry_price) × investment_allocation
+                # This avoids multiplying raw price diffs by monetary amounts
+                # which causes unit mismatch and runaway compounding.
+                ret_y = (exit_price_y - entry_price_y) / entry_price_y
+                ret_x = (exit_price_x - entry_price_x) / entry_price_x
+                if direction == 'long_spread':
+                    unrealized_pnl = ret_y * inv_y + x_long_sign * ret_x * inv_x
+                else:
+                    unrealized_pnl = -ret_y * inv_y + x_short_sign * ret_x * inv_x
+
+                # Real stop: profit <= -max_loss (trade_manager.py line 41)
+                stop_loss_hit = unrealized_pnl <= -max_loss_pts
+                mean_reversion = (
+                    (direction == 'long_spread' and z >= 0) or
+                    (direction == 'short_spread' and z <= 0)
+                )
+                # End-of-session force close: mirrors `not check_trading_time()` in trade_manager.
+                # With D1 bars each bar = one session, so every bar triggers end-of-window close
+                # unless z-reversion or stop already triggered.
+                end_of_session = True   # always True for D1 — no overnight carry
+                force_close_data = i == sim_end - 1
+
+                if mean_reversion or stop_loss_hit or end_of_session or force_close_data:
+                    pnl = unrealized_pnl
+                    equity += pnl
+                    if mean_reversion:
+                        exit_reason = 'reversion'
+                    elif stop_loss_hit:
+                        exit_reason = 'stop_loss'
+                    elif end_of_session:
+                        exit_reason = 'end_of_session'
+                    else:
+                        exit_reason = 'end_of_data'
+                    trades[-1].update({
+                        'exit_bar': i, 'exit_date': dates[i],
+                        'exit_z': z, 'pnl': pnl,
+                        'is_win': pnl > 0, 'exit_reason': exit_reason
+                    })
+                    in_trade = False
+                    direction = None
+                    max_loss_pts = 0.0
+
+            equity_curve.append(equity)
+
+        # ── Performance metrics ────────────────────────────────────────────────
+        closed = [t for t in trades if 'pnl' in t]
+        total_trades = len(closed)
+        wins = sum(1 for t in closed if t['is_win'])
+        win_rate = (wins / total_trades * 100) if total_trades > 0 else 0.0
+        total_pnl = sum(t['pnl'] for t in closed)
+        total_return = (equity - INITIAL_EQUITY) / INITIAL_EQUITY * 100
+
+        eq_series = pd.Series(equity_curve)
+        rolling_max = eq_series.cummax()
+        max_drawdown = ((eq_series - rolling_max) / rolling_max).min() * 100
+
+        pnl_series = pd.Series([t['pnl'] for t in closed])
+        sharpe = (
+            (pnl_series.mean() / pnl_series.std() * np.sqrt(252))
+            if len(pnl_series) > 1 and pnl_series.std() > 0 else 0.0
+        )
+        avg_pnl = pnl_series.mean() if len(pnl_series) > 0 else 0.0
+        stop_losses = sum(1 for t in closed if t.get('exit_reason') == 'stop_loss')
+
+        print("\n========== BACKTEST RESULTS ==========")
+        print(f"Pair               : {TRADING_PAIR_Y[0]} (Y) / {TRADING_PAIR_X[0]} (X)")
+        print(f"Bars (total/sim)   : {min_len} / {sim_bars}  ({dates[sim_start].date()} → {dates[sim_end-1].date()})")
+        print(f"Method             : {'Kalman Filter' if KALMAN_FILTER_METHOD else 'OLS Rolling'}")
+        print(f"Z-Score threshold  : {Z_SCORE_ENTRY_THRESHOLD}")
+        print(f"Half-life          : {half_life:.2f}")
+        print(f"Cointegrated       : {cointegration_ok}")
+        print(f"--------------------------------------")
+        print(f"Total trades       : {total_trades}")
+        print(f"  Wins             : {wins}  ({win_rate:.1f}%)")
+        print(f"  Stop-losses      : {stop_losses}")
+        print(f"Avg P&L / trade    : {avg_pnl:.4f}")
+        print(f"Total P&L (points) : {total_pnl:.4f}")
+        print(f"Total return       : {total_return:.2f}%")
+        print(f"Max drawdown       : {max_drawdown:.2f}%")
+        print(f"Sharpe ratio       : {sharpe:.2f}")
+        print("--------------------------------------")
+        print(f"{'#':<3} {'Entry':<12} {'Exit':<12} {'Dir':<12} {TRADING_PAIR_Y[0]:<8} {TRADING_PAIR_X[0]:<8} {'Corr':>6} {'EntryZ':>7} {'ExitZ':>7} {'P&L':>10} {'Reason'}")
+        for idx, t in enumerate(closed, 1):
+            print(
+                f"{idx:<3} {str(t['entry_date'].date()):<12} {str(t['exit_date'].date()):<12} "
+                f"{t['direction']:<12} {t.get('order_y','?'):<8} {t.get('order_x','?'):<8} "
+                f"{t.get('entry_correlation', float('nan')):>6.3f} "
+                f"{t['entry_z']:>7.3f} {t['exit_z']:>7.3f} "
+                f"{t['pnl']:>10.4f} {t.get('exit_reason','?')}"
+            )
+        print("======================================\n")
+
+        # ── Plots ──────────────────────────────────────────────────────────────
+        fig, axes = plt.subplots(3, 1, figsize=(14, 11), layout='constrained')
+        fig.suptitle(
+            f'Backtest: {TRADING_PAIR_Y[0]} / {TRADING_PAIR_X[0]} | '
+            f'{"Kalman" if KALMAN_FILTER_METHOD else "OLS"} | '
+            f'Threshold={Z_SCORE_ENTRY_THRESHOLD}'
+        )
+
+        # Panel 1 – Price series (sim window only)
+        plot_dates = dates[sim_start:sim_end]
+        ax1a = axes[0]
+        ax1b = ax1a.twinx()
+        ax1a.plot(plot_dates, prices_y[sim_start:sim_end], color='blue', label=TRADING_PAIR_Y[0])
+        ax1b.plot(plot_dates, prices_x[sim_start:sim_end], color='orange', alpha=0.75, label=TRADING_PAIR_X[0])
+        ax1a.set_ylabel(f'{TRADING_PAIR_Y[0]} Price', color='blue')
+        ax1b.set_ylabel(f'{TRADING_PAIR_X[0]} Price', color='orange')
+        ax1a.set_title('Price Series')
+        ax1a.legend(loc='upper left')
+        ax1b.legend(loc='upper right')
+        ax1a.grid(True)
+
+        # Panel 2 – Z-scores with trade entry markers
+        axes[1].plot(plot_dates, z_scores[sim_start:sim_end], color='purple', linewidth=0.8, label='Z-Score')
+        axes[1].axhline(Z_SCORE_ENTRY_THRESHOLD, color='green', linestyle='--',
+                        linewidth=0.9, label=f'+{Z_SCORE_ENTRY_THRESHOLD}')
+        axes[1].axhline(-Z_SCORE_ENTRY_THRESHOLD, color='red', linestyle='--',
+                        linewidth=0.9, label=f'-{Z_SCORE_ENTRY_THRESHOLD}')
+        axes[1].axhline(0, color='black', linestyle='-', alpha=0.4)
+        for t in closed:
+            color_e = 'green' if t['is_win'] else 'red'
+            axes[1].axvline(t['entry_date'], color=color_e, alpha=0.25, linewidth=0.7)
+        axes[1].set_ylabel('Z-Score')
+        axes[1].set_title(
+            f'Z-Scores | Trades: {total_trades} | Wins: {wins} ({win_rate:.1f}%) | '
+            f'Stop-losses: {stop_losses}'
+        )
+        axes[1].legend(fontsize=8)
+        axes[1].grid(True)
+
+        # Panel 3 – Equity curve
+        # equity_curve[0] is the seed value before bar sim_start; align dates accordingly
+        eq_dates = dates[sim_start: sim_end]
+        eq_values = equity_curve[1: len(eq_dates) + 1]  # drop seed, match length
+        axes[2].plot(eq_dates, eq_values, color='navy', label='Equity')
+        axes[2].axhline(INITIAL_EQUITY, color='gray', linestyle='--', alpha=0.5)
+        axes[2].set_ylabel('Equity (points)')
+        axes[2].set_title(
+            f'Equity Curve | Return: {total_return:.2f}% | '
+            f'Max DD: {max_drawdown:.2f}% | Sharpe: {sharpe:.2f}'
+        )
+        axes[2].legend()
+        axes[2].grid(True)
+
+        plt.show()
+
+    except Exception as e:
+        logger.error(f"Backtest error: {e}", exc_info=True)
+    finally:
+        mt5_conn.shutdown()
+        logger.info("MT5 shutdown.")
+
+
+asyncio.run(plot_data_prices())

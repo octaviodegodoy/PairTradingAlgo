@@ -30,47 +30,60 @@ class MT5Connector:
             df = df[df['time'].dt.weekday < 5]  # 0=Monday, ..., 4=Friday
             return df
         
-    def get_data_futures_btg(self, symbol):
+    def get_data_futures_btg(self, symbol, n_bars=None):
+        if n_bars is None:
+            n_bars = PERIODS
+
         futures_symbols = mt5.symbols_get(symbol)
         time_now = int(time.time())
-        next_symbols_fut = {}
-        for s in futures_symbols:
-            if s.expiration_time > time_now and len(s.name) == 6:
-               #print(f"Found future symbol {s.name} expiring at {datetime.fromtimestamp(s.expiration_time)}")
-               next_symbols_fut[s.expiration_time] = s.name
+        next_symbols_fut = {}   # contracts still active
+        past_symbols_fut = {}   # contracts already expired
 
-        sorted_next_futures = dict(sorted(next_symbols_fut.items()))
-        current_symbol = list(sorted_next_futures.items())[0]
+        for s in futures_symbols:
+            if len(s.name) != 6:
+                continue
+            if s.expiration_time > time_now:
+                next_symbols_fut[s.expiration_time] = s.name
+            else:
+                past_symbols_fut[s.expiration_time] = s.name
+
+        # Front-month contract (nearest expiry)
+        sorted_next = dict(sorted(next_symbols_fut.items()))
+        current_symbol = list(sorted_next.items())[0]
         print(f"Current future symbol for {symbol} is {current_symbol[1]}")
 
-        fut_history_symbols = [current_symbol[1]]
-        fut_history_symbols.append(symbol.replace("*", "$"))  # Append the historical symbol
+        # Expired contracts sorted oldest→newest so we stitch chronologically
+        sorted_past = dict(sorted(past_symbols_fut.items()))
+
+        # Build fetch list: expired contracts + front-month + continuous historical symbol
+        fetch_symbols = list(sorted_past.values()) + [current_symbol[1]]
+        continuous_symbol = symbol.replace("*", "$")
+        fetch_symbols.append(continuous_symbol)
 
         dataframes = []
+        for fut_symbol in fetch_symbols:
+            rates = mt5.copy_rates_from_pos(fut_symbol, mt5.TIMEFRAME_D1, SHIFT_PERIODS, n_bars)
+            count = len(rates) if rates is not None else 0
+            print(f"Retrieved {count} records for symbol {fut_symbol}")
+            if rates is not None and count > 0:
+                df = pd.DataFrame(rates)
+                df['symbol'] = symbol
+                dataframes.append(df)
 
-        for fut_symbol in fut_history_symbols:
-            rates = mt5.copy_rates_from_pos(fut_symbol, mt5.TIMEFRAME_D1, SHIFT_PERIODS, PERIODS)
-            print(f"Retrieved {len(rates) if rates is not None else 0} records for symbol {fut_symbol}")
-            if rates is not None and len(rates) > 0:
-               df = pd.DataFrame(rates)
-               df['symbol'] = symbol  # Optionally keep track of the symbol
-               dataframes.append(df)
-
-        if dataframes:
-            all_data = pd.concat(dataframes, ignore_index=True)
-            # Remove duplicates based on the index (in this case, you might want to remove by 'time' or another column)
-            all_data = all_data.drop_duplicates(subset=['time', 'symbol'])  # Adjust subset as needed
-        else:
+        if not dataframes:
             print("No data retrieved.")
+            return pd.DataFrame()
 
-        # If 'time' is not already datetime, convert it
-        all_data['time'] = pd.to_datetime(all_data['time'], unit='s')  # or remove unit if already datetime
-        # Sort by date (most recent last)
-        all_data = all_data.sort_values('time')
-        futures_data = all_data[all_data['time'].dt.weekday < 5].tail(PERIODS)
+        all_data = pd.concat(dataframes, ignore_index=True)
+        # Deduplicate by date — prefer data from the front-month / most recent contract
+        # (sort so the continuous symbol rows come first, then override with contract rows)
+        all_data = all_data.drop_duplicates(subset=['time'], keep='last')
 
-        #print(f"Retrieved without weekends {len(futures_data)} with weekend records {len(all_data)} for futures data of {symbol}")
+        all_data['time'] = pd.to_datetime(all_data['time'], unit='s')
+        all_data = all_data.sort_values('time').reset_index(drop=True)
+        futures_data = all_data[all_data['time'].dt.weekday < 5].tail(n_bars)
 
+        print(f"Stitched {len(futures_data)} bars for {symbol} across {len(fetch_symbols)} contracts")
         return futures_data            
         
     def get_symbol_futures(self,group_name):
