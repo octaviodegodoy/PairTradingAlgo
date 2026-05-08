@@ -3,7 +3,8 @@ from email import parser
 import math
 from turtle import color
 from mt5_connector import MT5Connector
-from utils import calculate_volumes, get_dynamic_spread_zscores, get_linear_regression_spread_zscores, check_cointegration, get_correlation, get_half_life
+from utils import calculate_volumes, get_dynamic_spread_zscores, get_linear_regression_spread_zscores, check_cointegration, get_correlation, get_half_life, get_vecm_ect_zscore
+from statsmodels.tsa.vector_ar.vecm import coint_johansen
 import logging
 import pandas as pd
 import numpy as np
@@ -932,4 +933,119 @@ async def backtest_strategy():
         logger.info("MT5 shutdown.")
 
 
-asyncio.run(plot_data_prices())
+async def analyze_vecm_threshold():
+    """
+    Fetch full historical WIN*/WDO* data, compute the VECM ECT z-score series
+    over all available bars, and print a statistical report to help calibrate
+    VECM_ECT_THRESHOLD in constants.py.
+
+    Outputs:
+      - Descriptive statistics (mean, std, min/max, skew, kurtosis)
+      - Percentile table (|ECT z-score| at 50/75/80/85/90/95/99 %)
+      - Frequency table: how often |z| exceeds candidate thresholds
+      - Plot: ECT z-score time series + histogram
+    """
+    from constants import ROLLING_PERIODS, TRADING_PAIR_Y, TRADING_PAIR_X
+
+    logging.basicConfig(level=logging.WARNING)
+    mt5_conn = MT5Connector()
+    if not mt5_conn.initialize():
+        print("MT5 initialization failed")
+        return
+
+    try:
+        # Fetch maximum available history (2000 bars)
+        assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0], n_bars=2000)
+        assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0], n_bars=2000)
+
+        min_len = min(len(assets_y), len(assets_x))
+        if min_len < ROLLING_PERIODS + 10:
+            print(f"Not enough data: only {min_len} bars available.")
+            return
+
+        assets_y = assets_y.iloc[:min_len].reset_index(drop=True)
+        assets_x = assets_x.iloc[:min_len].reset_index(drop=True)
+
+        log_y = np.log(assets_y['close'].values)
+        log_x = np.log(assets_x['close'].values)
+        dates_arr = pd.to_datetime(assets_y['time'].values, unit='s') if assets_y['time'].dtype != 'datetime64[ns]' else assets_y['time'].values
+
+        # Johansen cointegration — get long-run beta once on full sample
+        data_matrix = np.column_stack([log_y, log_x])
+        johansen_result = coint_johansen(data_matrix, det_order=0, k_ar_diff=1)
+        ev = johansen_result.evec[:, 0]
+        beta = ev[0] / ev[1]
+        print(f"\nJohansen cointegrating vector: beta = {beta:.6f}")
+        print(f"(ECT = log({TRADING_PAIR_Y[0]}) - {beta:.4f} * log({TRADING_PAIR_X[0]}))")
+
+        # Build full ECT series and rolling z-score
+        ect = pd.Series(log_y - beta * log_x, index=dates_arr)
+        rolling_mean = ect.rolling(window=ROLLING_PERIODS).mean()
+        rolling_std  = ect.rolling(window=ROLLING_PERIODS).std()
+        ect_z = ((ect - rolling_mean) / rolling_std).dropna()
+
+        abs_z = ect_z.abs()
+
+        # ── Statistical report ──────────────────────────────────────────────
+        print(f"\n{'='*52}")
+        print(f"  VECM ECT Z-Score Analysis: {TRADING_PAIR_Y[0]} / {TRADING_PAIR_X[0]}")
+        print(f"  Bars used: {len(ect_z)}  (rolling window: {ROLLING_PERIODS})")
+        print(f"{'='*52}")
+        desc = ect_z.describe()
+        print(f"  Mean   : {desc['mean']:+.4f}")
+        print(f"  Std    : {desc['std']:.4f}")
+        print(f"  Min    : {desc['min']:+.4f}")
+        print(f"  Max    : {desc['max']:+.4f}")
+        print(f"  Skew   : {ect_z.skew():+.4f}")
+        print(f"  Kurt   : {ect_z.kurtosis():+.4f}")
+
+        print(f"\n  |ECT z-score| percentiles:")
+        for pct in [50, 75, 80, 85, 90, 95, 99]:
+            print(f"    {pct:>3}th percentile : {np.percentile(abs_z, pct):.4f}")
+
+        print(f"\n  Frequency above candidate thresholds (% of bars):")
+        print(f"  {'Threshold':>10}  {'Bars above':>10}  {'% of total':>10}  {'Trades/year (252d)':>18}")
+        for thr in [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]:
+            above = int((abs_z > thr).sum())
+            pct_above = 100.0 * above / len(abs_z)
+            trades_yr = above / (len(ect_z) / 252) if len(ect_z) >= 252 else above
+            print(f"  {thr:>10.2f}  {above:>10}  {pct_above:>9.2f}%  {trades_yr:>18.1f}")
+        print(f"{'='*52}\n")
+
+        # ── Plots ──────────────────────────────────────────────────────────
+        from constants import VECM_ECT_THRESHOLD
+        fig, axes = plt.subplots(2, 1, figsize=(14, 8), layout='constrained')
+        fig.suptitle(f'VECM ECT Z-Score — {TRADING_PAIR_Y[0]} / {TRADING_PAIR_X[0]}  |  beta={beta:.4f}')
+
+        # Panel 1: time series
+        axes[0].plot(ect_z.index, ect_z.values, color='steelblue', linewidth=0.8, label='ECT z-score')
+        for thr, col in [(VECM_ECT_THRESHOLD, 'red'), (1.0, 'orange'), (2.0, 'green')]:
+            axes[0].axhline( thr, color=col, linestyle='--', linewidth=0.8, label=f'+{thr}')
+            axes[0].axhline(-thr, color=col, linestyle='--', linewidth=0.8)
+        axes[0].axhline(0, color='black', alpha=0.3)
+        axes[0].set_ylabel('ECT Z-Score')
+        axes[0].set_title('ECT Z-Score over time')
+        axes[0].legend(fontsize=8)
+        axes[0].grid(True)
+
+        # Panel 2: histogram of |z|
+        axes[1].hist(abs_z.values, bins=60, color='steelblue', edgecolor='white', alpha=0.8)
+        for thr, col in [(VECM_ECT_THRESHOLD, 'red'), (1.0, 'orange'), (2.0, 'green')]:
+            axes[1].axvline(thr, color=col, linestyle='--', linewidth=1.2, label=f'|z|={thr}')
+        axes[1].set_xlabel('|ECT Z-Score|')
+        axes[1].set_ylabel('Frequency')
+        axes[1].set_title('Distribution of |ECT Z-Score|  (current threshold shown in red)')
+        axes[1].legend(fontsize=8)
+        axes[1].grid(True)
+
+        plt.show()
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error: {e}")
+    finally:
+        mt5_conn.shutdown()
+
+
+asyncio.run(analyze_vecm_threshold())
