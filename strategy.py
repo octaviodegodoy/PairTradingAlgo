@@ -2,10 +2,10 @@ import logging
 import math
 import numpy as np
 import pandas as pd
-from constants import KALMAN_FILTER_METHOD, MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD, VECM_ECT_THRESHOLD, HURST_THRESHOLD
+from constants import KALMAN_FILTER_METHOD, MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD, VECM_ECT_THRESHOLD, HURST_THRESHOLD, SCAN_COINTEGRATION_METHOD, SCAN_JOHANSEN_CRIT_LEVEL, OU_LAMBDA_MIN
 import time
 from mt5_connector import MT5Connector
-from utils import check_cointegration, get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores, get_vecm_ect_zscore, get_hurst_exponent
+from utils import check_cointegration, get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores, get_vecm_ect_zscore, get_hurst_exponent, get_ou_params
 
 class PairTradingStrategy:
     def __init__(self):
@@ -65,7 +65,12 @@ class PairTradingStrategy:
                   half_life = get_half_life(results['spread'])
                   half_life_condition = half_life < MAX_HALF_LIFE
                   self.logger.info(f"Calculated Half-Life: {half_life}, Half-Life Condition Met: {half_life_condition}")
-                  cointegration_condition = check_cointegration(results['spread'])
+                  cointegration_condition = check_cointegration(
+                      assets_y,
+                      assets_x,
+                      method_override=SCAN_COINTEGRATION_METHOD,
+                      johansen_crit_level_override=SCAN_JOHANSEN_CRIT_LEVEL,
+                  )
 
                   vecm_ect_zscore = get_vecm_ect_zscore(assets_y, assets_x)
                   vecm_condition = abs(vecm_ect_zscore) >= VECM_ECT_THRESHOLD
@@ -73,11 +78,15 @@ class PairTradingStrategy:
                   hurst = get_hurst_exponent(results['spread'].values)
                   hurst_condition = hurst < HURST_THRESHOLD
 
+                  ou = get_ou_params(results['spread'].values)
+                  ou_condition = ou['is_mean_reverting']
+
                   self.logger.info(f"Cointegration Condition Met: {cointegration_condition}")
                   self.logger.info(f"VECM ECT Z-Score: {vecm_ect_zscore:.4f}, VECM Condition Met: {vecm_condition}")
                   self.logger.info(f"Hurst Exponent: {hurst:.4f}, Hurst Condition Met: {hurst_condition}")
+                  self.logger.info(f"OU λ={ou['lambda_']:.6f}, μ={ou['mu']:.6f}, σ={ou['sigma']:.6f}, OU Condition Met: {ou_condition}")
                   self.logger.info(f"Hedge ratio between {pair_y[i]} and {pair_x[j]}: {results['hedge_ratio'].iloc[-1]} and z score is {results['z_scores'].iloc[-1]} and spread is {results['spread'].iloc[-1]}")
-                  arbitrage_found = zscore_condition and half_life_condition and cointegration_condition and vecm_condition and hurst_condition
+                  arbitrage_found = zscore_condition and half_life_condition and cointegration_condition and vecm_condition and hurst_condition and ou_condition
                   print(f"Arbitrage Found: {arbitrage_found}")
                   scan_results = {
                       'pair_y': pair_y[i],

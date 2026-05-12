@@ -1,8 +1,8 @@
 from datetime import datetime, timezone, timedelta
-from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL
+from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN
 from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 from sklearn.linear_model import LinearRegression
-from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.stattools import adfuller, coint
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
 import pywt
 import math
@@ -165,6 +165,45 @@ def get_half_life(spread):
 
     return half_life
 
+def get_ou_params(spread) -> dict:
+    """
+    Fit the Ornstein-Uhlenbeck process to the spread via discrete-time OLS:
+        ΔX_t = a + b * X_{t-1} + ε_t
+    Returns:
+        lambda_ : mean-reversion speed  (λ = -b;  λ > 0 means mean-reverting)
+        mu      : long-run mean          (μ = -a/b)
+        sigma   : residual std
+        is_mean_reverting : True when λ > OU_LAMBDA_MIN
+    """
+    spread_series = pd.Series(np.asarray(spread, dtype=float))
+    spread_lagged = spread_series.shift(1).dropna()
+    spread_delta  = (spread_series - spread_series.shift(1)).dropna()
+
+    X = spread_lagged.values.reshape(-1, 1)
+    y = spread_delta.values
+
+    model = LinearRegression(fit_intercept=True)
+    model.fit(X, y)
+
+    b = float(model.coef_[0])
+    a = float(model.intercept_)
+
+    lambda_ = -b
+    mu      = (-a / b) if b != 0 else float('nan')
+    sigma   = float(np.std(y - model.predict(X)))
+    is_mean_reverting = lambda_ > OU_LAMBDA_MIN
+
+    print(
+        f"OU params: λ={lambda_:.6f}, μ={mu:.6f}, σ={sigma:.6f}, "
+        f"mean_reverting={is_mean_reverting} (min λ={OU_LAMBDA_MIN})"
+    )
+    return {
+        'lambda_': lambda_,
+        'mu': mu,
+        'sigma': sigma,
+        'is_mean_reverting': is_mean_reverting,
+    }
+
 def get_hurst_exponent(spread: np.ndarray, max_lag: int = 100) -> float:
     """
     Estimate Hurst exponent via variance-of-lags method.
@@ -185,16 +224,89 @@ def get_hurst_exponent(spread: np.ndarray, max_lag: int = 100) -> float:
     poly = np.polyfit(log_lags, log_tau, 1)
     return float(poly[0])
 
-def check_cointegration(spreads):
-    # Perform Augmented Dickey-Fuller test on the spread
+def check_cointegration(
+    asset1_prices,
+    asset2_prices,
+    method_override=None,
+    johansen_crit_level_override=None,
+    adf_pvalue_threshold_override=None,
+    adf_crit_level_override=None,
+    eg_pvalue_threshold_override=None,
+    eg_crit_level_override=None,
+):
+    """
+    Check cointegration with configurable method: Johansen, ADF, or Engle-Granger.
+    """
+    log_y = np.log(asset1_prices['close'])
+    log_x = np.log(asset2_prices['close'])
+    min_length = min(len(log_y), len(log_x))
+    log_y = log_y.iloc[:min_length].values
+    log_x = log_x.iloc[:min_length].values
+
+    method = (method_override or COINTEGRATION_METHOD).lower()
+    if method == "johansen":
+        print("Checking cointegration using Johansen test")
+        johansen_crit_level = johansen_crit_level_override or JOHANSEN_CRIT_LEVEL
+        cvt_index = {"90%": 0, "95%": 1, "99%": 2}.get(johansen_crit_level, 1)
+        data = np.column_stack([log_y, log_x])
+        johansen_result = coint_johansen(data, det_order=0, k_ar_diff=1)
+
+        trace_stat = johansen_result.lr1[0]
+        trace_cv  = johansen_result.cvt[0, cvt_index]
+        trace_ok  = trace_stat > trace_cv
+
+        max_eigen_stat = johansen_result.lr2[0]
+        max_eigen_cv   = johansen_result.cvm[0, cvt_index]
+        max_eigen_ok   = max_eigen_stat > max_eigen_cv
+
+        coint_flag = trace_ok and max_eigen_ok
+        print(
+            "Johansen Trace Result: trace_stat="
+            f"{trace_stat}, critical_value({johansen_crit_level})={trace_cv}, trace_ok={trace_ok}"
+        )
+        print(
+            "Johansen Max-Eigen Result: max_eigen_stat="
+            f"{max_eigen_stat}, critical_value({johansen_crit_level})={max_eigen_cv}, max_eigen_ok={max_eigen_ok}"
+        )
+        print(f"Johansen Cointegration Flag (Trace AND Max-Eigen)={coint_flag}")
+        return coint_flag
+
+    if method == "engle":
+        print("Checking cointegration using Engle-Granger test")
+        eg_crit_level = eg_crit_level_override or EG_CRIT_LEVEL
+        eg_pvalue_threshold = eg_pvalue_threshold_override or EG_PVALUE_THRESHOLD
+        crit_index = {"1%": 0, "5%": 1, "10%": 2}.get(eg_crit_level, 1)
+        t_stat, pval, crit = coint(log_y, log_x, trend='c', autolag='AIC')
+        t_check = t_stat < crit[crit_index]
+        coint_flag = pval < eg_pvalue_threshold and t_check
+        print(
+            "Engle-Granger Result: t-stat="
+            f"{t_stat}, p-value={pval}, critical_value({eg_crit_level})={crit[crit_index]}, "
+            f"Cointegration Flag={coint_flag}"
+        )
+        return coint_flag
+
+    # Default to ADF on OLS residual spread
     print("Checking cointegration using ADF test")
-    adf_result = adfuller(spreads)
+    X = log_x.reshape(-1, 1)
+    y = log_y
+    model = LinearRegression()
+    model.fit(X, y)
+    residuals = y - model.predict(X)
+
+    adf_result = adfuller(residuals)
     p_value = adf_result[1]
     coint_t = adf_result[0]
-    critical_value = adf_result[4]['10%']
+    adf_crit_level = adf_crit_level_override or ADF_CRIT_LEVEL
+    adf_pvalue_threshold = adf_pvalue_threshold_override or ADF_PVALUE_THRESHOLD
+    critical_value = adf_result[4].get(adf_crit_level, adf_result[4]['5%'])
     t_check = coint_t < critical_value
-    coint_flag = p_value < 0.15 and t_check
-    print(f"ADF Test Result: p-value={p_value}, coint_t={coint_t}, critical_value(10%)={critical_value}, Cointegration Flag={coint_flag}")
+    coint_flag = p_value < adf_pvalue_threshold and t_check
+    print(
+        "ADF Test Result: p-value="
+        f"{p_value}, coint_t={coint_t}, critical_value({adf_crit_level})={critical_value}, "
+        f"Cointegration Flag={coint_flag}"
+    )
     return coint_flag
 
 def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_lots,total_positions):

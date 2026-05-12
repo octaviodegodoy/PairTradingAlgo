@@ -90,7 +90,7 @@ async def plot_data_prices():
                     print(f"Kalman Hedge ratio: {result_kalman['hedge_ratio'].iloc[-1]}, Kalman Z-Score: {len(result_kalman['z_scores'])} kalman spread {len(result_kalman['spread'])}")
                     correlation = assets_y['close'].corr(assets_x['close'])
                     print(f"Correlation is {correlation} between {TRADING_PAIR_Y[i]} and {TRADING_PAIR_X[j]}")
-                    cointegration_condition = check_cointegration(result['spread'])
+                    cointegration_condition = check_cointegration(assets_y, assets_x)
                     log_asset1 = np.log(assets_y['close'])
                     log_asset2 = np.log(assets_x['close'])
 
@@ -690,7 +690,7 @@ async def backtest_strategy():
 
         # Pre-compute cointegration and half-life on the full spread
         half_life = get_half_life(spreads_series)
-        cointegration_ok = check_cointegration(spreads_series)
+        cointegration_ok = check_cointegration(full_df_y, full_df_x)
         logger.info(f"Half-life: {half_life:.2f} | Cointegrated: {cointegration_ok} | "
                     f"Kalman: {KALMAN_FILTER_METHOD} | Z threshold: {Z_SCORE_ENTRY_THRESHOLD}")
 
@@ -1048,4 +1048,4 @@ async def analyze_vecm_threshold():
         mt5_conn.shutdown()
 
 
-asyncio.run(analyze_vecm_threshold())
+asyncio.run(plot_data_prices())

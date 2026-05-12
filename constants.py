@@ -15,7 +15,7 @@ START_TIME_MINUTE = 5
 TRADE_WINDOW_TIME_HOURS = 7
 TRADE_WINDOW_TIME_MINUTES = 30
 UNIX_DAY = 24 * 60 * 60
-Z_SCORE_ENTRY_THRESHOLD = 1.10
+Z_SCORE_ENTRY_THRESHOLD = 0.75
 MARGIN_Y = 100
 MARGIN_X = 150
 VOLUME_FACTOR = 12
@@ -27,6 +27,15 @@ MAX_GRIDS = 5
 ADDITIONAL_GRID = GRID_RANGE / MAX_GRIDS
 NOISE_VARIANCE = 0.004
 KALMAN_FILTER_METHOD = True
+COINTEGRATION_METHOD = "adf"  # "johansen", "adf", or "engle"
+JOHANSEN_CRIT_LEVEL = "95%"        # "90%", "95%", or "99%"
+ADF_PVALUE_THRESHOLD = 0.05
+ADF_CRIT_LEVEL = "5%"              # "1%", "5%", or "10%"
+EG_PVALUE_THRESHOLD = 0.05
+EG_CRIT_LEVEL = "5%"               # "1%", "5%", or "10%"
+SCAN_COINTEGRATION_METHOD = "adf"  # Applies only to scan_pairs_arbitrage
+SCAN_JOHANSEN_CRIT_LEVEL = "95%"        # "90%", "95%", or "99%"
+OU_LAMBDA_MIN = 0.01       # Minimum OU mean-reversion speed λ; below this the spread is near a random walk
 VECM_ECT_THRESHOLD = 1.5   # Minimum |VECM ECT z-score| required to open orders
 HURST_THRESHOLD = 0.5      # Spread Hurst exponent must be below this (mean-reverting)
-WAVELET_LEVEL = 2          # DWT decomposition levels for spread denoising (higher = more smoothing)
+WAVELET_LEVEL = 1          # DWT decomposition levels for spread denoising (higher = more smoothing)
