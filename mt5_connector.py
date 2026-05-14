@@ -3,33 +3,21 @@ import logging
 from datetime import datetime, timedelta
 import time
 import pandas as pd
-from constants import MARGIN_PERCENT, MARGIN_X, MARGIN_Y, PERIODS, SHIFT_PERIODS, TRAILING_DISTANCE_POINTS, UNIX_DAY, MAGIC_NUMBER
-from utils import calculate_volumes
+from constants import MAGIC_NUMBER, PERIODS, SHIFT_PERIODS
 
 class MT5Connector:
     
     ORDER_TYPE_BUY = mt5.ORDER_TYPE_BUY
     ORDER_TYPE_SELL = mt5.ORDER_TYPE_SELL
     TIMEFRAME_D1 = mt5.TIMEFRAME_D1
+    POSITION_TYPE_BUY = mt5.POSITION_TYPE_BUY
+    POSITION_TYPE_SELL = mt5.POSITION_TYPE_SELL
 
     def __init__(self):
         if not mt5.initialize():
             raise RuntimeError("Failed to initialize MetaTrader 5")
         self.logger = logging.getLogger(__name__)
 
-    def get_data(self, symbol):
-        rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_D1, SHIFT_PERIODS, PERIODS)
-        if rates is None:
-            self.logger.error(f"Could not get rates for {symbol}")
-            return None
-        else:
-            df = pd.DataFrame(rates)
-            df = df.dropna()
-            df['time'] = pd.to_datetime(df['time'], unit='s')
-            # Filter out weekends (keep only weekdays)
-            df = df[df['time'].dt.weekday < 5]  # 0=Monday, ..., 4=Friday
-            return df
-        
     def get_data_futures_btg(self, symbol, n_bars=None):
         if n_bars is None:
             n_bars = PERIODS
@@ -111,115 +99,11 @@ class MT5Connector:
             if pos.magic == MAGIC_NUMBER and pos.type == position_type:
                 return True
         return False
-    
-    def all_positions_stop_loss(self):
 
-        while True:  
-            # Get all open positions
-            positions = mt5.positions_get()
-
-            if positions is None:
-                print("No positions found, error code =", mt5.last_error())
-                return
-            all_set = True
-
-            for position in positions:
-                if position.magic != MAGIC_NUMBER:
-                    continue
-                symbol = position.symbol
-                ticket = position.ticket
-                position_type = position.type
-                symbol_info = mt5.symbol_info(symbol)
-                tick_size = symbol_info.trade_tick_size
-            
-                ask = symbol_info.ask
-                bid = symbol_info.bid
-            
-                # Calculate the stop loss price based on the position type
-                if position_type == mt5.POSITION_TYPE_BUY:
-                    stop_loss_price = bid - TRAILING_DISTANCE_POINTS * tick_size
-                elif position_type == mt5.POSITION_TYPE_SELL:
-                    stop_loss_price = ask + TRAILING_DISTANCE_POINTS * tick_size
-                print(f"Tentando setar stop com stop price {stop_loss_price} no ask {ask}")
-                # Modify the position to include the stop loss
-                request = {
-                        "action": mt5.TRADE_ACTION_SLTP,
-                        "symbol": symbol,
-                        "position": ticket,
-                        "sl": stop_loss_price,
-                        "tp": 0.0,
-                    }
-
-                if position.sl == 0.0:
-                    # Only set the stop loss if it is not already set
-                    print(f"Setting stop loss for position {ticket} on {symbol} to {stop_loss_price}")
-                    result = mt5.order_send(request)
-                    print(f"Result of order check for ticket {ticket}: ", result)
-                
-                    if result.retcode != mt5.TRADE_RETCODE_DONE:
-                        print(f"Failed to set stop loss for position {ticket}, error code: {result.retcode}")
-                    all_set = False
-
-            if all_set:
-                print("All positions have non-zero stop loss. Exiting loop.")
-                break
-
-            time.sleep(1)  # Sleep for a short time before checking again 
-
-    def trailing_stop(self,symbol,position_type,stop_loss,ticket,position):
-    # Get all open positions    
-        profit = mt5.account_info().profit
-        stop_active = stop_loss != 0.0
-        symbol_info = mt5.symbol_info(symbol)
-        tick_size = symbol_info.trade_tick_size
-        digits = symbol_info.digits
-        ask = symbol_info.ask
-        bid = symbol_info.bid    
-        
-        # Check if profit exceeds the threshold
-        if stop_active:
-            
-            # Calculate the new stop loss level
-            if position_type == mt5.ORDER_TYPE_BUY:
-                new_stop_loss = bid - (TRAILING_DISTANCE_POINTS * tick_size)
-                
-                # Only modify if the new SL is higher than the current one
-                if (stop_loss == 0.0) or new_stop_loss > stop_loss:
-                    print(f"Updating Trailing para {symbol} point {tick_size} com profit {profit} new stop {new_stop_loss} old stop {stop_loss} ")
-                    request = {
-                        "action": mt5.TRADE_ACTION_SLTP,
-                        "symbol": symbol,
-                        "position": ticket,
-                        "sl": new_stop_loss,
-                        "tp": position.tp,
-                    }
-                    result = mt5.order_send(request)
-                    if result.retcode != mt5.TRADE_RETCODE_DONE:
-                        print(f"Failed to update SL for BUY {symbol}, ticket {ticket}: {result.comment}")
-                    else:
-                        print(f"Trailing stop updated for BUY {symbol}, ticket {ticket}. New SL: {new_stop_loss:.{digits}f}")
-            elif position_type == mt5.ORDER_TYPE_SELL:
-                new_stop_loss = ask + (TRAILING_DISTANCE_POINTS * tick_size)
-                # Only modify if the new SL is lower than the current one
-                if (stop_loss == 0.0) or new_stop_loss < stop_loss:
-                    print(f"Updating Trailing para {symbol} point {tick_size} com profit {profit} new stop {new_stop_loss} old stop {stop_loss} ")
-                    request = {
-                        "action": mt5.TRADE_ACTION_SLTP,
-                        "symbol": symbol,
-                        "position": ticket,
-                        "sl": new_stop_loss,
-                        "tp": position.tp,
-                    }
-                    result = mt5.order_send(request)
-                    if result.retcode != mt5.TRADE_RETCODE_DONE:
-                        print(f"Failed to update SL for SELL {symbol}, ticket {ticket}: {result.comment}")
-                    else:
-                        print(f"Trailing stop updated for SELL {symbol}, ticket {ticket}. New SL: {new_stop_loss:.{digits}f}")
-
-
-    def place_order(self,symbolY,symbolX,volumeY,volumeX,orders_type,zscore):
+    def place_order(self, symbolY, symbolX, volumeY, volumeX, orders_type, zscore, sl_y: float = 0.0, sl_x: float = 0.0):
         """
-        Place orders with retry logic for both symbols.
+        Place paired orders with retry logic.
+        sl_y / sl_x : pre-computed stop-loss prices for each leg (0.0 = no SL).
         Returns True if both orders succeeded, False otherwise.
         """
         max_retries = 3
@@ -246,7 +130,7 @@ class MT5Connector:
                 "volume": volumeY,
                 "type": orders_type[0],
                 "price": price_y,
-                "sl": 0.0,
+                "sl": sl_y,
                 "tp": 0.0,
                 "deviation": 10,
                 "magic": MAGIC_NUMBER,
@@ -284,7 +168,7 @@ class MT5Connector:
                 "volume": volumeX,
                 "type": orders_type[1],
                 "price": price_x,
-                "sl": 0.0,
+                "sl": sl_x,
                 "tp": 0.0,
                 "deviation": 10,
                 "magic": MAGIC_NUMBER,
@@ -303,21 +187,54 @@ class MT5Connector:
                 time.sleep(retry_delay)
             else:
                 print(f"✗ Order X failed with non-retryable error {result_x_order.retcode}: {result_x_order.comment}")
-                # Y order succeeded but X failed - consider closing Y position here
+                # Y order succeeded but X failed — close Y immediately to avoid unhedged exposure
+                self._emergency_close_leg(symbolY, orders_type[0], volumeY)
                 return False
         
         if result_x_order.retcode != mt5.TRADE_RETCODE_DONE:
-            print(f"✗ Order X failed after {max_retries} attempts")
-            # Y order succeeded but X failed - consider closing Y position here
+            print(f"\u2717 Order X failed after {max_retries} attempts")
+            # Y order succeeded but X failed — close Y immediately to avoid unhedged exposure
+            self._emergency_close_leg(symbolY, orders_type[0], volumeY)
             return False
         
         print(f"✓ Both orders executed successfully!")
-        return True 
-    
+        return True
+
+    def _emergency_close_leg(self, symbol: str, open_order_type: int, volume: float):
+        """Close a single unhedged leg to eliminate naked exposure after a partial fill failure."""
+        positions = mt5.positions_get(symbol=symbol)
+        if not positions:
+            return
+        own = [p for p in positions if p.magic == MAGIC_NUMBER]
+        if not own:
+            return
+        pos = max(own, key=lambda p: p.time)
+        close_type = mt5.ORDER_TYPE_SELL if pos.type == mt5.ORDER_TYPE_BUY else mt5.ORDER_TYPE_BUY
+        tick = mt5.symbol_info_tick(symbol)
+        close_price = tick.bid if close_type == mt5.ORDER_TYPE_SELL else tick.ask
+        req = {
+            "action": mt5.TRADE_ACTION_DEAL,
+            "symbol": symbol,
+            "volume": pos.volume,
+            "type": close_type,
+            "position": pos.ticket,
+            "price": close_price,
+            "deviation": 20,
+            "magic": MAGIC_NUMBER,
+            "comment": "Emergency close unhedged leg",
+            "type_time": mt5.ORDER_TIME_GTC,
+            "type_filling": mt5.ORDER_FILLING_IOC,
+        }
+        result = mt5.order_send(req)
+        if result.retcode == mt5.TRADE_RETCODE_DONE:
+            print(f"\u2713 Emergency close of unhedged {symbol} leg succeeded")
+        else:
+            print(f"\u2717 Emergency close of {symbol} failed: {result.retcode} {result.comment}")
+
     def close_all_positions(self):
         # Get all open positions
         positions = mt5.positions_get()
-        if positions is not None or len(positions) > 0:
+        if positions is not None and len(positions) > 0:  # Fixed: 'or' caused TypeError when positions is None
             # Loop through each position and close it
             for position in positions:
                 symbol = position.symbol
@@ -329,10 +246,10 @@ class MT5Connector:
             # Determine the opposite order type to close the position
                 if position_type == mt5.ORDER_TYPE_BUY:
                     order_type = mt5.ORDER_TYPE_SELL
-                    zscore = mt5.symbol_info_tick(symbol).bid
+                    close_price = mt5.symbol_info_tick(symbol).bid
                 else:
                     order_type = mt5.ORDER_TYPE_BUY
-                    zscore = mt5.symbol_info_tick(symbol).ask
+                    close_price = mt5.symbol_info_tick(symbol).ask
 
             # Create a close request
                 request = {
@@ -341,7 +258,7 @@ class MT5Connector:
                     "volume": volume,
                     "type": order_type,
                     "position": ticket,
-                    "zscore": zscore,
+                    "price": close_price,  # Fixed: was incorrectly keyed as "zscore"
                     "deviation": 20,
                     "magic": MAGIC_NUMBER,
                     "comment": "Close position",
@@ -367,9 +284,9 @@ class MT5Connector:
                         print(f"⚠ Close attempt {attempt + 1} failed for {symbol}, retcode {result.retcode}. Retrying...")
                         # Update price for retry
                         if order_type == mt5.ORDER_TYPE_SELL:
-                            request["zscore"] = mt5.symbol_info_tick(symbol).bid
+                            request["price"] = mt5.symbol_info_tick(symbol).bid
                         else:
-                            request["zscore"] = mt5.symbol_info_tick(symbol).ask
+                            request["price"] = mt5.symbol_info_tick(symbol).ask
                         time.sleep(retry_delay)
                     else:
                         print(f"✗ Close failed with non-retryable error {result.retcode}: {result.comment}")
@@ -427,15 +344,6 @@ class MT5Connector:
             return []
         return [p for p in positions if p.magic == MAGIC_NUMBER]
     
-    def get_total_volume(self):
-        total_volume = 0.0
-        positions = mt5.positions_get()
-        if positions is not None:
-            for pos in positions:
-                if pos.magic == MAGIC_NUMBER:
-                    total_volume += pos.volume
-        return total_volume
-    
     def get_total_positions(self):
         positions = mt5.positions_get()
         orders = mt5.orders_get()
@@ -443,10 +351,6 @@ class MT5Connector:
         ord_count = sum(1 for o in orders if o.magic == MAGIC_NUMBER) if orders else 0
         return pos_count + ord_count
     
-    def last_error():
-        last_error = mt5.last_error()
-        return last_error
-
     def sleep(self, seconds):
         time.sleep(seconds)
 
@@ -464,10 +368,18 @@ class MT5Connector:
         margin = mt5.order_calc_margin(order_type, symbol, volume, price)
         return margin
     
-    def get_max_lots(self):
-        current_equity = mt5.account_info().equity
-        total_margin = current_equity*MARGIN_PERCENT
-        max_lots_y = total_margin/MARGIN_Y
-        max_lots_x = total_margin/MARGIN_X
-        total_max_lots = max_lots_y + max_lots_x
-        return total_max_lots
+    def get_symbol_tick(self, symbol):
+        """Return the latest tick (ask/bid/last) for the given symbol."""
+        return mt5.symbol_info_tick(symbol)
+
+    def modify_position_sl(self, ticket: int, symbol: str, sl_price: float, tp_price: float = 0.0) -> bool:
+        """Send a TRADE_ACTION_SLTP request to update a position's stop-loss."""
+        request = {
+            "action": mt5.TRADE_ACTION_SLTP,
+            "symbol": symbol,
+            "position": ticket,
+            "sl": sl_price,
+            "tp": tp_price,
+        }
+        result = mt5.order_send(request)
+        return result.retcode == mt5.TRADE_RETCODE_DONE

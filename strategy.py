@@ -1,8 +1,6 @@
 import logging
-import math
-import numpy as np
 import pandas as pd
-from constants import KALMAN_FILTER_METHOD, MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD, VECM_ECT_THRESHOLD, HURST_THRESHOLD, SCAN_COINTEGRATION_METHOD, SCAN_JOHANSEN_CRIT_LEVEL, OU_LAMBDA_MIN
+from constants import KALMAN_FILTER_METHOD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD, VECM_ECT_THRESHOLD, HURST_THRESHOLD, SCAN_COINTEGRATION_METHOD, SCAN_JOHANSEN_CRIT_LEVEL, OU_LAMBDA_MIN, JOHANSEN_PERIODS
 import time
 from mt5_connector import MT5Connector
 from utils import check_cointegration, get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores, get_vecm_ect_zscore, get_hurst_exponent, get_ou_params
@@ -22,7 +20,7 @@ class PairTradingStrategy:
         self.logger.info(f"Total current positions: {total_positions}")
         if total_positions > 0:
             self.logger.info("Existing positions detected, skipping new pair scanning.")
-            return None, None, None, None, None, None, arbitrage_found
+            return None, None, None, None, None, arbitrage_found
         
         ## Get daily profit and highest z score period
         highest_zscore_period,total_profit,total_volume,grid_history = self.mt5_conn.total_daily_risk()
@@ -33,8 +31,6 @@ class PairTradingStrategy:
         while True:
 
             self.logger.info(f"Highest Z-Score Period: {highest_zscore_period}, Total Profit: {total_profit}, Total Volume traded : {total_volume}")
-            total_volume_risk = self.mt5_conn.get_max_lots()
-            self.logger.info(f"Total volume risk allowed : {total_volume_risk}")
             for i in range(len(pair_y)):
               for j in range(len(pair_x)):
                   self.logger.info(f"Scanning pairs: {pair_y[i]} and {pair_x[j]}")
@@ -51,23 +47,21 @@ class PairTradingStrategy:
                   zscore_condition = abs(results['z_scores'].iloc[-1]) > updated_zscore_entry
                   ratio = results['hedge_ratio'].iloc[-1]
                   print(f"Z-Score Condition Met: {zscore_condition} and hedge ratio is {ratio}")
-                  # Calculate volumes based on hedge ratio
-                  investment_asset_y = math.floor(total_volume_risk/(1 + ratio))
-                  investment_asset_x = math.floor(total_volume_risk - investment_asset_y)
-                  self.logger.info(f"Current Z-Score: {results['z_scores'].iloc[-1]} hedge ratio is {results['hedge_ratio'].iloc[-1]}, volume y is {investment_asset_y} and volume x {investment_asset_x} for minimum {updated_zscore_entry} Z-Score Condition Met: {zscore_condition}")
-                  current_equity = self.mt5_conn.get_account_info().equity
-                  # Calculate risk parameters
-                  total_margin = current_equity*MARGIN_PERCENT
-                  max_loss = total_margin*MAX_RISK
-                  trailing_start = max_loss*PROFIT_THRESHOLD
-                  self.logger.info(f"Max loss: {max_loss}, trailing start profit: {trailing_start}")
 
                   half_life = get_half_life(results['spread'])
                   half_life_condition = half_life < MAX_HALF_LIFE
                   self.logger.info(f"Calculated Half-Life: {half_life}, Half-Life Condition Met: {half_life_condition}")
+                  # Johansen needs more observations than the Kalman/z-score window;
+                  # fetch a longer series (JOHANSEN_PERIODS daily bars) specifically for the test.
+                  if SCAN_COINTEGRATION_METHOD.lower() == "johansen":
+                      coint_y = self.mt5_conn.get_data_futures_btg(pair_y[i], n_bars=JOHANSEN_PERIODS)
+                      coint_x = self.mt5_conn.get_data_futures_btg(pair_x[j], n_bars=JOHANSEN_PERIODS)
+                  else:
+                      coint_y = assets_y
+                      coint_x = assets_x
                   cointegration_condition = check_cointegration(
-                      assets_y,
-                      assets_x,
+                      coint_y,
+                      coint_x,
                       method_override=SCAN_COINTEGRATION_METHOD,
                       johansen_crit_level_override=SCAN_JOHANSEN_CRIT_LEVEL,
                   )

@@ -1,18 +1,18 @@
 import logging
 from mt5_connector import MT5Connector
-from trade_execution import TradeExecution  # Trade execution not implemented yet
-from strategy import PairTradingStrategy
+from trade_execution import TradeExecution
+from risk_manager import RiskManager
 from constants import (
-    ADDITIONAL_GRID, KALMAN_FILTER_METHOD, MARGIN_PERCENT, MAX_RISK, PROFIT_THRESHOLD, TRADING_PAIR_X, TRADING_PAIR_Y, TRAILING_DISTANCE_POINTS, MAGIC_NUMBER
+    KALMAN_FILTER_METHOD, PROFIT_THRESHOLD, MAGIC_NUMBER, TRAILING_DISTANCE_POINTS
 )
 import time
-from utils import check_trading_time, get_correlation, get_dynamic_spread_zscores,get_group_name, get_linear_regression_spread_zscores
+from utils import check_trading_time, get_correlation, get_dynamic_spread_zscores, get_group_name, get_linear_regression_spread_zscores
 
 class TradeManager:
     def __init__(self):
         self.mt5_conn = MT5Connector()
         self.trade_execution = TradeExecution(MAGIC_NUMBER)
-        self.pair_trading_strategy = PairTradingStrategy()
+        self.risk_manager = RiskManager()
         self.logger = logging.getLogger(__name__)
 
     def manage_trades(self):        
@@ -20,12 +20,12 @@ class TradeManager:
         stop_active = False
         open_position_y = None
         open_position_x = None
-        current_equity = self.mt5_conn.get_account_info().equity
-        total_margin = current_equity*MARGIN_PERCENT
-        max_loss = total_margin*MAX_RISK
-        trailing_start = max_loss*PROFIT_THRESHOLD
         
         while True:
+            # Recalculate risk limits each cycle so shrinking equity tightens the stop
+            equity = self.mt5_conn.get_account_info().equity
+            max_loss = self.risk_manager.max_loss(equity)
+            trailing_start = max_loss * PROFIT_THRESHOLD
             # Implement position management logic
             #          
 
@@ -36,8 +36,8 @@ class TradeManager:
                 self.logger.info(f"Current profit: {profit}, Trailing start: {trailing_start}, Max loss: {max_loss} ")
 
                 if profit >= trailing_start:
-                    self.mt5_conn.all_positions_stop_loss()
-                    self.logger.info("Trailing stop activated for all positions.")
+                    self._set_initial_stop_losses()
+                    self.logger.info("Initial stop-losses activated for all positions.")
                 elif (profit <= -max_loss) or not check_trading_time():
                     self.logger.info("Profit below max loss or outside trading time, closing all positions.")
                     self.mt5_conn.close_all_positions()
@@ -58,14 +58,14 @@ class TradeManager:
                         open_position_x = position.symbol
                         stop_loss_x = position.sl
                         type_position_x = position.type  # 0 = BUY, 1 = SELL
-                        self.mt5_conn.trailing_stop(open_position_x,type_position_x,stop_loss_x,ticket_x,position)                        
-                        
+                        self._update_trailing_stop(open_position_x, type_position_x, stop_loss_x, ticket_x, position)
+
                     elif position_name[0] == 'y':
                         ticket_y = position.ticket
                         open_position_y = position.symbol
                         stop_loss_y = position.sl
                         type_position_y = position.type  # 0 = BUY, 1 = SELL
-                        self.mt5_conn.trailing_stop(open_position_y,type_position_y,stop_loss_y,ticket_y,position)
+                        self._update_trailing_stop(open_position_y, type_position_y, stop_loss_y, ticket_y, position)
 
                 if (stop_active):
                     time.sleep(15)
@@ -93,7 +93,7 @@ class TradeManager:
                 else:
                      result = get_linear_regression_spread_zscores(assets_y, assets_x)
 
-                self.logger.info(f"Sending new order to trade execution with z score {result['z_scores'].iloc[-1]} and hedge ratio {result['hedge_ratio'].iloc[-1]} grid add {ADDITIONAL_GRID} and correlation {result['hedge_ratio'].iloc[-1]}")
+                self.logger.info(f"Sending order: z_score={result['z_scores'].iloc[-1]:.4f}, hedge_ratio={result['hedge_ratio'].iloc[-1]:.4f}, correlation={correlation:.4f}")
                 self.trade_execution.execute_trade(open_position_y, open_position_x, correlation, result['hedge_ratio'].iloc[-1], result['z_scores'].iloc[-1])
                 time.sleep(15)
                 
@@ -107,57 +107,53 @@ class TradeManager:
             self.logger.info(f"Managing positions")
             time.sleep(15)  # Sleep for a while before next management cycle
 
-    def close_all_positions(self):
-        # Implement closing logic
-        self.logger.info("Closing all open positions")
+    def _set_initial_stop_losses(self):
+        """
+        Set an initial stop-loss on every open position that does not yet have one.
+        Called once when portfolio profit reaches the trailing_start threshold.
+        Also fixes the loop-forever bug in the old all_positions_stop_loss.
+        """
+        positions = self.mt5_conn.get_open_positions()
+        if not positions:
+            return
+        for position in positions:
+            if position.sl != 0.0:
+                continue  # already protected
+            symbol = position.symbol
+            info = self.mt5_conn.get_symbol_info(symbol)
+            tick = self.mt5_conn.get_symbol_tick(symbol)
+            tick_size = info.trade_tick_size
+            if position.type == self.mt5_conn.POSITION_TYPE_BUY:
+                sl_price = tick.bid - TRAILING_DISTANCE_POINTS * tick_size
+            else:
+                sl_price = tick.ask + TRAILING_DISTANCE_POINTS * tick_size
+            success = self.mt5_conn.modify_position_sl(position.ticket, symbol, sl_price, position.tp)
+            if success:
+                self.logger.info(f"Initial SL set for {symbol} ticket {position.ticket}: {sl_price:.{info.digits}f}")
+            else:
+                self.logger.warning(f"Failed to set initial SL for {symbol} ticket {position.ticket}")
 
-    def all_positions_stop_loss(self):    
-        while True:  
-            # Get all open positions
-            positions = self.mt5_conn.positions_get()
-    
-            if positions is None:
-                self.logger.info(f"No positions found, error code = {self.mt5_conn.last_error()} ")
-                print()
-                return
-            all_set = True
-
-            for position in positions:
-                symbol = position.symbol
-                ticket = position.ticket
-                position_type = position.type
-                symbol_info = self.mt5_conn.symbol_info(symbol)
-                tick_size = symbol_info.trade_tick_size        
-                ask = symbol_info.ask
-                bid = symbol_info.bid
-        
-                # Calculate the stop loss price based on the position type
-                if position_type == self.mt5_conn.POSITION_TYPE_BUY:
-                    stop_loss_price = bid - TRAILING_DISTANCE_POINTS * tick_size
-                elif position_type == self.mt5_conn.POSITION_TYPE_SELL:
-                    stop_loss_price = ask + TRAILING_DISTANCE_POINTS * tick_size
-                print(f"Tentando setar stop com stop price {stop_loss_price} no ask {ask}")
-                # Modify the position to include the stop loss
-                request = {
-                        "action": self.mt5_conn.TRADE_ACTION_SLTP,
-                        "symbol": symbol,
-                        "position": ticket,
-                        "sl": stop_loss_price,
-                        "tp": 0.0,
-                    }
-
-                if position.sl == 0.0:
-                    # Only set the stop loss if it is not already set
-                    print(f"Setting stop loss for position {ticket} on {symbol} to {stop_loss_price}")
-                    result = self.mt5_conn.order_send(request)
-                    print(f"Result of order check for ticket {ticket}: ", result)
-           
-                if result.retcode != self.mt5_conn.TRADE_RETCODE_DONE:
-                    print(f"Failed to set stop loss for position {ticket}, error code: {result.retcode}")
-                all_set = False
-
-            if all_set:
-                print("All positions have non-zero stop loss. Exiting loop.")
-                break
-
-            time.sleep(1)  # Sleep for a short time before checking again 
+    def _update_trailing_stop(self, symbol, position_type, stop_loss, ticket, position):
+        """
+        Ratchet the stop-loss for a single open position towards the current price.
+        Only modifies the SL when the new level is more favourable than the existing one.
+        Does nothing when stop_loss == 0.0 (SL not yet placed).
+        """
+        if stop_loss == 0.0:
+            return
+        info = self.mt5_conn.get_symbol_info(symbol)
+        tick = self.mt5_conn.get_symbol_tick(symbol)
+        tick_size = info.trade_tick_size
+        digits = info.digits
+        if position_type == self.mt5_conn.ORDER_TYPE_BUY:
+            new_sl = round(tick.bid - TRAILING_DISTANCE_POINTS * tick_size, digits)
+            if new_sl > stop_loss:
+                success = self.mt5_conn.modify_position_sl(ticket, symbol, new_sl, position.tp)
+                if success:
+                    self.logger.info(f"Trailing stop advanced BUY {symbol}: {stop_loss:.{digits}f} → {new_sl:.{digits}f}")
+        elif position_type == self.mt5_conn.ORDER_TYPE_SELL:
+            new_sl = round(tick.ask + TRAILING_DISTANCE_POINTS * tick_size, digits)
+            if new_sl < stop_loss:
+                success = self.mt5_conn.modify_position_sl(ticket, symbol, new_sl, position.tp)
+                if success:
+                    self.logger.info(f"Trailing stop advanced SELL {symbol}: {stop_loss:.{digits}f} → {new_sl:.{digits}f}")

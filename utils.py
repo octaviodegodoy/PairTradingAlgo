@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, NOISE_VARIANCE, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN
+from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, JOHANSEN_DET_ORDER, JOHANSEN_MAX_LAGS, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN
 from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller, coint
@@ -28,24 +28,6 @@ def check_trading_time():
 
 
     return trading_time
-
-def get_residuals_zscore_stdev(asset1_prices, asset2_prices):
-    pd.Series(asset1_prices), 
-    pd.Series(asset2_prices)
-
-    X = asset1_prices.values.reshape(-1, 1)
-    y = asset2_prices.values
-
-    model = LinearRegression()
-    model.fit(X, y)
-
-    # Predict log_price2 using the regression model
-    log_price2_pred = model.predict(X)
-
-    # Calculate residuals: actual - predicted
-    residuals = asset2_prices - log_price2_pred
-
-    return residuals
 
 def get_linear_regression_spread_zscores(asset1_prices, asset2_prices):
      
@@ -249,7 +231,23 @@ def check_cointegration(
         johansen_crit_level = johansen_crit_level_override or JOHANSEN_CRIT_LEVEL
         cvt_index = {"90%": 0, "95%": 1, "99%": 2}.get(johansen_crit_level, 1)
         data = np.column_stack([log_y, log_x])
-        johansen_result = coint_johansen(data, det_order=0, k_ar_diff=1)
+
+        # Select optimal lag order via AIC to ensure VAR residuals are white noise
+        best_aic = np.inf
+        best_lag = 1
+        max_lags = min(JOHANSEN_MAX_LAGS, (len(data) // 10) - 1)
+        for lag in range(1, max(2, max_lags + 1)):
+            try:
+                from statsmodels.tsa.vector_ar.var_model import VAR
+                aic = VAR(data).fit(lag, ic=None).aic
+                if aic < best_aic:
+                    best_aic = aic
+                    best_lag = lag
+            except Exception:
+                break
+        print(f"Johansen: selected k_ar_diff={best_lag} via AIC (max_lags={max_lags}), det_order={JOHANSEN_DET_ORDER}")
+
+        johansen_result = coint_johansen(data, det_order=JOHANSEN_DET_ORDER, k_ar_diff=best_lag)
 
         trace_stat = johansen_result.lr1[0]
         trace_cv  = johansen_result.cvt[0, cvt_index]
@@ -259,7 +257,8 @@ def check_cointegration(
         max_eigen_cv   = johansen_result.cvm[0, cvt_index]
         max_eigen_ok   = max_eigen_stat > max_eigen_cv
 
-        coint_flag = trace_ok and max_eigen_ok
+        # Use OR: cointegrated if either trace OR max-eigenvalue test passes (standard practice)
+        coint_flag = trace_ok or max_eigen_ok
         print(
             "Johansen Trace Result: trace_stat="
             f"{trace_stat}, critical_value({johansen_crit_level})={trace_cv}, trace_ok={trace_ok}"
@@ -268,7 +267,7 @@ def check_cointegration(
             "Johansen Max-Eigen Result: max_eigen_stat="
             f"{max_eigen_stat}, critical_value({johansen_crit_level})={max_eigen_cv}, max_eigen_ok={max_eigen_ok}"
         )
-        print(f"Johansen Cointegration Flag (Trace AND Max-Eigen)={coint_flag}")
+        print(f"Johansen Cointegration Flag (Trace OR Max-Eigen)={coint_flag}")
         return coint_flag
 
     if method == "engle":
