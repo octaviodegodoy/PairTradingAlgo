@@ -1070,4 +1070,4 @@ async def analyze_vecm_threshold():
         mt5_conn.shutdown()
 
 
-asyncio.run(backtest_strategy())
+asyncio.run(plot_data_prices())

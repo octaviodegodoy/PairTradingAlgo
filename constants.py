@@ -12,7 +12,7 @@ START_TIME_HOUR = 12
 START_TIME_MINUTE = 5
 TRADE_WINDOW_TIME_HOURS = 3
 TRADE_WINDOW_TIME_MINUTES = 30
-Z_SCORE_ENTRY_THRESHOLD = 0.85  # Raised from 1.35 — higher quality signals only (~96th pct)
+Z_SCORE_ENTRY_THRESHOLD = 1.55  # Raised from 1.35 — higher quality signals only (~96th pct)
 MARGIN_Y = 100
 MARGIN_X = 150
 VOLUME_FACTOR = 12
@@ -38,4 +38,4 @@ SCAN_JOHANSEN_CRIT_LEVEL = "90%"        # "90%", "95%", or "99%"
 OU_LAMBDA_MIN = 0.01       # Minimum OU mean-reversion speed λ; below this the spread is near a random walk
 VECM_ECT_THRESHOLD = 1.6   # Minimum |VECM ECT z-score| required to open orders
 HURST_THRESHOLD = 0.5      # Spread Hurst exponent must be below this (mean-reverting)
-WAVELET_LEVEL = 0          # DWT decomposition levels for spread denoising (higher = more smoothing)
+WAVELET_LEVEL = 1          # DWT decomposition levels for spread denoising (higher = more smoothing)
