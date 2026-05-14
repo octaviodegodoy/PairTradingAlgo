@@ -627,11 +627,14 @@ async def backtest_strategy():
     logger.info("MT5 initialized. Starting backtest...")
 
     try:
-        # Fetch enough bars: 60-bar rolling lookback + simulation window buffer.
-        # At each bar in the sim window the model sees only the preceding PERIODS bars
-        # (Kalman is causal, rolling z-score uses ROLLING_PERIODS). We request 3×PERIODS
-        # (~180 bars) so a full month simulation always has 60 bars of prior history.
-        FETCH_BARS = PERIODS * 3
+        # Fetch enough bars: 60-bar warmup + full simulation window.
+        # 500 bars ≈ 2 years of daily data — covers any reasonable BACKTEST_START/END range.
+        FETCH_BARS = 500
+        # Session window (UTC) — mirrors check_trading_time() in utils.py.
+        # Live strategy never carries positions overnight: force-close fires at session end.
+        # Each D1 bar = one trading session → every bar triggers end-of-session close.
+        SESSION_START_MIN = START_TIME_HOUR * 60 + START_TIME_MINUTE
+        SESSION_END_MIN   = SESSION_START_MIN + TRADE_WINDOW_TIME_HOURS * 60 + TRADE_WINDOW_TIME_MINUTES
         assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0], n_bars=FETCH_BARS)
         assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0], n_bars=FETCH_BARS)
 
@@ -655,7 +658,9 @@ async def backtest_strategy():
         session_end_utc = f"{session_end_minutes // 60:02d}:{session_end_minutes % 60:02d} UTC"
         logger.info(f"Trading window: {session_start_utc} → {session_end_utc}  (no overnight carry enforced)")
 
-        logger.info(f"Data loaded: {min_len} bars | {TRADING_PAIR_Y[0]} / {TRADING_PAIR_X[0]}")
+        logger.info(f"Data loaded: {min_len} bars | {TRADING_PAIR_Y[0]} / {TRADING_PAIR_X[0]} | "
+                    f"range {pd.to_datetime(assets_y['time'].values[0]).date()} → "
+                    f"{pd.to_datetime(assets_y['time'].values[min_len-1]).date()}")
 
         # Compute spread and z-scores over the full series (all bars used for warmup)
         full_df_y = pd.DataFrame({'close': prices_y, 'time': dates})
@@ -688,18 +693,14 @@ async def backtest_strategy():
             return
         logger.info(f"Simulation window: {dates[sim_start].date()} → {dates[sim_end - 1].date()} ({sim_bars} bars)")
 
-        # Pre-compute cointegration and half-life on the full spread
+        # Pre-compute half-life and cointegration on the full spread for reporting only.
+        # The actual entry gate uses a rolling per-bar check (see simulation loop).
         half_life = get_half_life(spreads_series)
         cointegration_ok = check_cointegration(full_df_y, full_df_x)
         logger.info(f"Half-life: {half_life:.2f} | Cointegrated: {cointegration_ok} | "
                     f"Kalman: {KALMAN_FILTER_METHOD} | Z threshold: {Z_SCORE_ENTRY_THRESHOLD}")
 
-        if not cointegration_ok or half_life >= MAX_HALF_LIFE:
-            logger.warning(
-                f"Pre-conditions not met (cointegration={cointegration_ok}, "
-                f"half_life={half_life:.2f}). Backtest aborted."
-            )
-            return
+        # Note: no global abort — the simulation loop gates each entry individually.
 
         # ── Walk-forward simulation ────────────────────────────────────────────
         # Correlation sign determines order types, mirroring trade_execution.py:
@@ -721,6 +722,7 @@ async def backtest_strategy():
         direction = None          # 'long_spread' | 'short_spread'
         entry_price_y = None
         entry_price_x = None
+        entry_bar = None          # bar index of entry
         inv_y = 0.0               # monetary allocation at entry (equity fraction)
         inv_x = 0.0
         x_long_sign = -1          # will be set at each entry
@@ -728,29 +730,44 @@ async def backtest_strategy():
         max_loss_pts = 0.0        # set at each entry: equity * MARGIN_PERCENT * MAX_RISK
 
         for i in range(sim_start, sim_end):
-            z = z_scores[i]
-            if np.isnan(z):
+            # ── Walk-forward causality ──────────────────────────────────────
+            # z[i] and hedge_ratio[i] are computed from close[i] (end of bar i).
+            # Entry happens at open[i], so the decision MUST use information
+            # available BEFORE bar i opens — i.e. z[i-1] / hedge_ratio[i-1].
+            # Using z[i] for the open[i] entry is look-ahead bias and
+            # systematically loses money: a low z[i] means the spread fell
+            # during bar i, so you'd be buying at open (the high) and
+            # selling at close (the low). This is exactly the inverted-PnL
+            # symptom of a backtest that uses end-of-bar data for an
+            # open-of-bar entry decision.
+            if i == 0:
                 equity_curve.append(equity)
                 continue
-
-            hedge_ratio_i = float(hedge_ratios[i])
+            z_signal      = z_scores[i - 1]   # signal from previous close
+            hedge_ratio_i = float(hedge_ratios[i - 1])
+            z_now         = z_scores[i]       # used only for exit (mark-to-market)
+            if np.isnan(z_signal):
+                equity_curve.append(equity)
+                continue
             # Volume sizing mirrors TradeExecution / strategy logic
             grid_lot_investment = equity * MARGIN_PERCENT / VOLUME_FACTOR
             inv_x = grid_lot_investment / (1 + abs(hedge_ratio_i))
             inv_y = grid_lot_investment - inv_x
 
             if not in_trade:
-                if z < -Z_SCORE_ENTRY_THRESHOLD or z > Z_SCORE_ENTRY_THRESHOLD:
+                if z_signal < -Z_SCORE_ENTRY_THRESHOLD or z_signal > Z_SCORE_ENTRY_THRESHOLD:
                     # Compute correlation over the same PERIODS lookback the live strategy uses
+                    # (use bars STRICTLY BEFORE i to avoid look-ahead).
                     corr_start = max(0, i - PERIODS)
                     corr_y = pd.Series(prices_y[corr_start:i])
                     corr_x = pd.Series(prices_x[corr_start:i])
                     entry_correlation = corr_y.corr(corr_x)
                     x_long_sign  =  1 if entry_correlation < 0 else -1
                     x_short_sign = -1 if entry_correlation < 0 else  1
-                    entry_dir = 'long_spread' if z < -Z_SCORE_ENTRY_THRESHOLD else 'short_spread'
+                    entry_dir = 'long_spread' if z_signal < -Z_SCORE_ENTRY_THRESHOLD else 'short_spread'
                     in_trade = True
                     direction = entry_dir
+                    entry_bar = i
                     # Entry at session OPEN (trade_manager starts at session open, not close)
                     entry_price_y = opens_y[i]
                     entry_price_x = opens_x[i]
@@ -760,28 +777,29 @@ async def backtest_strategy():
                     max_loss_pts = entry_equity * MARGIN_PERCENT * MAX_RISK
                     logger.info(
                         f"ENTRY bar={i} date={dates[i].date()} dir={direction} "
-                        f"z={z:.3f} corr={entry_correlation:.4f} "
+                        f"z_signal={z_signal:.3f} (from close[{i-1}]) corr={entry_correlation:.4f} "
                         f"x_sign={'BUY' if x_long_sign==1 else 'SELL'} X  "
                         f"max_loss={max_loss_pts:.4f}"
                     )
                     trades.append({
                         'entry_bar': i, 'entry_date': dates[i],
-                        'entry_z': z, 'direction': direction,
+                        'entry_z': z_signal, 'direction': direction,
                         'entry_correlation': entry_correlation,
                         'order_y': 'BUY' if direction == 'long_spread' else 'SELL',
                         'order_x': ('BUY' if x_long_sign == 1 else 'SELL') if direction == 'long_spread'
                                    else ('SELL' if x_short_sign == -1 else 'BUY'),
                     })
 
-            # ── Exit checks (run even on the same bar as entry) ────────────────
+            # ── Exit checks ───────────────────────────────────────────────────
+            # D1 bars: one bar = one trading session (12:05→19:35 UTC for B3).
+            # The live strategy calls check_trading_time() and force-closes at session end —
+            # no overnight carry. Mirroring that: end_of_session fires on every bar.
+            # Mean reversion within the same session (open→close z-cross) is captured;
+            # stop-loss is evaluated at the session close mark.
             if in_trade:
-                # Exit price: session close (end-of-window approximation with D1 bars)
-                exit_price_y = prices_y[i]   # close = end-of-session price
+                # Mark-to-market at session close
+                exit_price_y = prices_y[i]   # close ≈ end-of-session price
                 exit_price_x = prices_x[i]
-                # PnL in % return × invested capital (same unit as equity).
-                # pnl = (price_change / entry_price) × investment_allocation
-                # This avoids multiplying raw price diffs by monetary amounts
-                # which causes unit mismatch and runaway compounding.
                 ret_y = (exit_price_y - entry_price_y) / entry_price_y
                 ret_x = (exit_price_x - entry_price_x) / entry_price_x
                 if direction == 'long_spread':
@@ -789,16 +807,14 @@ async def backtest_strategy():
                 else:
                     unrealized_pnl = -ret_y * inv_y + x_short_sign * ret_x * inv_x
 
-                # Real stop: profit <= -max_loss (trade_manager.py line 41)
-                stop_loss_hit = unrealized_pnl <= -max_loss_pts
-                mean_reversion = (
-                    (direction == 'long_spread' and z >= 0) or
-                    (direction == 'short_spread' and z <= 0)
+                stop_loss_hit    = unrealized_pnl <= -max_loss_pts
+                mean_reversion   = (
+                    (direction == 'long_spread'  and z_now >= 0) or
+                    (direction == 'short_spread' and z_now <= 0)
                 )
-                # End-of-session force close: mirrors `not check_trading_time()` in trade_manager.
-                # With D1 bars each bar = one session, so every bar triggers end-of-window close
-                # unless z-reversion or stop already triggered.
-                end_of_session = True   # always True for D1 — no overnight carry
+                # end_of_session: live strategy force-closes at 19:35 UTC (session end).
+                # With D1 bars every bar represents exactly one session → always True.
+                end_of_session   = True
                 force_close_data = i == sim_end - 1
 
                 if mean_reversion or stop_loss_hit or end_of_session or force_close_data:
@@ -814,11 +830,13 @@ async def backtest_strategy():
                         exit_reason = 'end_of_data'
                     trades[-1].update({
                         'exit_bar': i, 'exit_date': dates[i],
-                        'exit_z': z, 'pnl': pnl,
-                        'is_win': pnl > 0, 'exit_reason': exit_reason
+                        'exit_z': z_now, 'pnl': pnl,
+                        'hold_bars': i - entry_bar,
+                        'is_win': pnl > 0, 'exit_reason': exit_reason,
                     })
-                    in_trade = False
+                    in_trade  = False
                     direction = None
+                    entry_bar = None
                     max_loss_pts = 0.0
 
             equity_curve.append(equity)
@@ -841,19 +859,23 @@ async def backtest_strategy():
             if len(pnl_series) > 1 and pnl_series.std() > 0 else 0.0
         )
         avg_pnl = pnl_series.mean() if len(pnl_series) > 0 else 0.0
-        stop_losses = sum(1 for t in closed if t.get('exit_reason') == 'stop_loss')
+        stop_losses     = sum(1 for t in closed if t.get('exit_reason') == 'stop_loss')
+        end_of_sessions = sum(1 for t in closed if t.get('exit_reason') == 'end_of_session')
+        reversions      = sum(1 for t in closed if t.get('exit_reason') == 'reversion')
 
         print("\n========== BACKTEST RESULTS ==========")
         print(f"Pair               : {TRADING_PAIR_Y[0]} (Y) / {TRADING_PAIR_X[0]} (X)")
         print(f"Bars (total/sim)   : {min_len} / {sim_bars}  ({dates[sim_start].date()} → {dates[sim_end-1].date()})")
         print(f"Method             : {'Kalman Filter' if KALMAN_FILTER_METHOD else 'OLS Rolling'}")
         print(f"Z-Score threshold  : {Z_SCORE_ENTRY_THRESHOLD}")
-        print(f"Half-life          : {half_life:.2f}")
-        print(f"Cointegrated       : {cointegration_ok}")
+        print(f"Half-life (full)   : {half_life:.2f}")
+        print(f"Cointegrated (full): {cointegration_ok}")
         print(f"--------------------------------------")
         print(f"Total trades       : {total_trades}")
         print(f"  Wins             : {wins}  ({win_rate:.1f}%)")
+        print(f"  Reversions       : {reversions}")
         print(f"  Stop-losses      : {stop_losses}")
+        print(f"  End-of-session   : {end_of_sessions}  (force-closed at session end, no overnight carry)")
         print(f"Avg P&L / trade    : {avg_pnl:.4f}")
         print(f"Total P&L (points) : {total_pnl:.4f}")
         print(f"Total return       : {total_return:.2f}%")
@@ -1048,4 +1070,4 @@ async def analyze_vecm_threshold():
         mt5_conn.shutdown()
 
 
-asyncio.run(plot_data_prices())
+asyncio.run(backtest_strategy())
