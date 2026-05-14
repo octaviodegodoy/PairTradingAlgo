@@ -1,4 +1,3 @@
-import MetaTrader5 as mt5
 import logging
 from constants import MARGIN_PERCENT, MAX_RISK, MARGIN_Y, MARGIN_X
 
@@ -28,8 +27,9 @@ class RiskManager:
         total_margin = equity * MARGIN_PERCENT
         return total_margin / MARGIN_Y + total_margin / MARGIN_X
 
-    def calc_sl_price(self, symbol: str, order_type: int, entry_price: float,
-                      volume: float, risk_amount: float) -> float:
+    def calc_sl_price(self, order_type: int, entry_price: float, volume: float,
+                      risk_amount: float, tick_value: float, tick_size: float,
+                      digits: int, order_type_buy: int = 0) -> float:
         """
         Convert a monetary risk budget into a hard stop-loss price.
 
@@ -38,16 +38,24 @@ class RiskManager:
         For BUY  : sl = entry_price - sl_distance
         For SELL : sl = entry_price + sl_distance
 
-        Returns 0.0 when risk_amount is 0 or symbol info is unavailable.
+        Parameters
+        ----------
+        order_type      : broker's BUY/SELL constant (compared against order_type_buy)
+        entry_price     : fill price of the order
+        volume          : lot size
+        risk_amount     : max monetary loss for this leg
+        tick_value      : value per tick per lot (from broker symbol info)
+        tick_size       : minimum price increment (from broker symbol info)
+        digits          : decimal places for price rounding
+        order_type_buy  : the broker's BUY constant (default 0, pass
+                          connector.ORDER_TYPE_BUY for non-MT5 brokers)
+
+        Returns 0.0 when risk_amount is 0 or inputs are invalid.
         """
-        if risk_amount <= 0 or volume <= 0:
+        if risk_amount <= 0 or volume <= 0 or tick_value == 0 or tick_size == 0:
             return 0.0
-        info = mt5.symbol_info(symbol)
-        if info is None or info.trade_tick_value == 0 or info.trade_tick_size == 0:
-            self.logger.warning(f"Cannot compute SL for {symbol}: missing tick info")
-            return 0.0
-        loss_per_point = volume * info.trade_tick_value / info.trade_tick_size
+        loss_per_point = volume * tick_value / tick_size
         sl_distance = risk_amount / loss_per_point
-        if order_type == mt5.ORDER_TYPE_BUY:
-            return round(entry_price - sl_distance, info.digits)
-        return round(entry_price + sl_distance, info.digits)
+        if order_type == order_type_buy:
+            return round(entry_price - sl_distance, digits)
+        return round(entry_price + sl_distance, digits)

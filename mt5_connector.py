@@ -3,10 +3,13 @@ import logging
 from datetime import datetime, timedelta
 import time
 import pandas as pd
+from broker_connector import BrokerConnector
 from constants import MAGIC_NUMBER, PERIODS, SHIFT_PERIODS
 
-class MT5Connector:
-    
+
+class MT5Connector(BrokerConnector):
+    """MetaTrader 5 implementation of BrokerConnector."""
+
     ORDER_TYPE_BUY = mt5.ORDER_TYPE_BUY
     ORDER_TYPE_SELL = mt5.ORDER_TYPE_SELL
     TIMEFRAME_D1 = mt5.TIMEFRAME_D1
