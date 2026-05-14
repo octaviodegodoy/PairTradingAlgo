@@ -1,5 +1,5 @@
 import logging
-from mt5_connector import MT5Connector
+from broker_connector import BrokerConnector
 from trade_execution import TradeExecution
 from risk_manager import RiskManager
 from constants import (
@@ -9,9 +9,9 @@ import time
 from utils import check_trading_time, get_correlation, get_dynamic_spread_zscores, get_group_name, get_linear_regression_spread_zscores
 
 class TradeManager:
-    def __init__(self):
-        self.mt5_conn = MT5Connector()
-        self.trade_execution = TradeExecution(MAGIC_NUMBER)
+    def __init__(self, connector: BrokerConnector):
+        self.mt5_conn = connector
+        self.trade_execution = TradeExecution(MAGIC_NUMBER, connector)
         self.risk_manager = RiskManager()
         self.logger = logging.getLogger(__name__)
 

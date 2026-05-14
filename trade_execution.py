@@ -1,5 +1,5 @@
 import logging
-from mt5_connector import MT5Connector
+from broker_connector import BrokerConnector
 from risk_manager import RiskManager
 from utils import calculate_volumes, updates_zscore_entry
 from constants import (
@@ -9,9 +9,9 @@ from constants import (
 import time
 
 class TradeExecution:
-    def __init__(self, magic_number):
+    def __init__(self, magic_number, connector: BrokerConnector):
         self.magic_number = magic_number
-        self.mt5_conn = MT5Connector()
+        self.mt5_conn = connector
         self.risk_manager = RiskManager()
         self.logger = logging.getLogger(__name__)
     
@@ -59,10 +59,20 @@ class TradeExecution:
     def _compute_leg_sls(self, symbolY, symbolX, orders_type, volumeY, volumeX, risk_per_leg):
         """Fetch current market prices and compute a proportional SL price for each leg."""
         tick_y = self.mt5_conn.get_symbol_tick(symbolY)
+        info_y = self.mt5_conn.get_symbol_info(symbolY)
         price_y = tick_y.bid if orders_type[0] == self.mt5_conn.ORDER_TYPE_SELL else tick_y.ask
-        sl_y = self.risk_manager.calc_sl_price(symbolY, orders_type[0], price_y, volumeY, risk_per_leg)
+        sl_y = self.risk_manager.calc_sl_price(
+            orders_type[0], price_y, volumeY, risk_per_leg,
+            info_y.trade_tick_value, info_y.trade_tick_size, info_y.digits,
+            order_type_buy=self.mt5_conn.ORDER_TYPE_BUY,
+        )
 
         tick_x = self.mt5_conn.get_symbol_tick(symbolX)
+        info_x = self.mt5_conn.get_symbol_info(symbolX)
         price_x = tick_x.ask if orders_type[1] == self.mt5_conn.ORDER_TYPE_BUY else tick_x.bid
-        sl_x = self.risk_manager.calc_sl_price(symbolX, orders_type[1], price_x, volumeX, risk_per_leg)
+        sl_x = self.risk_manager.calc_sl_price(
+            orders_type[1], price_x, volumeX, risk_per_leg,
+            info_x.trade_tick_value, info_x.trade_tick_size, info_x.digits,
+            order_type_buy=self.mt5_conn.ORDER_TYPE_BUY,
+        )
         return sl_y, sl_x

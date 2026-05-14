@@ -2,12 +2,12 @@ import logging
 import pandas as pd
 from constants import KALMAN_FILTER_METHOD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD, VECM_ECT_THRESHOLD, HURST_THRESHOLD, SCAN_COINTEGRATION_METHOD, SCAN_JOHANSEN_CRIT_LEVEL, OU_LAMBDA_MIN, JOHANSEN_PERIODS
 import time
-from mt5_connector import MT5Connector
+from broker_connector import BrokerConnector
 from utils import check_cointegration, get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores, get_vecm_ect_zscore, get_hurst_exponent, get_ou_params
 
 class PairTradingStrategy:
-    def __init__(self):
-        self.mt5_conn = MT5Connector()
+    def __init__(self, connector: BrokerConnector):
+        self.mt5_conn = connector
         self.logger = logging.getLogger(__name__)
 
     def scan_pairs_arbitrage(self):
