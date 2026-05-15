@@ -1,4 +1,5 @@
 import logging
+import math
 from constants import MARGIN_PERCENT, MAX_RISK, MARGIN_Y, MARGIN_X
 
 
@@ -29,7 +30,8 @@ class RiskManager:
 
     def calc_sl_price(self, order_type: int, entry_price: float, volume: float,
                       risk_amount: float, tick_value: float, tick_size: float,
-                      digits: int, order_type_buy: int = 0) -> float:
+                      digits: int, order_type_buy: int = 0,
+                      stops_level: float = 0) -> float:
         """
         Convert a monetary risk budget into a hard stop-loss price.
 
@@ -37,6 +39,9 @@ class RiskManager:
 
         For BUY  : sl = entry_price - sl_distance
         For SELL : sl = entry_price + sl_distance
+
+        The result is snapped to the nearest valid tick boundary and respects
+        the broker's minimum stop distance (stops_level).
 
         Parameters
         ----------
@@ -49,6 +54,8 @@ class RiskManager:
         digits          : decimal places for price rounding
         order_type_buy  : the broker's BUY constant (default 0, pass
                           connector.ORDER_TYPE_BUY for non-MT5 brokers)
+        stops_level     : broker minimum stop distance in points (trade_stops_level);
+                          the SL will be at least (stops_level + 1) * tick_size away.
 
         Returns 0.0 when risk_amount is 0 or inputs are invalid.
         """
@@ -56,6 +63,19 @@ class RiskManager:
             return 0.0
         loss_per_point = volume * tick_value / tick_size
         sl_distance = risk_amount / loss_per_point
+
+        # Enforce broker minimum stop distance (stops_level is in points/ticks)
+        if stops_level > 0:
+            min_distance = (stops_level + 1) * tick_size
+            sl_distance = max(sl_distance, min_distance)
+
         if order_type == order_type_buy:
-            return round(entry_price - sl_distance, digits)
-        return round(entry_price + sl_distance, digits)
+            raw_sl = entry_price - sl_distance
+            # Snap DOWN to nearest valid tick (BUY SL must be below entry)
+            sl = math.floor(round(raw_sl / tick_size, 8)) * tick_size
+            return round(sl, digits)
+        else:
+            raw_sl = entry_price + sl_distance
+            # Snap UP to nearest valid tick (SELL SL must be above entry)
+            sl = math.ceil(round(raw_sl / tick_size, 8)) * tick_size
+            return round(sl, digits)

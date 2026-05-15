@@ -79,7 +79,7 @@ class PairTradingStrategy:
                   self.logger.info(f"VECM ECT Z-Score: {vecm_ect_zscore:.4f}, VECM Condition Met: {vecm_condition}")
                   self.logger.info(f"Hurst Exponent: {hurst:.4f}, Hurst Condition Met: {hurst_condition}")
                   self.logger.info(f"OU λ={ou['lambda_']:.6f}, μ={ou['mu']:.6f}, σ={ou['sigma']:.6f}, OU Condition Met: {ou_condition}")
-                  self.logger.info(f"Hedge ratio between {pair_y[i]} and {pair_x[j]}: {results['hedge_ratio'].iloc[-1]} and z score is {results['z_scores'].iloc[-1]} and spread is {results['spread'].iloc[-1]}")
+                  self.logger.info(f"Hedge ratio between {pair_y[i]} and {pair_x[j]}: {results['hedge_ratio'].iloc[-1]} and z score is {results['z_scores'].iloc[-1]} and spread is {results['spread'].iloc[-1]} for threshold {updated_zscore_entry}")
                   arbitrage_found = zscore_condition and half_life_condition and cointegration_condition and vecm_condition and hurst_condition and ou_condition
                   print(f"Arbitrage Found: {arbitrage_found}")
                   scan_results = {

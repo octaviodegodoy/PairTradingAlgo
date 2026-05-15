@@ -1,7 +1,7 @@
 PERIODS = 60
 ROLLING_PERIODS = 30
 SHIFT_PERIODS = 0
-MARGIN_PERCENT = 0.5        # Reduced from 0.40 — deploy less margin per session
+MARGIN_PERCENT = 0.1        # Reduced from 0.40 — deploy less margin per session
 MAX_POSITIONS = 10
 MAX_RISK = 0.25              # Reduced from 0.50 — max daily loss = equity * 6.25% (was 20%)
 MAX_HALF_LIFE = 1500.0
@@ -12,7 +12,7 @@ START_TIME_HOUR = 12
 START_TIME_MINUTE = 5
 TRADE_WINDOW_TIME_HOURS = 3
 TRADE_WINDOW_TIME_MINUTES = 30
-Z_SCORE_ENTRY_THRESHOLD = 1.55  # Raised from 1.35 — higher quality signals only (~96th pct)
+Z_SCORE_ENTRY_THRESHOLD = 0.55  # Raised from 1.35 — higher quality signals only (~96th pct)
 MARGIN_Y = 100
 MARGIN_X = 150
 VOLUME_FACTOR = 12

@@ -65,6 +65,7 @@ class TradeExecution:
             orders_type[0], price_y, volumeY, risk_per_leg,
             info_y.trade_tick_value, info_y.trade_tick_size, info_y.digits,
             order_type_buy=self.mt5_conn.ORDER_TYPE_BUY,
+            stops_level=info_y.trade_stops_level,
         )
 
         tick_x = self.mt5_conn.get_symbol_tick(symbolX)
@@ -74,5 +75,6 @@ class TradeExecution:
             orders_type[1], price_x, volumeX, risk_per_leg,
             info_x.trade_tick_value, info_x.trade_tick_size, info_x.digits,
             order_type_buy=self.mt5_conn.ORDER_TYPE_BUY,
+            stops_level=info_x.trade_stops_level,
         )
         return sl_y, sl_x
