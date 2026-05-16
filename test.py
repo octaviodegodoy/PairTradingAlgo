@@ -617,7 +617,7 @@ async def backtest_strategy():
 
     # ── Date filter (set to None to use all available bars) ───────────────────
     BACKTEST_START = "2024-04-01"   # e.g. pd.Timestamp("2025-01-01")
-    BACKTEST_END   = "2026-04-30"   # e.g. pd.Timestamp("2025-12-31")
+    BACKTEST_END   = "2026-05-15"   # e.g. pd.Timestamp("2025-12-31")
     # ─────────────────────────────────────────────────────────────────────────
 
     if not mt5_conn.initialize():
@@ -762,8 +762,6 @@ async def backtest_strategy():
                     corr_y = pd.Series(prices_y[corr_start:i])
                     corr_x = pd.Series(prices_x[corr_start:i])
                     entry_correlation = corr_y.corr(corr_x)
-                    x_long_sign  =  1 if entry_correlation < 0 else -1
-                    x_short_sign = -1 if entry_correlation < 0 else  1
                     entry_dir = 'long_spread' if z_signal < -Z_SCORE_ENTRY_THRESHOLD else 'short_spread'
                     in_trade = True
                     direction = entry_dir
@@ -786,8 +784,8 @@ async def backtest_strategy():
                         'entry_z': z_signal, 'direction': direction,
                         'entry_correlation': entry_correlation,
                         'order_y': 'BUY' if direction == 'long_spread' else 'SELL',
-                        'order_x': ('BUY' if x_long_sign == 1 else 'SELL') if direction == 'long_spread'
-                                   else ('SELL' if x_short_sign == -1 else 'BUY'),
+                        'order_x': ('SELL' if entry_correlation > 0 else 'BUY') if direction == 'long_spread'
+                                   else ('BUY' if entry_correlation > 0 else 'SELL'),
                     })
 
             # ── Exit checks ───────────────────────────────────────────────────
@@ -1070,4 +1068,4 @@ async def analyze_vecm_threshold():
         mt5_conn.shutdown()
 
 
-asyncio.run(plot_data_prices())
+asyncio.run(backtest_strategy())
