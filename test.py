@@ -616,7 +616,7 @@ async def backtest_strategy():
     mt5_conn = MT5Connector()
 
     # ── Date filter (set to None to use all available bars) ───────────────────
-    BACKTEST_START = "2024-04-01"   # e.g. pd.Timestamp("2025-01-01")
+    BACKTEST_START = "2026-05-10"   # e.g. pd.Timestamp("2025-01-01")
     BACKTEST_END   = "2026-05-15"   # e.g. pd.Timestamp("2025-12-31")
     # ─────────────────────────────────────────────────────────────────────────
 
@@ -633,8 +633,6 @@ async def backtest_strategy():
         # Session window (UTC) — mirrors check_trading_time() in utils.py.
         # Live strategy never carries positions overnight: force-close fires at session end.
         # Each D1 bar = one trading session → every bar triggers end-of-session close.
-        SESSION_START_MIN = START_TIME_HOUR * 60 + START_TIME_MINUTE
-        SESSION_END_MIN   = SESSION_START_MIN + TRADE_WINDOW_TIME_HOURS * 60 + TRADE_WINDOW_TIME_MINUTES
         assets_y = mt5_conn.get_data_futures_btg(TRADING_PAIR_Y[0], n_bars=FETCH_BARS)
         assets_x = mt5_conn.get_data_futures_btg(TRADING_PAIR_X[0], n_bars=FETCH_BARS)
 
@@ -1068,4 +1066,4 @@ async def analyze_vecm_threshold():
         mt5_conn.shutdown()
 
 
-asyncio.run(backtest_strategy())
+asyncio.run(plot_data_prices())
