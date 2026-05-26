@@ -137,3 +137,22 @@ class BrokerConnector(ABC):
     def modify_position_sl(self, ticket: int, symbol: str,
                             sl_price: float, tp_price: float = 0.0) -> bool:
         """Modify the stop-loss (and optionally take-profit) of an open position."""
+
+    # ------------------------------------------------------------------
+    # Options
+    # ------------------------------------------------------------------
+
+    @abstractmethod
+    def get_options_puts(self, underlying_symbol: str) -> list:
+        """
+        Return a list of put-option symbol-info objects for *underlying_symbol*.
+
+        Each element must expose at least the following attributes:
+
+        * ``name``             – ticker string of the option contract
+        * ``option_strike``    – strike price (float)
+        * ``expiration_time``  – expiry as a UNIX timestamp (int)
+        * ``volume_real``      – traded volume used for ranking (float)
+
+        Returns an empty list when no options are found.
+        """
