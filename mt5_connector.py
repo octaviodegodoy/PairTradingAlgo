@@ -17,8 +17,6 @@ class MT5Connector(BrokerConnector):
     POSITION_TYPE_SELL = mt5.POSITION_TYPE_SELL
 
     def __init__(self):
-        if not mt5.initialize():
-            raise RuntimeError("Failed to initialize MetaTrader 5")
         self.logger = logging.getLogger(__name__)
 
     def get_data_futures_btg(self, symbol, n_bars=None):

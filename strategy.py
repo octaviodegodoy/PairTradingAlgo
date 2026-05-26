@@ -16,6 +16,9 @@ class PairTradingStrategy:
         updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD
         arbitrage_found = False
         pair = []
+        # Initialise scan_results so the variable is always bound even when no
+        # pair has been evaluated yet (avoids NameError in the while-loop guard).
+        scan_results = {'arbitrage_found': False}
         total_positions = self.mt5_conn.get_total_positions() #self.mt5_conn.positions_total()
         self.logger.info(f"Total current positions: {total_positions}")
         if total_positions > 0:
@@ -107,4 +110,8 @@ class PairTradingStrategy:
              time.sleep(15)
              continue
 
-        return correlation, results['hedge_ratio'], results['spread'], results['z_scores'], pair, scan_results['arbitrage_found']
+        # Return scalars (consistent with the early-return success path above).
+        # If no pair was ever evaluated, results is unbound; return safe defaults.
+        if 'results' not in dir() or results is None:
+            return None, None, None, None, pair, False
+        return correlation, results['hedge_ratio'].iloc[-1], results['spread'].iloc[-1], results['z_scores'].iloc[-1], pair, scan_results['arbitrage_found']
