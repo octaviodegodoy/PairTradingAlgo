@@ -39,3 +39,4 @@ OU_LAMBDA_MIN = 0.01       # Minimum OU mean-reversion speed λ; below this the 
 VECM_ECT_THRESHOLD = 1.6   # Minimum |VECM ECT z-score| required to open orders
 HURST_THRESHOLD = 0.5      # Spread Hurst exponent must be below this (mean-reverting)
 WAVELET_LEVEL = 1          # DWT decomposition levels for spread denoising (higher = more smoothing)
+EXIT_ZSCORE = 0.0          # Z-score level at which an open grid is closed (mean-reversion profit target)
