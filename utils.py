@@ -3,6 +3,7 @@ from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, START_TIME_HOUR,STAR
 from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 # 2nd-order Kalman filter — imported at module level; only instantiated when KALMAN_ORDER == 2
 from KalmanPairTrading2ndOrder import KalmanPairTrading2ndOrder
+from cubic_spline_interest_rate import RateCurve
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller, coint
 from statsmodels.tsa.vector_ar.vecm import coint_johansen, VECM
