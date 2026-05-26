@@ -382,3 +382,45 @@ class MT5Connector(BrokerConnector):
         }
         result = mt5.order_send(request)
         return result.retcode == mt5.TRADE_RETCODE_DONE
+
+    def get_options_puts(self, underlying_symbol: str) -> list:
+        """
+        Return all put-option symbol-info objects for *underlying_symbol*.
+
+        The method queries MT5 for every symbol whose name contains
+        *underlying_symbol* and that is classified as a put option
+        (``option_right == mt5.SYMBOL_OPTION_RIGHT_PUT``).  Symbols
+        that are not currently selected in the MarketWatch are selected
+        temporarily so that their tick data can later be queried.
+
+        Parameters
+        ----------
+        underlying_symbol : str
+            Root ticker of the underlying (e.g. ``"PETR4"``).
+
+        Returns
+        -------
+        list
+            List of ``SymbolInfo`` namedtuples exposing at least
+            ``name``, ``option_strike``, ``expiration_time``, and
+            ``volume_real``.  Returns an empty list when nothing is found.
+        """
+        all_symbols = mt5.symbols_get(underlying_symbol + "*")
+        if not all_symbols:
+            self.logger.warning("No symbols found matching '%s*'", underlying_symbol)
+            return []
+
+        now_ts = int(time.time())
+        puts = []
+        for sym in all_symbols:
+            # Keep only non-expired put options
+            if sym.option_right != mt5.SYMBOL_OPTION_RIGHT_PUT:
+                continue
+            if sym.expiration_time <= now_ts:
+                continue
+            # Ensure the symbol is visible in MarketWatch so tick data is available
+            if not sym.visible:
+                mt5.symbol_select(sym.name, True)
+            puts.append(sym)
+
+        return puts
