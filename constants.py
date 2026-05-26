@@ -40,3 +40,9 @@ VECM_ECT_THRESHOLD = 0.5   # Minimum |VECM ECT z-score| required to open orders
 HURST_THRESHOLD = 0.5      # Spread Hurst exponent must be below this (mean-reverting)
 WAVELET_LEVEL = 1          # DWT decomposition levels for spread denoising (higher = more smoothing)
 KALMAN_ORDER = 1           # Kalman filter order for hedge-ratio estimation: 1 (standard) or 2 (tracks beta velocity/acceleration)
+
+# ── Black-Scholes / GARCH / Earnings ─────────────────────────────────────────
+BS_RISK_FREE_RATE = 0.05        # Annual risk-free rate used in Black-Scholes pricing
+BS_GARCH_IV_THRESHOLD = 0.05    # Minimum excess of GARCH vol over IV to trigger a signal (5 pp)
+BS_LOOKBACK_DAYS = 252          # Historical trading days used to fit GARCH(1,1)
+BS_EARNINGS_LOOKAHEAD_DAYS = 30 # Upcoming days to scan for earnings announcements
