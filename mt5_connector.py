@@ -23,90 +23,54 @@ class MT5Connector(BrokerConnector):
         if n_bars is None:
             n_bars = PERIODS
 
+        # Resolve the current front-month contract
         futures_symbols = mt5.symbols_get(symbol)
         if not futures_symbols:
             print(f"No symbols found for {symbol}")
             return pd.DataFrame()
 
         time_now = int(time.time())
-        next_symbols_fut = {}   # contracts still active
-        past_symbols_fut = {}   # contracts already expired
-
-        for s in futures_symbols:
-            if len(s.name) != 6:
-                continue
-            if s.expiration_time > time_now:
-                next_symbols_fut[s.expiration_time] = s.name
-            else:
-                past_symbols_fut[s.expiration_time] = s.name
+        next_symbols_fut = {
+            s.expiration_time: s.name
+            for s in futures_symbols
+            if len(s.name) == 6 and s.expiration_time > time_now
+        }
 
         if not next_symbols_fut:
             print(f"No active futures contract found for {symbol}")
             return pd.DataFrame()
 
-        # Front-month contract (nearest expiry)
-        sorted_next = dict(sorted(next_symbols_fut.items()))
-        front_expiry, front_name = list(sorted_next.items())[0]
+        front_name = next_symbols_fut[min(next_symbols_fut)]
         print(f"Current future symbol for {symbol} is {front_name}")
 
-        # Expired contracts sorted oldest→newest so we stitch chronologically
-        sorted_past = dict(sorted(past_symbols_fut.items()))
-
-        def _fetch(sym):
-            rates = mt5.copy_rates_from_pos(sym, mt5.TIMEFRAME_D1, SHIFT_PERIODS, n_bars)
-            count = len(rates) if rates is not None else 0
-            print(f"Retrieved {count} records for {sym}")
-            if rates is None or count == 0:
+        def _fetch(sym, count):
+            rates = mt5.copy_rates_from_pos(sym, mt5.TIMEFRAME_D1, SHIFT_PERIODS, count)
+            n_fetched = len(rates) if rates is not None else 0
+            print(f"Retrieved {n_fetched} records for {sym}")
+            if rates is None or n_fetched == 0:
                 return pd.DataFrame()
             df = pd.DataFrame(rates)
             df['time'] = pd.to_datetime(df['time'], unit='s')
             df['symbol'] = symbol
             return df
 
-        # Continuous symbol is the lowest-priority base (fills gaps only).
-        # Appended first so that contract rows, appended after, win on keep='last'.
+        # Fetch continuous symbol for history, front-month for recent prices.
+        # Continuous is appended first; front-month last so it wins on dedup.
         continuous_symbol = symbol.replace("*", "$")
-        df_cont = _fetch(continuous_symbol)
-        frames = [df_cont] if not df_cont.empty else []
+        df_cont = _fetch(continuous_symbol, max(n_bars * 5, 300))
+        df_front = _fetch(front_name, n_bars)
 
-        # Stitch expired contracts and the front-month using expiry boundaries:
-        # each contract contributes only bars within its own active window
-        # (previous_expiry < bar_date ≤ this_expiry) to avoid price leakage
-        # across contract boundaries.
-        prev_expiry_dt = None
-        contracts = list(sorted_past.items()) + [(front_expiry, front_name)]
-        for expiry_ts, name in contracts:
-            df = _fetch(name)
-            expiry_dt = pd.Timestamp(expiry_ts, unit='s')
-
-            if expiry_ts != front_expiry:
-                # Expired contract: keep only bars within its active window
-                if not df.empty:
-                    df = df[df['time'] <= expiry_dt]
-                    if prev_expiry_dt is not None:
-                        df = df[df['time'] > prev_expiry_dt]
-                prev_expiry_dt = expiry_dt
-            else:
-                # Front-month: keep bars after the last expired contract's expiry
-                if not df.empty and prev_expiry_dt is not None:
-                    df = df[df['time'] > prev_expiry_dt]
-
-            if not df.empty:
-                frames.append(df)
-
+        frames = [df for df in (df_cont, df_front) if not df.empty]
         if not frames:
             print("No data retrieved.")
             return pd.DataFrame()
 
         all_data = pd.concat(frames, ignore_index=True)
-        # Contract rows were appended after the continuous symbol rows, so
-        # keep='last' correctly gives actual contract data priority over the
-        # continuous symbol for any residual overlaps.
         all_data = all_data.drop_duplicates(subset=['time'], keep='last')
         all_data = all_data.sort_values('time').reset_index(drop=True)
         futures_data = all_data[all_data['time'].dt.weekday < 5].tail(n_bars)
 
-        print(f"Stitched {len(futures_data)} bars for {symbol} across {len(contracts)} contracts")
+        print(f"Concatenated {len(futures_data)} bars for {symbol} ({continuous_symbol} + {front_name})")
         return futures_data
         
     def get_symbol_futures(self,group_name):
