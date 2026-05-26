@@ -1,6 +1,8 @@
 from datetime import datetime, timezone, timedelta
-from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, JOHANSEN_DET_ORDER, JOHANSEN_MAX_LAGS, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN
+from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, JOHANSEN_DET_ORDER, JOHANSEN_MAX_LAGS, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN, KALMAN_ORDER
 from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
+# 2nd-order Kalman filter — imported at module level; only instantiated when KALMAN_ORDER == 2
+from KalmanPairTrading2ndOrder import KalmanPairTrading2ndOrder
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller, coint
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
@@ -95,14 +97,20 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
     x = log_asset2.values
 
     initial_beta = estimate_initial_hedge_ratio(y, x, lookback=PERIODS)
-   
-    # Initialize Kalman Filter
-    kf = KalmanFilter(
-            delta=1e-4,
-            ve=1e-3,
-            initial_state=initial_beta,
-            initial_variance=1.0
-        )
+
+    if KALMAN_ORDER == 2:
+        # 2nd-order Kalman: tracks beta velocity and acceleration
+        kf = KalmanPairTrading2ndOrder(delta=1e-4, sigma_obs=1e-3, dt=1.0)
+        # Seed the initial beta state
+        kf.x[1, 0] = initial_beta
+    else:
+        # Default: 1st-order Kalman filter
+        kf = KalmanFilter(
+                delta=1e-4,
+                ve=1e-3,
+                initial_state=initial_beta,
+                initial_variance=1.0
+            )
 
     # Run Kalman Filter to get dynamic hedge ratios
     filter_results = kf.filter_batch(y, x)
@@ -120,7 +128,7 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
     results = pd.DataFrame({
            'z_scores': z_scores,
            'spread': spread,
-           'hedge_ratio': filter_results['kalman_hedge_ratio'].values[-1],
+           'hedge_ratio': filter_results['kalman_hedge_ratio'].values,
     })
 
     return results
@@ -315,6 +323,9 @@ def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_
 
     grid_count = (total_positions/2)
     fibo_index = int(grid_count)
+    # Clamp to the last defined Fibonacci factor to prevent IndexError when
+    # grid_count exceeds the length of FIBO_VOLUME_FACTORS.
+    fibo_index = min(fibo_index, len(FIBO_VOLUME_FACTORS) - 1)
 
     print(f"Grid count {grid_count} and fibo index {fibo_index} max lots {total_max_lots} and grid lot investment {grid_lot_investment}")
 

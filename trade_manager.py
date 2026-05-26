@@ -20,6 +20,14 @@ class TradeManager:
         stop_active = False
         open_position_y = None
         open_position_x = None
+        # Pre-initialise so these names are always bound before the logging
+        # statements outside the for-loop (fixes potential UnboundLocalError).
+        ticket_y = None
+        ticket_x = None
+        stop_loss_y = None
+        stop_loss_x = None
+        type_position_y = None
+        type_position_x = None
         
         while True:
             # Recalculate risk limits each cycle so shrinking equity tightens the stop
@@ -93,8 +101,10 @@ class TradeManager:
                 else:
                      result = get_linear_regression_spread_zscores(assets_y, assets_x)
 
-                self.logger.info(f"Sending order: z_score={result['z_scores'].iloc[-1]:.4f}, hedge_ratio={result['hedge_ratio'].iloc[-1]:.4f}, correlation={correlation:.4f}")
-                self.trade_execution.execute_trade(open_position_y, open_position_x, correlation, result['hedge_ratio'].iloc[-1], result['z_scores'].iloc[-1])
+                current_z = result['z_scores'].iloc[-1]
+                self.logger.info(f"Current z_score={current_z:.4f}, hedge_ratio={result['hedge_ratio'].iloc[-1]:.4f}, correlation={correlation:.4f}")
+
+                self.trade_execution.execute_trade(open_position_y, open_position_x, correlation, result['hedge_ratio'].iloc[-1], current_z)
                 time.sleep(15)
                 
                 

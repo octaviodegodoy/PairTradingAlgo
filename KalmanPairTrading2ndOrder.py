@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
-from constants import TRADING_PAIR_X, TRADING_PAIR_Y
-from mt5_connector import MT5Connector
+from constants import TRADING_PAIR_X, TRADING_PAIR_Y, ROLLING_PERIODS
 from mt5_connector import MT5Connector
 
 
@@ -22,6 +22,10 @@ class KalmanPairTrading2ndOrder:
 
     Observação:
         y_t = alpha + beta * x_t + ruído
+
+    The ``filter_batch`` method mirrors the interface of ``KalmanFilter`` so
+    that ``get_dynamic_spread_zscores`` in utils.py can use either order
+    transparently via the ``KALMAN_ORDER`` constant.
     """
 
     def __init__(self, delta=1e-4, sigma_obs=1.0, dt=1.0):
@@ -94,6 +98,59 @@ class KalmanPairTrading2ndOrder:
             "d_beta": self.x[2, 0],
             "dd_beta": self.x[3, 0]
         }
+
+    # ------------------------------------------------------------------
+    # Unified interface — matches KalmanFilter.filter_batch signature so
+    # get_dynamic_spread_zscores can use either order transparently.
+    # ------------------------------------------------------------------
+
+    def filter_batch(self, y: np.ndarray, x: np.ndarray) -> pd.DataFrame:
+        """
+        Run the 2nd-order Kalman filter on a batch of log-price data.
+
+        Parameters
+        ----------
+        y : np.ndarray  — log-prices of the dependent asset
+        x : np.ndarray  — log-prices of the independent asset
+
+        Returns
+        -------
+        pd.DataFrame with columns matching KalmanFilter.filter_batch:
+            ``y``, ``x``, ``kalman_hedge_ratio``, ``spread``,
+            ``spread_mean``, ``spread_std``, ``zscore``
+        """
+        assert len(y) == len(x), "y and x must have the same length"
+
+        # Reset history for a fresh batch run
+        self.x = np.zeros((self.n_states, 1))
+        self.P = np.eye(self.n_states) * 1.0
+        self.history = {
+            "alpha": [], "beta": [], "d_beta": [], "dd_beta": [],
+            "spread": [], "spread_std": [], "log_likelihood": []
+        }
+
+        for i in range(len(y)):
+            self.step(y[i], x[i])
+
+        hedge_ratios = np.array(self.history["beta"])
+        # The spread stored in history is the *innovation* (y - H*x_pred).
+        # For consistency with KalmanFilter we recompute the residual spread
+        # as  y - alpha - beta * x  using the posterior state estimates.
+        alphas = np.array(self.history["alpha"])
+        spreads = y - alphas - hedge_ratios * x
+
+        results = pd.DataFrame({
+            "y": y,
+            "x": x,
+            "kalman_hedge_ratio": hedge_ratios,
+            "spread": spreads,
+        })
+
+        results["spread_mean"] = results["spread"].rolling(window=ROLLING_PERIODS).mean()
+        results["spread_std"] = results["spread"].rolling(window=ROLLING_PERIODS).std()
+        results["zscore"] = (results["spread"] - results["spread_mean"]) / results["spread_std"]
+
+        return results
 
 
 # ============================================================
