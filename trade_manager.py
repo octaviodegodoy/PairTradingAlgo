@@ -20,6 +20,12 @@ class TradeManager:
         stop_active = False
         open_position_y = None
         open_position_x = None
+        ticket_y = None
+        ticket_x = None
+        stop_loss_y = None
+        stop_loss_x = None
+        type_position_y = None
+        type_position_x = None
         
         while True:
             # Recalculate risk limits each cycle so shrinking equity tightens the stop

@@ -120,7 +120,7 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
     results = pd.DataFrame({
            'z_scores': z_scores,
            'spread': spread,
-           'hedge_ratio': filter_results['kalman_hedge_ratio'].values[-1],
+           'hedge_ratio': filter_results['kalman_hedge_ratio'].values,
     })
 
     return results
@@ -315,6 +315,9 @@ def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_
 
     grid_count = (total_positions/2)
     fibo_index = int(grid_count)
+    # Clamp to the last defined Fibonacci factor to prevent IndexError when
+    # grid_count exceeds the length of FIBO_VOLUME_FACTORS.
+    fibo_index = min(fibo_index, len(FIBO_VOLUME_FACTORS) - 1)
 
     print(f"Grid count {grid_count} and fibo index {fibo_index} max lots {total_max_lots} and grid lot investment {grid_lot_investment}")
 
