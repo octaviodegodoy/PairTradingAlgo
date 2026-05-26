@@ -3,7 +3,7 @@ from broker_connector import BrokerConnector
 from trade_execution import TradeExecution
 from risk_manager import RiskManager
 from constants import (
-    KALMAN_FILTER_METHOD, PROFIT_THRESHOLD, MAGIC_NUMBER, TRAILING_DISTANCE_POINTS, EXIT_ZSCORE
+    KALMAN_FILTER_METHOD, PROFIT_THRESHOLD, MAGIC_NUMBER, TRAILING_DISTANCE_POINTS
 )
 import time
 from utils import check_trading_time, get_correlation, get_dynamic_spread_zscores, get_group_name, get_linear_regression_spread_zscores
@@ -104,16 +104,6 @@ class TradeManager:
                 current_z = result['z_scores'].iloc[-1]
                 self.logger.info(f"Current z_score={current_z:.4f}, hedge_ratio={result['hedge_ratio'].iloc[-1]:.4f}, correlation={correlation:.4f}")
 
-                # Z-score mean-reversion exit: close all positions when spread has
-                # reverted back through EXIT_ZSCORE (natural profit-take target).
-                if self._has_z_reverted(current_z):
-                    self.logger.info(
-                        f"Z-score ({current_z:.4f}) reverted through EXIT_ZSCORE "
-                        f"({EXIT_ZSCORE}). Closing all positions for profit-take."
-                    )
-                    self.mt5_conn.close_all_positions()
-                    break
-
                 self.trade_execution.execute_trade(open_position_y, open_position_x, correlation, result['hedge_ratio'].iloc[-1], current_z)
                 time.sleep(15)
                 
@@ -126,25 +116,6 @@ class TradeManager:
             
             self.logger.info(f"Managing positions")
             time.sleep(15)  # Sleep for a while before next management cycle
-
-    def _has_z_reverted(self, current_z: float) -> bool:
-        """
-        Return True when the current z-score has crossed back through EXIT_ZSCORE,
-        indicating the spread has mean-reverted and the trade should be closed.
-
-        The convention mirrors backtest_zscore.py:
-          - LONG  spread entries (z was strongly negative) exit when z >= EXIT_ZSCORE
-          - SHORT spread entries (z was strongly positive) exit when z <= EXIT_ZSCORE
-
-        Because manage_trades does not track the exact entry direction we use a
-        symmetric check: z has crossed through EXIT_ZSCORE from either side.
-        Specifically, if |z| <= |EXIT_ZSCORE| the spread is at or inside the
-        reversion target, which is the natural profit-take point.
-        """
-        # Default EXIT_ZSCORE is 0.0, so this simplifies to abs(z) <= 0.
-        # For non-zero EXIT_ZSCORE (e.g. 0.2 for a partial-reversion target)
-        # we check that the z-score is within the band.
-        return abs(current_z) <= abs(EXIT_ZSCORE)
 
     def _set_initial_stop_losses(self):
         """
