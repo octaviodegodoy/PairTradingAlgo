@@ -20,6 +20,8 @@ class TradeManager:
         stop_active = False
         open_position_y = None
         open_position_x = None
+        # Pre-initialise so these names are always bound before the logging
+        # statements outside the for-loop (fixes potential UnboundLocalError).
         ticket_y = None
         ticket_x = None
         stop_loss_y = None

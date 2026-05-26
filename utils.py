@@ -1,6 +1,8 @@
 from datetime import datetime, timezone, timedelta
 from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, JOHANSEN_DET_ORDER, JOHANSEN_MAX_LAGS, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN, KALMAN_ORDER
 from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
+# 2nd-order Kalman filter — imported at module level; only instantiated when KALMAN_ORDER == 2
+from KalmanPairTrading2ndOrder import KalmanPairTrading2ndOrder
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller, coint
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
@@ -98,7 +100,6 @@ def get_dynamic_spread_zscores(asset1_prices, asset2_prices):
 
     if KALMAN_ORDER == 2:
         # 2nd-order Kalman: tracks beta velocity and acceleration
-        from KalmanPairTrading2ndOrder import KalmanPairTrading2ndOrder
         kf = KalmanPairTrading2ndOrder(delta=1e-4, sigma_obs=1e-3, dt=1.0)
         # Seed the initial beta state
         kf.x[1, 0] = initial_beta
