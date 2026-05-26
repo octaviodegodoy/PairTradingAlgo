@@ -5,7 +5,7 @@ from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 from KalmanPairTrading2ndOrder import KalmanPairTrading2ndOrder
 from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import adfuller, coint
-from statsmodels.tsa.vector_ar.vecm import coint_johansen
+from statsmodels.tsa.vector_ar.vecm import coint_johansen, VECM
 import pywt
 import math
 import numpy as np
@@ -347,11 +347,17 @@ def get_correlation(assetY,assetX):
     correlation = assetY['close'].corr(assetX['close'])
     return correlation
 
-def get_vecm_ect_zscore(asset1_prices, asset2_prices) -> float:
+def get_vecm_ect_zscore(asset1_prices, asset2_prices) -> dict:
     """
-    Compute the VECM Error Correction Term (ECT) z-score using the Johansen
-    cointegrating vector.  Returns the most recent normalized ECT value.
-    A high absolute value means prices are far from long-run equilibrium.
+    Compute the VECM Error Correction Term (ECT) z-score and alpha (adjustment
+    coefficients) using the Johansen cointegrating vector.
+
+    Returns a dict with:
+      - ect_zscore  : float  — most recent normalized ECT value
+      - alpha       : np.ndarray shape (2,) — speed-of-adjustment coefficients
+      - alpha_valid : bool   — True when signs indicate valid mean-reversion
+                               (alpha[0] < 0 and alpha[1] > 0, or vice versa)
+      - beta        : float  — cointegrating beta (log_x coefficient)
     """
     log_y = np.log(asset1_prices['close'])
     log_x = np.log(asset2_prices['close'])
@@ -360,9 +366,9 @@ def get_vecm_ect_zscore(asset1_prices, asset2_prices) -> float:
     log_x = log_x.iloc[:min_length].values
 
     data = np.column_stack([log_y, log_x])
-    johansen_result = coint_johansen(data, det_order=0, k_ar_diff=1)
 
-    # First eigenvector is the dominant cointegrating vector
+    # ── Johansen: cointegrating vector (beta) ─────────────────────────────
+    johansen_result = coint_johansen(data, det_order=0, k_ar_diff=1)
     ev = johansen_result.evec[:, 0]
     beta = ev[0] / ev[1]   # normalise so log_x coefficient = 1
 
@@ -370,9 +376,38 @@ def get_vecm_ect_zscore(asset1_prices, asset2_prices) -> float:
     ect_series = pd.Series(ect)
     rolling_mean = ect_series.rolling(window=ROLLING_PERIODS).mean()
     rolling_std  = ect_series.rolling(window=ROLLING_PERIODS).std()
-    ect_zscore = (ect_series - rolling_mean) / rolling_std
+    ect_zscore = float((ect_series - rolling_mean).div(rolling_std).iloc[-1])
 
-    return float(ect_zscore.iloc[-1])
+    # ── Full VECM: extract alpha (adjustment / loading coefficients) ──────
+    # alpha shape: (k_vars=2, coint_rank=1) — how fast each variable corrects.
+    # Correct stability condition (Granger Representation Theorem):
+    #   trace(alpha @ beta') < 0  ⟺  dot(alpha, beta_vec) < 0
+    # This works for BOTH positively-cointegrated (spread-type, c<0) AND
+    # negatively-cointegrated (sum-type, c>0) pairs like WIN/WDO.
+    # Do NOT use alpha[0]*alpha[1] < 0 — that only works for spread-type pairs.
+    try:
+        vecm_model = VECM(data, k_ar_diff=1, coint_rank=1, deterministic='ci')
+        vecm_result = vecm_model.fit()
+        alpha = vecm_result.alpha.flatten()           # shape (2,) after flatten
+        beta_vec = vecm_result.beta[:2, 0]            # first 2 rows = variable coefficients
+        # dot(alpha, beta_vec) is the eigenvalue of alpha@beta' (bivariate rank-1 case)
+        alpha_valid = bool(np.dot(alpha, beta_vec) < 0)
+        logging.getLogger(__name__).info(
+            f"VECM alpha: y={alpha[0]:.6f}, x={alpha[1]:.6f}, "
+            f"beta_vec={beta_vec}, trace={np.dot(alpha, beta_vec):.6f}, "
+            f"valid_mean_reversion={alpha_valid}, beta={beta:.6f}"
+        )
+    except Exception as exc:
+        logging.getLogger(__name__).warning(f"VECM alpha estimation failed: {exc}")
+        alpha = np.array([np.nan, np.nan])
+        alpha_valid = False
+
+    return {
+        "ect_zscore":  ect_zscore,
+        "alpha":       alpha,
+        "alpha_valid": alpha_valid,
+        "beta":        beta,
+    }
 
 def get_group_name(symbol):
     return symbol[:3]+'*'

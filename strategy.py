@@ -69,7 +69,10 @@ class PairTradingStrategy:
                       johansen_crit_level_override=SCAN_JOHANSEN_CRIT_LEVEL,
                   )
 
-                  vecm_ect_zscore = get_vecm_ect_zscore(assets_y, assets_x)
+                  vecm_result = get_vecm_ect_zscore(assets_y, assets_x)
+                  vecm_ect_zscore = vecm_result["ect_zscore"]
+                  vecm_alpha      = vecm_result["alpha"]
+                  vecm_alpha_valid = vecm_result["alpha_valid"]
                   vecm_condition = abs(vecm_ect_zscore) >= VECM_ECT_THRESHOLD
 
                   hurst = get_hurst_exponent(results['spread'].values)
@@ -79,7 +82,10 @@ class PairTradingStrategy:
                   ou_condition = ou['is_mean_reverting']
 
                   self.logger.info(f"Cointegration Condition Met: {cointegration_condition}")
-                  self.logger.info(f"VECM ECT Z-Score: {vecm_ect_zscore:.4f}, VECM Condition Met: {vecm_condition}")
+                  self.logger.info(
+                      f"VECM ECT Z-Score: {vecm_ect_zscore:.4f}, VECM Condition Met: {vecm_condition} | "
+                      f"alpha_y={vecm_alpha[0]:.6f}, alpha_x={vecm_alpha[1]:.6f}, alpha_valid={vecm_alpha_valid}"
+                  )
                   self.logger.info(f"Hurst Exponent: {hurst:.4f}, Hurst Condition Met: {hurst_condition}")
                   self.logger.info(f"OU λ={ou['lambda_']:.6f}, μ={ou['mu']:.6f}, σ={ou['sigma']:.6f}, OU Condition Met: {ou_condition}")
                   self.logger.info(f"Hedge ratio between {pair_y[i]} and {pair_x[j]}: {results['hedge_ratio'].iloc[-1]} and z score is {results['z_scores'].iloc[-1]} and spread is {results['spread'].iloc[-1]} for threshold {updated_zscore_entry}")
