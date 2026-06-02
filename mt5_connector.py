@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import time
 import pandas as pd
 from broker_connector import BrokerConnector
-from constants import MAGIC_NUMBER, PERIODS, SHIFT_PERIODS
+from constants import HISTORY_TRADES_HOURS, MAGIC_NUMBER, PERIODS, SHIFT_PERIODS
 
 
 class MT5Connector(BrokerConnector):
@@ -299,7 +299,7 @@ class MT5Connector(BrokerConnector):
 
     
     def total_daily_risk(self):
-        from_date = datetime.now() - timedelta(hours=12,minutes=0)
+        from_date = datetime.now() - timedelta(hours=HISTORY_TRADES_HOURS, minutes=0)
         #get the number of deals in history
         to_date=datetime.now()
         print(f"From date {from_date} to date {to_date}")
@@ -360,8 +360,10 @@ class MT5Connector(BrokerConnector):
         mt5.shutdown()
 
     def get_profit(self):
-        profit = mt5.account_info().profit
-        return profit
+        positions = mt5.positions_get()
+        if not positions:
+            return 0.0
+        return sum(p.profit for p in positions if p.magic == MAGIC_NUMBER)
     
     def get_order_calc_margin(self, order_type, symbol, volume, price):
         margin = mt5.order_calc_margin(order_type, symbol, volume, price)

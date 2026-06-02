@@ -1,6 +1,6 @@
 import logging
 import pandas as pd
-from constants import KALMAN_FILTER_METHOD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD, VECM_ECT_THRESHOLD, HURST_THRESHOLD, SCAN_COINTEGRATION_METHOD, SCAN_JOHANSEN_CRIT_LEVEL, OU_LAMBDA_MIN, JOHANSEN_PERIODS
+from constants import KALMAN_FILTER_METHOD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD, VECM_ECT_THRESHOLD, HURST_THRESHOLD, SCAN_COINTEGRATION_METHOD, SCAN_JOHANSEN_CRIT_LEVEL, OU_LAMBDA_MIN, JOHANSEN_PERIODS, MAGIC_NUMBER
 import time
 from broker_connector import BrokerConnector
 from utils import check_cointegration, get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores, get_vecm_ect_zscore, get_hurst_exponent, get_ou_params
@@ -28,7 +28,7 @@ class PairTradingStrategy:
         ## Get daily profit and highest z score period
         highest_zscore_period,total_profit,total_volume,grid_history = self.mt5_conn.total_daily_risk()
         grids_count = total_positions/2
-        updated_zscore_entry = updates_zscore_entry(highest_zscore_period,total_profit,total_volume,grid_history,grids_count)
+        updated_zscore_entry = updates_zscore_entry(highest_zscore_period,total_profit,total_volume,grid_history,grids_count,MAGIC_NUMBER)
         self.logger.info(f"Updated Z score entry : {updated_zscore_entry} total volumes {total_volume} grids history is {grid_history} how is grids count {grids_count} and total profit {total_profit}")
      
         while True:

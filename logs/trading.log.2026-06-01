@@ -1,0 +1,727 @@
+{"ts": "2026-06-01T12:05:25.768821+00:00", "level": "INFO", "logger": "__main__", "msg": "Broker initialized successfully, trading will start at 12:5 UTC for 4 hours and 30 minutes"}
+{"ts": "2026-06-01T12:05:25.768821+00:00", "level": "INFO", "logger": "__main__", "msg": "No open positions currently."}
+{"ts": "2026-06-01T12:05:25.768821+00:00", "level": "INFO", "logger": "__main__", "msg": "Start scanning for trading opportunities..."}
+{"ts": "2026-06-01T12:05:25.768821+00:00", "level": "INFO", "logger": "strategy", "msg": "Total current positions: 0"}
+{"ts": "2026-06-01T12:05:25.768821+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:05:25.768821+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.0 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:05:25.768821+00:00", "level": "INFO", "logger": "strategy", "msg": "Updated Z score entry : 1.0 total volumes 0.0 grids history is 0.0 how is grids count 0.0 and total profit 0"}
+{"ts": "2026-06-01T12:05:25.768821+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:05:25.768821+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:05:25.807683+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.008922844697620062"}
+{"ts": "2026-06-01T12:05:25.807683+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.9200589772312455 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:05:25.807683+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.485580856184366, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:05:25.823455+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011616, x=0.080612, beta_vec=[ 1.        -0.3812915], trace=-0.019121, valid_mean_reversion=True, beta=-4.603200"}
+{"ts": "2026-06-01T12:05:25.823455+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:05:25.823455+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1838, VECM Condition Met: True | alpha_y=0.011616, alpha_x=0.080612, alpha_valid=True"}
+{"ts": "2026-06-01T12:05:25.823455+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0056, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:05:25.823455+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467382, μ=-0.000033, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:05:25.823455+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7063254779923769 and z score is -0.9200589772312455 and spread is -0.00020376271667899408 for threshold 1.0"}
+{"ts": "2026-06-01T12:05:55.843056+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:05:55.843056+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:05:55.843056+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.008953728759082156"}
+{"ts": "2026-06-01T12:05:55.843056+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.9979656994399814 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:05:55.843056+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4857498654157384, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:05:55.860739+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011860, x=0.079764, beta_vec=[ 1.         -0.39245147], trace=-0.019444, valid_mean_reversion=True, beta=-4.397085"}
+{"ts": "2026-06-01T12:05:55.866578+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:05:55.866578+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1565, VECM Condition Met: True | alpha_y=0.011860, alpha_x=0.079764, alpha_valid=True"}
+{"ts": "2026-06-01T12:05:55.866578+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0052, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:05:55.866578+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467397, μ=-0.000034, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:05:55.866578+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062244942934923 and z score is -0.9979656994399814 and spread is -0.00024200651027252325 for threshold 1.0"}
+{"ts": "2026-06-01T12:06:25.876430+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:06:25.876430+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:06:25.879061+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.0091894140146394"}
+{"ts": "2026-06-01T12:06:25.879061+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.098615161041389 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:06:25.879061+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.486245864182619, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:06:25.892126+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.012102, x=0.078938, beta_vec=[ 1.         -0.40217143], trace=-0.019645, valid_mean_reversion=True, beta=-4.208972"}
+{"ts": "2026-06-01T12:06:25.892126+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:06:25.892126+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1270, VECM Condition Met: True | alpha_y=0.012102, alpha_x=0.078938, alpha_valid=True"}
+{"ts": "2026-06-01T12:06:25.892126+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0046, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:06:25.892126+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467337, μ=-0.000036, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:06:25.892126+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7060912060765707 and z score is -1.098615161041389 and spread is -0.0002924789057175976 for threshold 1.0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "strategy", "msg": "Arbitrage conditions met for pair: ('WDON26', 'WINM26')"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage was found : True for pair y as WDON26 and x as WINM26 hedge ratio is 0.7060912060765707 and spreads is -0.0002924789057175976 and rolling z scores is -1.098615161041389"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage opportunity detected. Executing trades..."}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "__main__", "msg": "Starting trade execution for WDON26 and WINM26 and hedge ratio 0.7060912060765707 and z score -1.098615161041389 and spreads -0.0002924789057175976"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 0.0 total volumes 0.0 and max lots 154.9683333333333"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.0 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 154.9683333333333 open positions volume 0.0 current zscore -1.098615161041389 updated zscore entry 1.0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WDON26: 5.0, WINM26: 7.0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Risk per leg (proportional SL budget): 929.81"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.098615161041389, threshold=1.0, slope=0.0091894140146394"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "__main__", "msg": "No open positions currently."}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "__main__", "msg": "Start scanning for trading opportunities..."}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "strategy", "msg": "Total current positions: 0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.0 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "strategy", "msg": "Updated Z score entry : 1.0 total volumes 0.0 grids history is 0.0 how is grids count 0.0 and total profit 0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:06:40.892201+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:06:40.901602+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009320447321586305"}
+{"ts": "2026-06-01T12:06:40.901602+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.078831927261535 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:06:40.901602+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4861240421939508, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:06:40.908087+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.012000, x=0.079345, beta_vec=[ 1.         -0.39599754], trace=-0.019421, valid_mean_reversion=True, beta=-4.294918"}
+{"ts": "2026-06-01T12:06:40.908087+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:06:40.908087+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1380, VECM Condition Met: True | alpha_y=0.012000, alpha_x=0.079345, alpha_valid=True"}
+{"ts": "2026-06-01T12:06:40.908087+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0047, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:06:40.908087+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467356, μ=-0.000036, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:06:40.908087+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7061176911316953 and z score is -1.078831927261535 and spread is -0.00028245632141606894 for threshold 1.0"}
+{"ts": "2026-06-01T12:06:55.910871+00:00", "level": "INFO", "logger": "strategy", "msg": "Arbitrage conditions met for pair: ('WDON26', 'WINM26')"}
+{"ts": "2026-06-01T12:06:55.910871+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage was found : True for pair y as WDON26 and x as WINM26 hedge ratio is 0.7061176911316953 and spreads is -0.00028245632141606894 and rolling z scores is -1.078831927261535"}
+{"ts": "2026-06-01T12:06:55.910871+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage opportunity detected. Executing trades..."}
+{"ts": "2026-06-01T12:06:55.910871+00:00", "level": "INFO", "logger": "__main__", "msg": "Starting trade execution for WDON26 and WINM26 and hedge ratio 0.7061176911316953 and z score -1.078831927261535 and spreads -0.00028245632141606894"}
+{"ts": "2026-06-01T12:06:55.910871+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 0.0 total volumes 0.0 and max lots 154.9683333333333"}
+{"ts": "2026-06-01T12:06:55.910871+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.0 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 154.9683333333333 open positions volume 0.0 current zscore -1.078831927261535 updated zscore entry 1.0"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WDON26: 5.0, WINM26: 7.0"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Risk per leg (proportional SL budget): 929.81"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.078831927261535, threshold=1.0, slope=0.009320447321586305"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "__main__", "msg": "No open positions currently."}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "__main__", "msg": "Start scanning for trading opportunities..."}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "strategy", "msg": "Total current positions: 0"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.0 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "strategy", "msg": "Updated Z score entry : 1.0 total volumes 0.0 grids history is 0.0 how is grids count 0.0 and total profit 0"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:06:55.913169+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:06:55.919186+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009231887448009169"}
+{"ts": "2026-06-01T12:06:55.919186+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.073063416025172 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:06:55.919186+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4860900470565404, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:06:55.931047+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.012009, x=0.079289, beta_vec=[ 1.         -0.39725126], trace=-0.019488, valid_mean_reversion=True, beta=-4.284170"}
+{"ts": "2026-06-01T12:06:55.931047+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:06:55.931047+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1375, VECM Condition Met: True | alpha_y=0.012009, alpha_x=0.079289, alpha_valid=True"}
+{"ts": "2026-06-01T12:06:55.931047+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0047, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:06:55.931047+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467361, μ=-0.000036, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:06:55.940945+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7061253770296545 and z score is -1.073063416025172 and spread is -0.0002795436765815539 for threshold 1.0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "strategy", "msg": "Arbitrage conditions met for pair: ('WDON26', 'WINM26')"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage was found : True for pair y as WDON26 and x as WINM26 hedge ratio is 0.7061253770296545 and spreads is -0.0002795436765815539 and rolling z scores is -1.073063416025172"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage opportunity detected. Executing trades..."}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "__main__", "msg": "Starting trade execution for WDON26 and WINM26 and hedge ratio 0.7061253770296545 and z score -1.073063416025172 and spreads -0.0002795436765815539"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 0.0 total volumes 0.0 and max lots 154.9683333333333"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.0 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 154.9683333333333 open positions volume 0.0 current zscore -1.073063416025172 updated zscore entry 1.0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WDON26: 5.0, WINM26: 7.0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Risk per leg (proportional SL budget): 929.81"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.073063416025172, threshold=1.0, slope=0.009231887448009169"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "__main__", "msg": "No open positions currently."}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "__main__", "msg": "Start scanning for trading opportunities..."}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "strategy", "msg": "Total current positions: 0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.0 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "strategy", "msg": "Updated Z score entry : 1.0 total volumes 0.0 grids history is 0.0 how is grids count 0.0 and total profit 0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009162705729714306"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.0250512394051658 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:07:10.944381+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4858529444865383, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:07:10.966724+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011880, x=0.079741, beta_vec=[ 1.         -0.39160865], trace=-0.019348, valid_mean_reversion=True, beta=-4.387615"}
+{"ts": "2026-06-01T12:07:10.966724+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:07:10.966724+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1529, VECM Condition Met: True | alpha_y=0.011880, alpha_x=0.079741, alpha_valid=True"}
+{"ts": "2026-06-01T12:07:10.966724+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0050, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:07:10.966724+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467390, μ=-0.000035, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:07:10.966724+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7061889666931976 and z score is -1.0250512394051658 and spread is -0.00025546516887669303 for threshold 1.0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "strategy", "msg": "Arbitrage conditions met for pair: ('WDON26', 'WINM26')"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage was found : True for pair y as WDON26 and x as WINM26 hedge ratio is 0.7061889666931976 and spreads is -0.00025546516887669303 and rolling z scores is -1.0250512394051658"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage opportunity detected. Executing trades..."}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "__main__", "msg": "Starting trade execution for WDON26 and WINM26 and hedge ratio 0.7061889666931976 and z score -1.0250512394051658 and spreads -0.00025546516887669303"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 0.0 total volumes 0.0 and max lots 154.9683333333333"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.0 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 154.9683333333333 open positions volume 0.0 current zscore -1.0250512394051658 updated zscore entry 1.0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WDON26: 5.0, WINM26: 7.0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Risk per leg (proportional SL budget): 929.81"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.0250512394051658, threshold=1.0, slope=0.009162705729714306"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "__main__", "msg": "No open positions currently."}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "__main__", "msg": "Start scanning for trading opportunities..."}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "strategy", "msg": "Total current positions: 0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.0 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "strategy", "msg": "Updated Z score entry : 1.0 total volumes 0.0 grids history is 0.0 how is grids count 0.0 and total profit 0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:07:25.976403+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:07:25.986332+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.00919675192036452"}
+{"ts": "2026-06-01T12:07:25.986332+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.0590829473266703 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:07:25.988336+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4860133407729401, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:07:25.999914+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011976, x=0.079400, beta_vec=[ 1.         -0.39596923], trace=-0.019463, valid_mean_reversion=True, beta=-4.309479"}
+{"ts": "2026-06-01T12:07:25.999914+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:07:25.999914+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1415, VECM Condition Met: True | alpha_y=0.011976, alpha_x=0.079400, alpha_valid=True"}
+{"ts": "2026-06-01T12:07:25.999914+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0048, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:07:25.999914+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467371, μ=-0.000036, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:07:25.999914+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7061439722552378 and z score is -1.0590829473266703 and spread is -0.00027250234543063715 for threshold 1.0"}
+{"ts": "2026-06-01T12:07:43.644370+00:00", "level": "INFO", "logger": "__main__", "msg": "Broker initialized successfully, trading will start at 12:5 UTC for 4 hours and 30 minutes"}
+{"ts": "2026-06-01T12:07:43.644370+00:00", "level": "INFO", "logger": "__main__", "msg": "No open positions currently."}
+{"ts": "2026-06-01T12:07:43.644370+00:00", "level": "INFO", "logger": "__main__", "msg": "Start scanning for trading opportunities..."}
+{"ts": "2026-06-01T12:07:43.644370+00:00", "level": "INFO", "logger": "strategy", "msg": "Total current positions: 0"}
+{"ts": "2026-06-01T12:07:43.644370+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:07:43.644370+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.15 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:07:43.644370+00:00", "level": "INFO", "logger": "strategy", "msg": "Updated Z score entry : 1.15 total volumes 0.0 grids history is 0.0 how is grids count 0.0 and total profit 0"}
+{"ts": "2026-06-01T12:07:43.644370+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:07:43.644370+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:07:43.676856+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009554826802983021"}
+{"ts": "2026-06-01T12:07:43.676856+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.1007330434714024 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:07:43.676856+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4862622783677455, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:07:43.693694+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011995, x=0.079420, beta_vec=[ 1.         -0.39367868], trace=-0.019271, valid_mean_reversion=True, beta=-4.306708"}
+{"ts": "2026-06-01T12:07:43.693694+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:07:43.693694+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1370, VECM Condition Met: True | alpha_y=0.011995, alpha_x=0.079420, alpha_valid=True"}
+{"ts": "2026-06-01T12:07:43.693694+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0046, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:07:43.693694+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467333, μ=-0.000036, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:07:43.693694+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7060883959760654 and z score is -1.1007330434714024 and spread is -0.0002935546509046884 for threshold 1.15"}
+{"ts": "2026-06-01T12:08:13.702958+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:08:13.702958+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:08:13.702958+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009750027283495475"}
+{"ts": "2026-06-01T12:08:13.702958+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.0716043233223214 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:08:13.702958+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4860853401778582, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:08:13.718882+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011844, x=0.080018, beta_vec=[ 1.         -0.38469199], trace=-0.018939, valid_mean_reversion=True, beta=-4.439569"}
+{"ts": "2026-06-01T12:08:13.718882+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:08:13.718882+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1533, VECM Condition Met: True | alpha_y=0.011844, alpha_x=0.080018, alpha_valid=True"}
+{"ts": "2026-06-01T12:08:13.718882+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0048, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:08:13.718882+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467361, μ=-0.000036, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:08:13.718882+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7061273649241662 and z score is -1.0716043233223214 and spread is -0.0002788072144697842 for threshold 1.15"}
+{"ts": "2026-06-01T12:08:43.720780+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:08:43.720780+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:08:43.720780+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009722891844193669"}
+{"ts": "2026-06-01T12:08:43.720780+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.056435275094029 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:08:43.720780+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4860031869897623, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:08:43.736524+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011804, x=0.080152, beta_vec=[ 1.         -0.38307805], trace=-0.018900, valid_mean_reversion=True, beta=-4.472074"}
+{"ts": "2026-06-01T12:08:43.736524+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:08:43.736524+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1579, VECM Condition Met: True | alpha_y=0.011804, alpha_x=0.080152, alpha_valid=True"}
+{"ts": "2026-06-01T12:08:43.736524+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0049, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:08:43.736524+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467372, μ=-0.000035, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:08:43.736524+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7061475303174913 and z score is -1.056435275094029 and spread is -0.0002711712441741119 for threshold 1.15"}
+{"ts": "2026-06-01T12:09:08.881506+00:00", "level": "INFO", "logger": "__main__", "msg": "Broker initialized successfully, trading will start at 12:5 UTC for 4 hours and 30 minutes"}
+{"ts": "2026-06-01T12:09:08.881506+00:00", "level": "INFO", "logger": "__main__", "msg": "No open positions currently."}
+{"ts": "2026-06-01T12:09:08.881506+00:00", "level": "INFO", "logger": "__main__", "msg": "Start scanning for trading opportunities..."}
+{"ts": "2026-06-01T12:09:08.881506+00:00", "level": "INFO", "logger": "strategy", "msg": "Total current positions: 0"}
+{"ts": "2026-06-01T12:09:08.881506+00:00", "level": "INFO", "logger": "utils", "msg": "Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-01T12:09:08.881506+00:00", "level": "INFO", "logger": "utils", "msg": "Updated z score is 1.15 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-01T12:09:08.881506+00:00", "level": "INFO", "logger": "strategy", "msg": "Updated Z score entry : 1.15 total volumes 0.0 grids history is 0.0 how is grids count 0.0 and total profit 0"}
+{"ts": "2026-06-01T12:09:08.881506+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:09:08.881506+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:09:08.920107+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009434291067274333"}
+{"ts": "2026-06-01T12:09:08.920107+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.0023973476046573 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:09:08.924509+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4857682573198947, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:09:08.935789+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011722, x=0.080369, beta_vec=[ 1.         -0.38178377], trace=-0.018962, valid_mean_reversion=True, beta=-4.531437"}
+{"ts": "2026-06-01T12:09:08.935789+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:09:08.935789+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1690, VECM Condition Met: True | alpha_y=0.011722, alpha_x=0.080369, alpha_valid=True"}
+{"ts": "2026-06-01T12:09:08.935789+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0052, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:09:08.935789+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467396, μ=-0.000034, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:09:08.935789+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062187310504447 and z score is -1.0023973476046573 and spread is -0.0002442022928820465 for threshold 1.15"}
+{"ts": "2026-06-01T12:09:38.959713+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:09:38.959713+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:09:38.959713+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009418776100183835"}
+{"ts": "2026-06-01T12:09:38.959713+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.9642493249679711 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:09:38.959713+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856578169776393, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:09:38.981706+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011603, x=0.080779, beta_vec=[ 1.         -0.37643756], trace=-0.018806, valid_mean_reversion=True, beta=-4.634938"}
+{"ts": "2026-06-01T12:09:38.981706+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:09:38.981706+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1823, VECM Condition Met: True | alpha_y=0.011603, alpha_x=0.080779, alpha_valid=True"}
+{"ts": "2026-06-01T12:09:38.991163+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0054, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:09:38.991163+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467396, μ=-0.000033, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:09:38.991163+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062684532178714 and z score is -0.9642493249679711 and spread is -0.0002253722274820136 for threshold 1.15"}
+{"ts": "2026-06-01T12:10:09.013463+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:10:09.013463+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:10:09.022214+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009872815627591921"}
+{"ts": "2026-06-01T12:10:09.030217+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.0139653083146793 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:10:09.030217+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4858134941825443, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:10:09.052884+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011622, x=0.080833, beta_vec=[ 1.         -0.37331113], trace=-0.018554, valid_mean_reversion=True, beta=-4.637574"}
+{"ts": "2026-06-01T12:10:09.055192+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:10:09.055192+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1775, VECM Condition Met: True | alpha_y=0.011622, alpha_x=0.080833, alpha_valid=True"}
+{"ts": "2026-06-01T12:10:09.055192+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0051, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:10:09.055192+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467392, μ=-0.000035, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:10:09.055192+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062035972959356 and z score is -1.0139653083146793 and spread is -0.00024994546500291856 for threshold 1.15"}
+{"ts": "2026-06-01T12:10:39.067083+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:10:39.067083+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:10:39.072438+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009805204524855374"}
+{"ts": "2026-06-01T12:10:39.072438+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.0045274499314483 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:10:39.082731+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.485778275655027, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:10:39.082731+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011613, x=0.080848, beta_vec=[ 1.         -0.37348216], trace=-0.018583, valid_mean_reversion=True, beta=-4.643035"}
+{"ts": "2026-06-01T12:10:39.095266+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:10:39.095266+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1789, VECM Condition Met: True | alpha_y=0.011613, alpha_x=0.080848, alpha_valid=True"}
+{"ts": "2026-06-01T12:10:39.095266+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0052, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:10:39.095266+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467395, μ=-0.000034, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:10:39.095266+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062159693940837 and z score is -1.0045274499314483 and spread is -0.00024525843306245616 for threshold 1.15"}
+{"ts": "2026-06-01T12:11:09.125695+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:11:09.125695+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:11:09.132687+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009775842293907494"}
+{"ts": "2026-06-01T12:11:09.134693+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.9687890290172243 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:11:09.134693+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856711049170355, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:11:09.141710+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011506, x=0.081209, beta_vec=[ 1.         -0.36889354], trace=-0.018452, valid_mean_reversion=True, beta=-4.738846"}
+{"ts": "2026-06-01T12:11:09.141710+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:11:09.141710+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1909, VECM Condition Met: True | alpha_y=0.011506, alpha_x=0.081209, alpha_valid=True"}
+{"ts": "2026-06-01T12:11:09.141710+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0054, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:11:09.141710+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467396, μ=-0.000034, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:11:09.141710+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062625846834965 and z score is -0.9687890290172243 and spread is -0.00022760411343221537 for threshold 1.15"}
+{"ts": "2026-06-01T12:11:39.152615+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:11:39.152615+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:11:39.152615+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009919130520545244"}
+{"ts": "2026-06-01T12:11:39.152615+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.0068256624559668 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:11:39.152615+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4857872703140995, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:11:39.168677+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011585, x=0.080976, beta_vec=[ 1.         -0.37119563], trace=-0.018473, valid_mean_reversion=True, beta=-4.673322"}
+{"ts": "2026-06-01T12:11:39.168677+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:11:39.168677+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1814, VECM Condition Met: True | alpha_y=0.011585, alpha_x=0.080976, alpha_valid=True"}
+{"ts": "2026-06-01T12:11:39.168677+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0051, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:11:39.168677+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467394, μ=-0.000034, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:11:39.168677+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062129666329869 and z score is -1.0068256624559668 and spread is -0.0002463987280142351 for threshold 1.15"}
+{"ts": "2026-06-01T12:12:09.176945+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:12:09.176945+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:12:09.183722+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009911412223210172"}
+{"ts": "2026-06-01T12:12:09.204382+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.0080165631391744 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:12:09.204382+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4857915354043554, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:12:09.218307+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011591, x=0.080952, beta_vec=[ 1.         -0.37154787], trace=-0.018487, valid_mean_reversion=True, beta=-4.667329"}
+{"ts": "2026-06-01T12:12:09.218307+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:12:09.218307+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1807, VECM Condition Met: True | alpha_y=0.011591, alpha_x=0.080952, alpha_valid=True"}
+{"ts": "2026-06-01T12:12:09.218307+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0051, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:12:09.218307+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467394, μ=-0.000034, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:12:09.218307+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062114049496879 and z score is -1.0080165631391744 and spread is -0.0002469899059508601 for threshold 1.15"}
+{"ts": "2026-06-01T12:12:39.239529+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:12:39.239529+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:12:39.246103+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009631330857319246"}
+{"ts": "2026-06-01T12:12:39.246103+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.9712835511066585 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:12:39.246103+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856763236557562, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:12:39.260303+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011559, x=0.080987, beta_vec=[ 1.         -0.37257752], trace=-0.018615, valid_mean_reversion=True, beta=-4.683570"}
+{"ts": "2026-06-01T12:12:39.260303+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:12:39.260303+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1859, VECM Condition Met: True | alpha_y=0.011559, alpha_x=0.080987, alpha_valid=True"}
+{"ts": "2026-06-01T12:12:39.260303+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0054, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:12:39.260303+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467397, μ=-0.000034, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:12:39.260303+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.706259333166849 and z score is -0.9712835511066585 and spread is -0.0002288317270164062 for threshold 1.15"}
+{"ts": "2026-06-01T12:13:09.276527+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:13:09.276527+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:13:09.276527+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009737803519627282"}
+{"ts": "2026-06-01T12:13:09.288710+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.9747971907148723 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:13:09.288710+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856861255595921, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:13:09.296616+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011537, x=0.081091, beta_vec=[ 1.         -0.37065009], trace=-0.018519, valid_mean_reversion=True, beta=-4.708233"}
+{"ts": "2026-06-01T12:13:09.296616+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:13:09.296616+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1877, VECM Condition Met: True | alpha_y=0.011537, alpha_x=0.081091, alpha_valid=True"}
+{"ts": "2026-06-01T12:13:09.296616+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0053, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:13:09.296616+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467397, μ=-0.000034, σ=0.000523, OU Condition Met: True"}
+{"ts": "2026-06-01T12:13:09.296616+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062547722124347 and z score is -0.9747971907148723 and spread is -0.00023056185518367887 for threshold 1.15"}
+{"ts": "2026-06-01T12:13:39.306961+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:13:39.306961+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:13:39.306961+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009851894504495909"}
+{"ts": "2026-06-01T12:13:39.306961+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.9567445719421923 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:13:39.306961+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856442436916002, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:13:39.324596+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011442, x=0.081446, beta_vec=[ 1.         -0.36539057], trace=-0.018317, valid_mean_reversion=True, beta=-4.801176"}
+{"ts": "2026-06-01T12:13:39.324596+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:13:39.324596+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1974, VECM Condition Met: True | alpha_y=0.011442, alpha_x=0.081446, alpha_valid=True"}
+{"ts": "2026-06-01T12:13:39.324596+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0054, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:13:39.324596+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467394, μ=-0.000033, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:13:39.324596+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7062782134443533 and z score is -0.9567445719421923 and spread is -0.00022168697439079138 for threshold 1.15"}
+{"ts": "2026-06-01T12:14:09.339663+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:14:09.339663+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:14:09.343610+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009396722195813006"}
+{"ts": "2026-06-01T12:14:09.343610+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.9051424331288163 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:14:09.350120+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.485572162242965, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:14:09.355571+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011415, x=0.081417, beta_vec=[ 1.         -0.36813072], trace=-0.018557, valid_mean_reversion=True, beta=-4.805113"}
+{"ts": "2026-06-01T12:14:09.355571+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:14:09.355571+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2029, VECM Condition Met: True | alpha_y=0.011415, alpha_x=0.081417, alpha_valid=True"}
+{"ts": "2026-06-01T12:14:09.355571+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0057, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:14:09.355571+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467372, μ=-0.000032, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:14:09.355571+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7063446434468575 and z score is -0.9051424331288163 and spread is -0.00019651491020210773 for threshold 1.15"}
+{"ts": "2026-06-01T12:14:39.374605+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:14:39.374605+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:14:39.378466+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009359775803005599"}
+{"ts": "2026-06-01T12:14:39.383024+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.911241682308653 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:14:39.383024+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4855760195808188, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:14:39.396927+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011447, x=0.081298, beta_vec=[ 1.         -0.36988244], trace=-0.018624, valid_mean_reversion=True, beta=-4.773668"}
+{"ts": "2026-06-01T12:14:39.396927+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:14:39.396927+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.1997, VECM Condition Met: True | alpha_y=0.011447, alpha_x=0.081298, alpha_valid=True"}
+{"ts": "2026-06-01T12:14:39.396927+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0057, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:14:39.396927+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467376, μ=-0.000032, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:14:39.396927+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.706336824640313 and z score is -0.911241682308653 and spread is -0.00019947558758129388 for threshold 1.15"}
+{"ts": "2026-06-01T12:15:09.417362+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:15:09.417362+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:15:09.424661+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009035763930579324"}
+{"ts": "2026-06-01T12:15:09.424661+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8578070764018012 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:15:09.424661+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4855738300712265, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:15:09.433213+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011372, x=0.081470, beta_vec=[ 1.         -0.36927193], trace=-0.018713, valid_mean_reversion=True, beta=-4.828835"}
+{"ts": "2026-06-01T12:15:09.433213+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:15:09.433213+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2096, VECM Condition Met: True | alpha_y=0.011372, alpha_x=0.081470, alpha_valid=True"}
+{"ts": "2026-06-01T12:15:09.433213+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0060, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:15:09.433213+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467331, μ=-0.000031, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:15:09.440768+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064049439706036 and z score is -0.8578070764018012 and spread is -0.00017366532241011953 for threshold 1.15"}
+{"ts": "2026-06-01T12:15:39.446562+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:15:39.446562+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:15:39.456718+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009192419713609266"}
+{"ts": "2026-06-01T12:15:39.460718+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8748302291393976 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:15:39.460718+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4855661112873837, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:15:39.474639+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011379, x=0.081486, beta_vec=[ 1.         -0.36825956], trace=-0.018629, valid_mean_reversion=True, beta=-4.829489"}
+{"ts": "2026-06-01T12:15:39.476644+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:15:39.476644+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2080, VECM Condition Met: True | alpha_y=0.011379, alpha_x=0.081486, alpha_valid=True"}
+{"ts": "2026-06-01T12:15:39.476644+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0059, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:15:39.476644+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467348, μ=-0.000032, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:15:39.476644+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7063833276176535 and z score is -0.8748302291393976 and spread is -0.0001818571432036003 for threshold 1.15"}
+{"ts": "2026-06-01T12:16:09.491337+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:16:09.492316+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:16:09.506684+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009409458862317784"}
+{"ts": "2026-06-01T12:16:09.509684+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8599479317856072 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:16:09.510684+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.485574847796249, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:16:09.522000+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011259, x=0.081942, beta_vec=[ 1.         -0.36113277], trace=-0.018333, valid_mean_reversion=True, beta=-4.954096"}
+{"ts": "2026-06-01T12:16:09.522956+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:16:09.522956+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2195, VECM Condition Met: True | alpha_y=0.011259, alpha_x=0.081942, alpha_valid=True"}
+{"ts": "2026-06-01T12:16:09.522956+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0060, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:16:09.522956+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467333, μ=-0.000031, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:16:09.522956+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064022501599287 and z score is -0.8599479317856072 and spread is -0.00017469379167700655 for threshold 1.15"}
+{"ts": "2026-06-01T12:16:39.540771+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:16:39.540771+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:16:39.551240+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009468817404812044"}
+{"ts": "2026-06-01T12:16:39.553241+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8278748460576906 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:16:39.554240+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.48561187583371, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:16:39.567522+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011131, x=0.082380, beta_vec=[ 1.        -0.3550669], trace=-0.018120, valid_mean_reversion=True, beta=-5.084054"}
+{"ts": "2026-06-01T12:16:39.568570+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:16:39.568570+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2327, VECM Condition Met: True | alpha_y=0.011131, alpha_x=0.082380, alpha_valid=True"}
+{"ts": "2026-06-01T12:16:39.568570+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0061, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:16:39.568570+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467295, μ=-0.000031, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:16:39.568570+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064428134497581 and z score is -0.8278748460576906 and spread is -0.00015932800066237633 for threshold 1.15"}
+{"ts": "2026-06-01T12:17:09.570115+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:17:09.570115+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:17:09.582095+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009548738683655852"}
+{"ts": "2026-06-01T12:17:09.586094+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8141893986617179 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:17:09.587094+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856366897406534, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:17:09.605830+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011058, x=0.082638, beta_vec=[ 1.        -0.3512831], trace=-0.017971, valid_mean_reversion=True, beta=-5.162402"}
+{"ts": "2026-06-01T12:17:09.607061+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:17:09.608060+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2398, VECM Condition Met: True | alpha_y=0.011058, alpha_x=0.082638, alpha_valid=True"}
+{"ts": "2026-06-01T12:17:09.608060+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:17:09.608060+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467276, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:17:09.608060+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064600468067957 and z score is -0.8141893986617179 and spread is -0.0001528004330689979 for threshold 1.15"}
+{"ts": "2026-06-01T12:17:39.623269+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:17:39.623269+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:17:39.629893+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009606691393192887"}
+{"ts": "2026-06-01T12:17:39.629893+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8265174322287094 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:17:39.701582+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.485615001841089, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:17:39.705536+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011082, x=0.082576, beta_vec=[ 1.         -0.35180869], trace=-0.017969, valid_mean_reversion=True, beta=-5.141118"}
+{"ts": "2026-06-01T12:17:39.717245+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:17:39.717245+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2371, VECM Condition Met: True | alpha_y=0.011082, alpha_x=0.082576, alpha_valid=True"}
+{"ts": "2026-06-01T12:17:39.717245+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:17:39.717245+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467293, μ=-0.000031, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:17:39.717245+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064445318418776 and z score is -0.8265174322287094 and spread is -0.00015867972025615545 for threshold 1.15"}
+{"ts": "2026-06-01T12:18:09.738900+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:18:09.738900+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:18:09.738900+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009468817404812044"}
+{"ts": "2026-06-01T12:18:09.738900+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8278748460576906 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:18:09.751769+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.48561187583371, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:18:09.756788+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011131, x=0.082380, beta_vec=[ 1.        -0.3550669], trace=-0.018120, valid_mean_reversion=True, beta=-5.084054"}
+{"ts": "2026-06-01T12:18:09.756788+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:18:09.756788+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2327, VECM Condition Met: True | alpha_y=0.011131, alpha_x=0.082380, alpha_valid=True"}
+{"ts": "2026-06-01T12:18:09.756788+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0061, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:18:09.756788+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467295, μ=-0.000031, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:18:09.756788+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064428134497581 and z score is -0.8278748460576906 and spread is -0.00015932800066237633 for threshold 1.15"}
+{"ts": "2026-06-01T12:18:39.770318+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:18:39.770318+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:18:39.773329+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009417937619371463"}
+{"ts": "2026-06-01T12:18:39.773329+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8365622004546678 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:18:39.773329+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4855987929451415, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:18:39.790437+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011177, x=0.082216, beta_vec=[ 1.        -0.3574829], trace=-0.018214, valid_mean_reversion=True, beta=-5.035327"}
+{"ts": "2026-06-01T12:18:39.790437+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:18:39.790437+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2282, VECM Condition Met: True | alpha_y=0.011177, alpha_x=0.082216, alpha_valid=True"}
+{"ts": "2026-06-01T12:18:39.790437+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0061, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:18:39.790437+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467306, μ=-0.000031, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:18:39.790437+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064318499899577 and z score is -0.8365622004546678 and spread is -0.00016348050990810486 for threshold 1.15"}
+{"ts": "2026-06-01T12:19:09.816294+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:19:09.816294+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:19:09.824629+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009244668981903775"}
+{"ts": "2026-06-01T12:19:09.826634+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8218902873722905 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:19:09.826634+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856203127137302, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:19:09.834330+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011182, x=0.082152, beta_vec=[ 1.         -0.35918281], trace=-0.018325, valid_mean_reversion=True, beta=-5.020953"}
+{"ts": "2026-06-01T12:19:09.834330+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:19:09.834330+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2285, VECM Condition Met: True | alpha_y=0.011182, alpha_x=0.082152, alpha_valid=True"}
+{"ts": "2026-06-01T12:19:09.834330+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:19:09.834330+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467288, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:19:09.834330+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064503412334703 and z score is -0.8218902873722905 and spread is -0.00015647158602261134 for threshold 1.15"}
+{"ts": "2026-06-01T12:19:39.849243+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:19:39.849243+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:19:39.857023+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009266264284855146"}
+{"ts": "2026-06-01T12:19:39.859030+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8181582605401247 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:19:39.859030+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.485627181485531, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:19:39.869589+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011162, x=0.082223, beta_vec=[ 1.         -0.35814543], trace=-0.018285, valid_mean_reversion=True, beta=-5.041631"}
+{"ts": "2026-06-01T12:19:39.869589+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:19:39.869589+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2305, VECM Condition Met: True | alpha_y=0.011162, alpha_x=0.082223, alpha_valid=True"}
+{"ts": "2026-06-01T12:19:39.869589+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:19:39.869589+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467282, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:19:39.873999+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064550399546545 and z score is -0.8181582605401247 and spread is -0.00015469185996358034 for threshold 1.15"}
+{"ts": "2026-06-01T12:20:09.885332+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:20:09.885332+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:20:09.891733+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009338577151398634"}
+{"ts": "2026-06-01T12:20:09.891733+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8279893189048063 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:20:09.891733+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856107983927003, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:20:09.901153+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011173, x=0.082207, beta_vec=[ 1.         -0.35798758], trace=-0.018256, valid_mean_reversion=True, beta=-5.035019"}
+{"ts": "2026-06-01T12:20:09.901153+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:20:09.901153+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2290, VECM Condition Met: True | alpha_y=0.011173, alpha_x=0.082207, alpha_valid=True"}
+{"ts": "2026-06-01T12:20:09.901153+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0061, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:20:09.901153+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467295, μ=-0.000031, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:20:09.901153+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064426620714555 and z score is -0.8279893189048063 and spread is -0.00015938274410901094 for threshold 1.15"}
+{"ts": "2026-06-01T12:20:39.903109+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:20:39.903109+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:20:39.911586+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009244668981903775"}
+{"ts": "2026-06-01T12:20:39.913582+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8218902873722905 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:20:39.914582+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856203127137302, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:20:39.921907+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011182, x=0.082152, beta_vec=[ 1.         -0.35918281], trace=-0.018325, valid_mean_reversion=True, beta=-5.020953"}
+{"ts": "2026-06-01T12:20:39.921907+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:20:39.921907+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2285, VECM Condition Met: True | alpha_y=0.011182, alpha_x=0.082152, alpha_valid=True"}
+{"ts": "2026-06-01T12:20:39.921907+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:20:39.921907+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467288, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:20:39.921907+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064503412334703 and z score is -0.8218902873722905 and spread is -0.00015647158602261134 for threshold 1.15"}
+{"ts": "2026-06-01T12:21:09.941136+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:21:09.941136+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:21:09.941136+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009425207147976936"}
+{"ts": "2026-06-01T12:21:09.941136+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8353221820285426 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:21:09.941136+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856005330912974, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:21:09.957165+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011170, x=0.082239, beta_vec=[ 1.         -0.35713737], trace=-0.018201, valid_mean_reversion=True, beta=-5.042235"}
+{"ts": "2026-06-01T12:21:09.957165+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:21:09.957165+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2288, VECM Condition Met: True | alpha_y=0.011170, alpha_x=0.082239, alpha_valid=True"}
+{"ts": "2026-06-01T12:21:09.957165+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0061, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:21:09.957165+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467305, μ=-0.000031, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:21:09.957165+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064334160451277 and z score is -0.8353221820285426 and spread is -0.00016288736081973874 for threshold 1.15"}
+{"ts": "2026-06-01T12:21:39.976127+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:21:39.976127+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:21:39.976127+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.00961409901829242"}
+{"ts": "2026-06-01T12:21:39.987008+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8029616564365724 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:21:39.987008+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856608652306869, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:21:39.992006+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010999, x=0.082849, beta_vec=[ 1.         -0.34819875], trace=-0.017849, valid_mean_reversion=True, beta=-5.228180"}
+{"ts": "2026-06-01T12:21:39.992006+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:21:39.992006+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2457, VECM Condition Met: True | alpha_y=0.010999, alpha_x=0.082849, alpha_valid=True"}
+{"ts": "2026-06-01T12:21:39.992006+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0063, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:21:39.992006+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467260, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:21:39.992006+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064741514315198 and z score is -0.8029616564365724 and spread is -0.0001474576984670359 for threshold 1.15"}
+{"ts": "2026-06-01T12:22:10.016256+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:22:10.016256+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:22:10.023168+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009570528447454098"}
+{"ts": "2026-06-01T12:22:10.023168+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8104498605537193 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:22:10.023168+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856443606607914, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:22:10.038008+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011039, x=0.082708, beta_vec=[ 1.         -0.35025384], trace=-0.017930, valid_mean_reversion=True, beta=-5.184158"}
+{"ts": "2026-06-01T12:22:10.038008+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:22:10.038008+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2418, VECM Condition Met: True | alpha_y=0.011039, alpha_x=0.082708, alpha_valid=True"}
+{"ts": "2026-06-01T12:22:10.038008+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:22:10.038008+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467271, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:22:10.038008+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064647478877057 and z score is -0.8104498605537193 and spread is -0.00015101972134484853 for threshold 1.15"}
+{"ts": "2026-06-01T12:22:40.057099+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:22:40.057099+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:22:40.063852+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009556002269649104"}
+{"ts": "2026-06-01T12:22:40.063852+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8129432248700392 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:22:40.063852+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856392036658832, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:22:40.077733+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.011052, x=0.082662, beta_vec=[ 1.         -0.35093989], trace=-0.017957, valid_mean_reversion=True, beta=-5.169635"}
+{"ts": "2026-06-01T12:22:40.083463+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:22:40.083463+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2405, VECM Condition Met: True | alpha_y=0.011052, alpha_x=0.082662, alpha_valid=True"}
+{"ts": "2026-06-01T12:22:40.083463+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:22:40.083463+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467274, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:22:40.083463+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064616137825892 and z score is -0.8129432248700392 and spread is -0.0001522068846915642 for threshold 1.15"}
+{"ts": "2026-06-01T12:23:10.087379+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:23:10.087379+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:23:10.099256+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009883636695827829"}
+{"ts": "2026-06-01T12:23:10.102252+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8237993274472301 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:23:10.102715+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856214198478732, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:23:10.120929+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010985, x=0.082970, beta_vec=[ 1.         -0.34531676], trace=-0.017666, valid_mean_reversion=True, beta=-5.258802"}
+{"ts": "2026-06-01T12:23:10.123928+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:23:10.123928+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2457, VECM Condition Met: True | alpha_y=0.010985, alpha_x=0.082970, alpha_valid=True"}
+{"ts": "2026-06-01T12:23:10.123928+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:23:10.123928+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467289, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:23:10.123928+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064479713026929 and z score is -0.8237993274472301 and spread is -0.00015738210120332886 for threshold 1.15"}
+{"ts": "2026-06-01T12:23:40.140406+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:23:40.140406+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:23:40.141940+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009640114135209068"}
+{"ts": "2026-06-01T12:23:40.141940+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7529908812033005 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:23:40.141940+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.485807861847932, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:23:40.164272+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010817, x=0.083439, beta_vec=[ 1.         -0.34034707], trace=-0.017581, valid_mean_reversion=True, beta=-5.426712"}
+{"ts": "2026-06-01T12:23:40.164272+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:23:40.164272+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2642, VECM Condition Met: True | alpha_y=0.010817, alpha_x=0.083439, alpha_valid=True"}
+{"ts": "2026-06-01T12:23:40.164272+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0065, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:23:40.164272+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467175, μ=-0.000029, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:23:40.164272+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065365576482172 and z score is -0.7529908812033005 and spread is -0.00012381152757610936 for threshold 1.15"}
+{"ts": "2026-06-01T12:24:10.178128+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:24:10.178128+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:24:10.178128+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009985861481720504"}
+{"ts": "2026-06-01T12:24:10.186451+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7614347043078081 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:24:10.188462+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4857807477405818, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:24:10.203935+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010737, x=0.083793, beta_vec=[ 1.         -0.33411165], trace=-0.017259, valid_mean_reversion=True, beta=-5.540511"}
+{"ts": "2026-06-01T12:24:10.203935+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:24:10.203935+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2707, VECM Condition Met: True | alpha_y=0.010737, alpha_x=0.083793, alpha_valid=True"}
+{"ts": "2026-06-01T12:24:10.203935+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0065, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:24:10.203935+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467190, μ=-0.000029, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:24:10.206429+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065260683580045 and z score is -0.7614347043078081 and spread is -0.00012779220673617313 for threshold 1.15"}
+{"ts": "2026-06-01T12:24:40.223070+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:24:40.223070+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:24:40.231512+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.010331900533314065"}
+{"ts": "2026-06-01T12:24:40.231512+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8147284352935018 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:24:40.234054+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856410283344317, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:24:40.247651+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010814, x=0.083654, beta_vec=[ 1.         -0.33428791], trace=-0.017151, valid_mean_reversion=True, beta=-5.476774"}
+{"ts": "2026-06-01T12:24:40.247651+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:24:40.247651+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2612, VECM Condition Met: True | alpha_y=0.010814, alpha_x=0.083654, alpha_valid=True"}
+{"ts": "2026-06-01T12:24:40.247651+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:24:40.247651+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467275, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:24:40.247651+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064594101411144 and z score is -0.8147284352935018 and spread is -0.00015305679332737384 for threshold 1.15"}
+{"ts": "2026-06-01T12:25:10.276459+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:25:10.276459+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:25:10.276459+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.010170626738608282"}
+{"ts": "2026-06-01T12:25:10.276459+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7974796457964285 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:25:10.276459+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856775243799552, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:25:10.298528+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010804, x=0.083635, beta_vec=[ 1.        -0.3353007], trace=-0.017238, valid_mean_reversion=True, beta=-5.476188"}
+{"ts": "2026-06-01T12:25:10.298528+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:25:10.298528+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2629, VECM Condition Met: True | alpha_y=0.010804, alpha_x=0.083635, alpha_valid=True"}
+{"ts": "2026-06-01T12:25:10.298528+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0063, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:25:10.298528+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467250, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:25:10.298528+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064810536571868 and z score is -0.7974796457964285 and spread is -0.0001448528567041502 for threshold 1.15"}
+{"ts": "2026-06-01T12:25:40.305801+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:25:40.305801+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:25:40.309790+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.010214193748641097"}
+{"ts": "2026-06-01T12:25:40.309790+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8123526102764637 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:25:40.309790+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856449169485995, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:25:40.321533+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010842, x=0.083527, beta_vec=[ 1.         -0.33648539], trace=-0.017264, valid_mean_reversion=True, beta=-5.436515"}
+{"ts": "2026-06-01T12:25:40.321533+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:25:40.321533+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2588, VECM Condition Met: True | alpha_y=0.010842, alpha_x=0.083527, alpha_valid=True"}
+{"ts": "2026-06-01T12:25:40.321533+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0062, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:25:40.321533+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467272, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:25:40.321533+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064623904935958 and z score is -0.8123526102764637 and spread is -0.00015192527352960063 for threshold 1.15"}
+{"ts": "2026-06-01T12:26:10.329513+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:26:10.329513+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:26:10.337095+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.010118870491779772"}
+{"ts": "2026-06-01T12:26:10.340571+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.8062306884105301 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:26:10.340571+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856570780027298, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:26:10.345314+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010851, x=0.083471, beta_vec=[ 1.         -0.33766891], trace=-0.017335, valid_mean_reversion=True, beta=-5.420383"}
+{"ts": "2026-06-01T12:26:10.345314+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:26:10.345314+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2584, VECM Condition Met: True | alpha_y=0.010851, alpha_x=0.083471, alpha_valid=True"}
+{"ts": "2026-06-01T12:26:10.345314+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0063, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:26:10.345314+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467263, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:26:10.345314+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064700748757845 and z score is -0.8062306884105301 and spread is -0.0001490118350298153 for threshold 1.15"}
+{"ts": "2026-06-01T12:26:40.369605+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:26:40.369605+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:26:40.377686+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.010045616269006479"}
+{"ts": "2026-06-01T12:26:40.379692+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7963496046094817 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:26:40.379692+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4856794092457055, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:26:40.385246+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010840, x=0.083485, beta_vec=[ 1.         -0.33783558], trace=-0.017365, valid_mean_reversion=True, beta=-5.428003"}
+{"ts": "2026-06-01T12:26:40.385246+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:26:40.385246+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2599, VECM Condition Met: True | alpha_y=0.010840, alpha_x=0.083485, alpha_valid=True"}
+{"ts": "2026-06-01T12:26:40.385246+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0063, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:26:40.385246+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467249, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:26:40.385246+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064824634314604 and z score is -0.7963496046094817 and spread is -0.0001443163586789833 for threshold 1.15"}
+{"ts": "2026-06-01T12:27:10.395890+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:27:10.395890+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:27:10.395890+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.010038257128395463"}
+{"ts": "2026-06-01T12:27:10.404049+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7976008636540887 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:27:10.406055+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.48567632058577, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:27:10.411679+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010846, x=0.083461, beta_vec=[ 1.         -0.33817434], trace=-0.017378, valid_mean_reversion=True, beta=-5.420094"}
+{"ts": "2026-06-01T12:27:10.411679+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:27:10.411679+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2593, VECM Condition Met: True | alpha_y=0.010846, alpha_x=0.083461, alpha_valid=True"}
+{"ts": "2026-06-01T12:27:10.411679+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0063, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:27:10.411679+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467251, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:27:10.411679+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064808950694271 and z score is -0.7976008636540887 and spread is -0.00014491048943137484 for threshold 1.15"}
+{"ts": "2026-06-01T12:27:40.425513+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:27:40.425513+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:27:40.433825+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.010155962420644517"}
+{"ts": "2026-06-01T12:27:40.435831+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7775406863496082 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:27:40.435831+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4857309227988529, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:27:40.441226+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010740, x=0.083835, beta_vec=[ 1.         -0.33276892], trace=-0.017158, valid_mean_reversion=True, beta=-5.549255"}
+{"ts": "2026-06-01T12:27:40.441226+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:27:40.441226+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2696, VECM Condition Met: True | alpha_y=0.010740, alpha_x=0.083835, alpha_valid=True"}
+{"ts": "2026-06-01T12:27:40.441226+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0064, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:27:40.441226+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467218, μ=-0.000030, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:27:40.441226+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.706505995015168 and z score is -0.7775406863496082 and spread is -0.00013540172816102933 for threshold 1.15"}
+{"ts": "2026-06-01T12:28:10.465784+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:28:10.465784+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:28:10.469904+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009802766211313178"}
+{"ts": "2026-06-01T12:28:10.469904+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7703736870837036 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:28:10.469904+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4857503293028465, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:28:10.481478+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010826, x=0.083457, beta_vec=[ 1.         -0.33934558], trace=-0.017495, valid_mean_reversion=True, beta=-5.427199"}
+{"ts": "2026-06-01T12:28:10.481478+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:28:10.481478+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2625, VECM Condition Met: True | alpha_y=0.010826, alpha_x=0.083457, alpha_valid=True"}
+{"ts": "2026-06-01T12:28:10.481478+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0064, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:28:10.481478+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467206, μ=-0.000029, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:28:10.481478+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065149214295904 and z score is -0.7703736870837036 and spread is -0.00013201302320412436 for threshold 1.15"}
+{"ts": "2026-06-01T12:28:40.502063+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:28:40.502063+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:28:40.502063+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.01008240685873813"}
+{"ts": "2026-06-01T12:28:40.510756+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7900882890843773 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:28:40.510756+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.485695500197002, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:28:40.518158+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010806, x=0.083602, beta_vec=[ 1.         -0.33614365], trace=-0.017296, valid_mean_reversion=True, beta=-5.467870"}
+{"ts": "2026-06-01T12:28:40.518158+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:28:40.518158+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2631, VECM Condition Met: True | alpha_y=0.010806, alpha_x=0.083602, alpha_valid=True"}
+{"ts": "2026-06-01T12:28:40.518158+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0063, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:28:40.518158+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467239, μ=-0.000030, σ=0.000522, OU Condition Met: True"}
+{"ts": "2026-06-01T12:28:40.518158+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7064903060106198 and z score is -0.7900882890843773 and spread is -0.0001413453713328389 for threshold 1.15"}
+{"ts": "2026-06-01T12:29:10.538610+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:29:10.538610+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:29:10.538610+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.010163316094483142"}
+{"ts": "2026-06-01T12:29:10.538610+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7762841044020008 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:29:10.538610+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4857347028892485, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:29:10.558976+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010733, x=0.083859, beta_vec=[ 1.         -0.33243212], trace=-0.017144, valid_mean_reversion=True, beta=-5.557517"}
+{"ts": "2026-06-01T12:29:10.558976+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:29:10.558976+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2702, VECM Condition Met: True | alpha_y=0.010733, alpha_x=0.083859, alpha_valid=True"}
+{"ts": "2026-06-01T12:29:10.558976+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0064, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:29:10.558976+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467216, μ=-0.000030, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:29:10.558976+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065075641977719 and z score is -0.7762841044020008 and spread is -0.00013480724144436447 for threshold 1.15"}
+{"ts": "2026-06-01T12:29:40.573824+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:29:40.573824+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:29:40.581902+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009829724574910456"}
+{"ts": "2026-06-01T12:29:40.581902+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7427562640346012 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:29:40.588312+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4858474453713784, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:29:40.597755+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010721, x=0.083798, beta_vec=[ 1.         -0.33477629], trace=-0.017333, valid_mean_reversion=True, beta=-5.548292"}
+{"ts": "2026-06-01T12:29:40.597755+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:29:40.597755+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2731, VECM Condition Met: True | alpha_y=0.010721, alpha_x=0.083798, alpha_valid=True"}
+{"ts": "2026-06-01T12:29:40.597755+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0066, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:29:40.597755+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467154, μ=-0.000029, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:29:40.597755+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065492784806973 and z score is -0.7427562640346012 and spread is -0.00011899410757474517 for threshold 1.15"}
+{"ts": "2026-06-01T12:30:10.615495+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:30:10.615495+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:30:10.623737+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009701400793050468"}
+{"ts": "2026-06-01T12:30:10.625743+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7189407386347673 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:30:10.625743+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4859462955701659, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:30:10.636377+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010677, x=0.083896, beta_vec=[ 1.         -0.33408924], trace=-0.017351, valid_mean_reversion=True, beta=-5.589458"}
+{"ts": "2026-06-01T12:30:10.641147+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:30:10.641147+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2780, VECM Condition Met: True | alpha_y=0.010677, alpha_x=0.083896, alpha_valid=True"}
+{"ts": "2026-06-01T12:30:10.641147+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0067, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:30:10.641147+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467105, μ=-0.000028, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:30:10.641147+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065787672645532 and z score is -0.7189407386347673 and spread is -0.00010781678041342178 for threshold 1.15"}
+{"ts": "2026-06-01T12:30:40.663142+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:30:40.663142+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:30:40.663142+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.00971190588283412"}
+{"ts": "2026-06-01T12:30:40.663142+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7403570663073592 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:30:40.663142+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4858560075495901, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:30:40.682403+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010750, x=0.083672, beta_vec=[ 1.         -0.33696305], trace=-0.017445, valid_mean_reversion=True, beta=-5.507066"}
+{"ts": "2026-06-01T12:30:40.682403+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:30:40.682403+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2707, VECM Condition Met: True | alpha_y=0.010750, alpha_x=0.083672, alpha_valid=True"}
+{"ts": "2026-06-01T12:30:40.682403+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0066, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:30:40.682403+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467150, μ=-0.000029, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:30:40.682403+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065522500158906 and z score is -0.7403570663073592 and spread is -0.00011786610993536387 for threshold 1.15"}
+{"ts": "2026-06-01T12:31:10.710213+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:31:10.710213+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:31:10.725846+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009726260234490598"}
+{"ts": "2026-06-01T12:31:10.725846+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7378264553881388 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:31:10.725846+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4858661569392517, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:31:10.741760+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010736, x=0.083719, beta_vec=[ 1.         -0.33628772], trace=-0.017418, valid_mean_reversion=True, beta=-5.523402"}
+{"ts": "2026-06-01T12:31:10.741760+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:31:10.741760+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2720, VECM Condition Met: True | alpha_y=0.010736, alpha_x=0.083719, alpha_valid=True"}
+{"ts": "2026-06-01T12:31:10.741760+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0066, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:31:10.741760+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467145, μ=-0.000029, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:31:10.741760+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065553891052563 and z score is -0.7378264553881388 and spread is -0.00011667675923585499 for threshold 1.15"}
+{"ts": "2026-06-01T12:31:40.756984+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:31:40.756984+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:31:40.756984+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009629998305368965"}
+{"ts": "2026-06-01T12:31:40.756984+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7316263251871656 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:31:40.756984+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4858908300851643, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:31:40.772668+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010745, x=0.083663, beta_vec=[ 1.         -0.33746164], trace=-0.017488, valid_mean_reversion=True, beta=-5.506851"}
+{"ts": "2026-06-01T12:31:40.772668+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:31:40.772668+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2716, VECM Condition Met: True | alpha_y=0.010745, alpha_x=0.083663, alpha_valid=True"}
+{"ts": "2026-06-01T12:31:40.772668+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0066, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:31:40.772668+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467132, μ=-0.000029, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:31:40.772668+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065630685775559 and z score is -0.7316263251871656 and spread is -0.00011376500277289367 for threshold 1.15"}
+{"ts": "2026-06-01T12:32:10.791116+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:32:10.791116+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:32:10.806875+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009644281461070624"}
+{"ts": "2026-06-01T12:32:10.806875+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7290917346361553 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:32:10.806875+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4859015758005254, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:32:10.818280+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010731, x=0.083710, beta_vec=[ 1.         -0.33678619], trace=-0.017461, valid_mean_reversion=True, beta=-5.523191"}
+{"ts": "2026-06-01T12:32:10.822507+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:32:10.822507+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2729, VECM Condition Met: True | alpha_y=0.010731, alpha_x=0.083710, alpha_valid=True"}
+{"ts": "2026-06-01T12:32:10.822507+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0066, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:32:10.822507+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467127, μ=-0.000029, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:32:10.822507+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065662079041783 and z score is -0.7290917346361553 and spread is -0.00011257553652053628 for threshold 1.15"}
+{"ts": "2026-06-01T12:32:40.834168+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-01T12:32:40.834168+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WDO* and WIN*"}
+{"ts": "2026-06-01T12:32:40.834168+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WDO* and WIN* is 0.009993144284876519"}
+{"ts": "2026-06-01T12:32:40.834168+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -0.7601743325241699 for pair WDO* and WIN*"}
+{"ts": "2026-06-01T12:32:40.834168+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4857850801396044, Half-Life Condition Met: True"}
+{"ts": "2026-06-01T12:32:40.849879+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=0.010730, x=0.083816, beta_vec=[ 1.         -0.33377459], trace=-0.017246, valid_mean_reversion=True, beta=-5.548754"}
+{"ts": "2026-06-01T12:32:40.849879+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-01T12:32:40.849879+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.2713, VECM Condition Met: True | alpha_y=0.010730, alpha_x=0.083816, alpha_valid=True"}
+{"ts": "2026-06-01T12:32:40.849879+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0065, Hurst Condition Met: True"}
+{"ts": "2026-06-01T12:32:40.849879+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.467187, μ=-0.000029, σ=0.000521, OU Condition Met: True"}
+{"ts": "2026-06-01T12:32:40.849879+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WDO* and WIN*: 0.7065276377264857 and z score is -0.7601743325241699 and spread is -0.00012719762675863052 for threshold 1.15"}

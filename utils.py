@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, JOHANSEN_DET_ORDER, JOHANSEN_MAX_LAGS, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN, KALMAN_ORDER
+from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, JOHANSEN_DET_ORDER, JOHANSEN_MAX_LAGS, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN, KALMAN_ORDER, MAGIC_NUMBER
 from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 # 2nd-order Kalman filter — imported at module level; only instantiated when KALMAN_ORDER == 2
 from KalmanPairTrading2ndOrder import KalmanPairTrading2ndOrder
@@ -342,9 +342,15 @@ def calculate_volumes(symbolY,symbolX,hedge_ratio,min_lot_Y,min_lot_X,total_max_
     return volume_y, volume_x
 
 def get_correlation(assetY,assetX):
-    # Calculate the Pearson correlation coefficient between the two assets
-    print(f"Calculating correlation between {assetY['close'].iloc[0]} and {assetX['close'].iloc[0]}")
-    correlation = assetY['close'].corr(assetX['close'])
+    # Correlate log returns (stationary) instead of price levels to avoid
+    # spurious positive correlation from shared non-stationary trends.
+    # WIN and WDO are negatively correlated in returns; using price levels
+    # can produce the wrong sign when both series happen to share a drift.
+    returns_y = np.log(assetY['close']).diff().dropna()
+    returns_x = np.log(assetX['close']).diff().dropna()
+    min_len = min(len(returns_y), len(returns_x))
+    correlation = returns_y.iloc[:min_len].corr(returns_x.iloc[:min_len])
+    print(f"Correlation (log returns) between {assetY['close'].iloc[0]} and {assetX['close'].iloc[0]}: {correlation:.4f}")
     return correlation
 
 def get_vecm_ect_zscore(asset1_prices, asset2_prices) -> dict:
@@ -412,15 +418,15 @@ def get_vecm_ect_zscore(asset1_prices, asset2_prices) -> dict:
 def get_group_name(symbol):
     return symbol[:3]+'*'
 
-def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes,total_grids_history,current_grids):
+def updates_zscore_entry(highest_zscore_period, total_profit, total_traded_volumes, total_grids_history, current_grids, magic_number=MAGIC_NUMBER):
     logger = logging.getLogger(__name__)
     updated_zscore_entry = 0.0
     grids_total = 0.0
     if current_grids > 0.0 or total_grids_history > 0.0:
-        logger.info(f"Total open grids: {current_grids} and total grids history: {total_grids_history}")
+        logger.info(f"[magic={magic_number}] Total open grids: {current_grids} and total grids history: {total_grids_history}")
         grids_total = max(current_grids, total_grids_history)
 
-    logger.info(f"Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {grids_total}")
+    logger.info(f"[magic={magic_number}] Total grids history: {total_grids_history}, Total traded volumes: {total_traded_volumes}, Total profit: {total_profit}, Highest zscore period: {highest_zscore_period}, Total grids: {grids_total}")
     if grids_total == 0.0 and highest_zscore_period > Z_SCORE_ENTRY_THRESHOLD:
         updated_zscore_entry = float(highest_zscore_period) + ADDITIONAL_GRID
     elif grids_total == 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
@@ -430,8 +436,8 @@ def updates_zscore_entry(highest_zscore_period,total_profit,total_traded_volumes
     elif grids_total > 0.0 and highest_zscore_period <= Z_SCORE_ENTRY_THRESHOLD:
          updated_zscore_entry = Z_SCORE_ENTRY_THRESHOLD + (ADDITIONAL_GRID * grids_total)
 
-    logger.info(f"Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {grids_total}")
+    logger.info(f"[magic={magic_number}] Updated z score is {updated_zscore_entry} for highest z score period {highest_zscore_period} and total grids {grids_total}")
 
-    return updated_zscore_entry 
+    return updated_zscore_entry
 
     
