@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, JOHANSEN_DET_ORDER, JOHANSEN_MAX_LAGS, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN, KALMAN_ORDER, MAGIC_NUMBER
+from constants import ADDITIONAL_GRID, FIBO_VOLUME_FACTORS, START_TIME_HOUR,START_TIME_MINUTE,TRADE_WINDOW_TIME_HOURS,TRADE_WINDOW_TIME_MINUTES, ROLLING_PERIODS, PERIODS, MARGIN_Y, MARGIN_X, VOLUME_FACTOR, Z_SCORE_ENTRY_THRESHOLD, WAVELET_LEVEL, COINTEGRATION_METHOD, JOHANSEN_CRIT_LEVEL, JOHANSEN_DET_ORDER, JOHANSEN_MAX_LAGS, ADF_PVALUE_THRESHOLD, ADF_CRIT_LEVEL, EG_PVALUE_THRESHOLD, EG_CRIT_LEVEL, OU_LAMBDA_MIN, KALMAN_ORDER, MAGIC_NUMBER, VOL_SKEW_WINDOW, VOL_SKEW_THRESHOLD
 from kalman_filter import KalmanFilter, estimate_initial_hedge_ratio
 # 2nd-order Kalman filter — imported at module level; only instantiated when KALMAN_ORDER == 2
 from KalmanPairTrading2ndOrder import KalmanPairTrading2ndOrder
@@ -440,4 +440,177 @@ def updates_zscore_entry(highest_zscore_period, total_profit, total_traded_volum
 
     return updated_zscore_entry
 
-    
+
+def get_residual_heteroscedasticity_trend(spread: np.ndarray, window: int = VOL_SKEW_WINDOW) -> dict:
+    """
+    Detect whether the regression model's residuals (spread) exhibit trending
+    heteroscedasticity, and determine the directional bias of that trend.
+
+    A well-specified pair-trading model requires homoscedastic residuals — i.e.
+    the spread's variance should be constant over time.  When the variance
+    itself starts to trend, the model assumption is violated and the spread is
+    in a *directional* regime rather than pure mean-reversion.
+
+    Method
+    ------
+    Step 1 — Variance trend (is the model heteroscedastic?):
+        Compute rolling std of spread changes over ``window`` bars.
+        Fit OLS of rolling_std vs time index → normalized slope (variance_slope).
+        |variance_slope| > VOL_SKEW_THRESHOLD  →  heteroscedastic (trending variance).
+
+    Step 2 — Directional bias (which way is the heteroscedasticity?):
+        Over the trailing ``window`` bars split changes into up/down moves:
+            σ_up   = std of positive spread changes
+            σ_down = std of negative spread changes
+            vol_asymmetry = (σ_up − σ_down) / (σ_up + σ_down)   ∈ [−1, +1]
+        A positive asymmetry means upside moves are more volatile → uptrend bias.
+        A negative asymmetry means downside moves are more volatile → downtrend bias.
+
+    Step 3 — trend_signal:
+        Heteroscedastic AND vol_asymmetry > 0  → +1  (spread trending UP,   BUY bias)
+        Heteroscedastic AND vol_asymmetry < 0  → −1  (spread trending DOWN, SELL bias)
+        Homoscedastic (flat variance)          →  0  (pure mean-reversion, use z-score)
+
+    Parameters
+    ----------
+    spread : np.ndarray
+        Regression residuals / Kalman spread series.
+    window : int
+        Rolling window length in bars (default: VOL_SKEW_WINDOW from constants).
+
+    Returns
+    -------
+    dict with keys:
+        variance_slope   : float     — normalized OLS slope of rolling std (>0 rising)
+        vol_asymmetry    : float     — conditional variance asymmetry [−1, +1]
+        trend_signal     : int       — +1 uptrend, −1 downtrend, 0 homoscedastic
+        is_heteroscedastic : bool    — True when residual variance is trending
+        rolling_std      : pd.Series — rolling std of spread changes
+        sigma_up         : float     — std of positive spread changes in trailing window
+        sigma_down       : float     — std of negative spread changes in trailing window
+    """
+    spread_arr = np.asarray(spread, dtype=float)
+    if len(spread_arr) < window + 2:
+        return {
+            'variance_slope': 0.0,
+            'vol_asymmetry': 0.0,
+            'trend_signal': 0,
+            'is_heteroscedastic': False,
+            'rolling_std': pd.Series(dtype=float),
+            'sigma_up': float('nan'),
+            'sigma_down': float('nan'),
+        }
+
+    diff = pd.Series(np.diff(spread_arr))
+
+    # ── Step 1: Variance trend ────────────────────────────────────────────
+    rolling_std = diff.rolling(window=window).std().dropna()
+    if len(rolling_std) < 3:
+        variance_slope = 0.0
+    else:
+        t = np.arange(len(rolling_std), dtype=float).reshape(-1, 1)
+        ols = LinearRegression(fit_intercept=True).fit(t, rolling_std.values)
+        mean_std = float(rolling_std.mean())
+        # Normalise slope by mean std so the threshold is scale-independent
+        variance_slope = float(ols.coef_[0]) / mean_std if mean_std > 0 else 0.0
+
+    is_heteroscedastic = abs(variance_slope) > VOL_SKEW_THRESHOLD
+
+    # ── Step 2: Directional conditional variance ──────────────────────────
+    recent_diff = diff.iloc[-window:]
+    up_moves   = recent_diff[recent_diff > 0]
+    down_moves = recent_diff[recent_diff < 0]
+
+    sigma_up   = float(up_moves.std())   if len(up_moves)   >= 2 else 0.0
+    sigma_down = float(down_moves.std()) if len(down_moves) >= 2 else 0.0
+
+    denom = sigma_up + sigma_down
+    vol_asymmetry = (sigma_up - sigma_down) / denom if denom > 0 else 0.0
+
+    # ── Step 3: Composite trend signal ───────────────────────────────────
+    if is_heteroscedastic and vol_asymmetry > 0:
+        trend_signal = 1   # residuals heteroscedastic with upside bias → BUY spread
+    elif is_heteroscedastic and vol_asymmetry < 0:
+        trend_signal = -1  # residuals heteroscedastic with downside bias → SELL spread
+    else:
+        trend_signal = 0   # homoscedastic → mean-reverting, z-score drives entry
+
+    return {
+        'variance_slope': variance_slope,
+        'vol_asymmetry': vol_asymmetry,
+        'trend_signal': trend_signal,
+        'is_heteroscedastic': is_heteroscedastic,
+        'rolling_std': rolling_std,
+        'sigma_up': sigma_up,
+        'sigma_down': sigma_down,
+    }
+
+
+# Legacy alias kept for backward compatibility
+get_volatility_skewness = get_residual_heteroscedasticity_trend
+
+
+def get_spread_trade_direction(z_score: float, slope: float, threshold: float, trend_signal: int = 0) -> dict:
+    """
+    Determine whether to go LONG or SHORT the spread, and map that to
+    concrete BUY/SELL actions on each leg, incorporating the volatility-skewness
+    trend signal.
+
+    Spread direction rules
+    ----------------------
+    slope > 0 (positively-correlated pair, e.g. WIN/WDO when spread-type):
+        z_score < -threshold  →  LONG spread  → BUY Y,  SELL X
+        z_score > +threshold  →  SHORT spread → SELL Y, BUY X
+    slope < 0 (negatively-correlated pair):
+        z_score < -threshold  →  LONG spread  → BUY Y,  BUY X
+        z_score > +threshold  →  SHORT spread → SELL Y, SELL X
+
+    Skew alignment with ``trend_signal`` (+1 uptrend, -1 downtrend, 0 neutral):
+        LONG  spread + trend_signal == +1  → skew_confirms (spread rising  → reversion from below)
+        SHORT spread + trend_signal == -1  → skew_confirms (spread falling → reversion from above)
+        LONG  spread + trend_signal == -1  → skew_warns    (spread still falling → hold off)
+        SHORT spread + trend_signal == +1  → skew_warns    (spread still rising  → hold off)
+
+    Returns
+    -------
+    dict with keys:
+        spread_direction : str  — "long_spread", "short_spread", or "no_trade"
+        action_y         : str  — "BUY", "SELL", or "NONE"
+        action_x         : str  — "BUY", "SELL", or "NONE"
+        skew_confirms    : bool — vol skew agrees with z-score direction
+        skew_warns       : bool — vol skew contradicts z-score direction
+        skew_neutral     : bool — vol skew is neutral (trend_signal == 0)
+    """
+    if z_score < -threshold:
+        spread_direction = "long_spread"
+        action_y, action_x = ("BUY", "SELL") if slope > 0 else ("BUY", "BUY")
+    elif z_score > threshold:
+        spread_direction = "short_spread"
+        action_y, action_x = ("SELL", "BUY") if slope > 0 else ("SELL", "SELL")
+    else:
+        return {
+            'spread_direction': 'no_trade',
+            'action_y': 'NONE',
+            'action_x': 'NONE',
+            'skew_confirms': False,
+            'skew_warns': False,
+            'skew_neutral': trend_signal == 0,
+        }
+
+    skew_confirms = (
+        (spread_direction == "long_spread"  and trend_signal ==  1) or
+        (spread_direction == "short_spread" and trend_signal == -1)
+    )
+    skew_warns = (
+        (spread_direction == "long_spread"  and trend_signal == -1) or
+        (spread_direction == "short_spread" and trend_signal ==  1)
+    )
+
+    return {
+        'spread_direction': spread_direction,
+        'action_y': action_y,
+        'action_x': action_x,
+        'skew_confirms': skew_confirms,
+        'skew_warns': skew_warns,
+        'skew_neutral': trend_signal == 0,
+    }

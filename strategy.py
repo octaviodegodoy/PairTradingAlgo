@@ -3,7 +3,7 @@ import pandas as pd
 from constants import KALMAN_FILTER_METHOD, TRADING_PAIR_Y, TRADING_PAIR_X, MAX_HALF_LIFE, Z_SCORE_ENTRY_THRESHOLD, VECM_ECT_THRESHOLD, HURST_THRESHOLD, SCAN_COINTEGRATION_METHOD, SCAN_JOHANSEN_CRIT_LEVEL, OU_LAMBDA_MIN, JOHANSEN_PERIODS, MAGIC_NUMBER
 import time
 from broker_connector import BrokerConnector
-from utils import check_cointegration, get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores, get_vecm_ect_zscore, get_hurst_exponent, get_ou_params
+from utils import check_cointegration, get_correlation, get_half_life, check_trading_time, get_linear_regression_spread_zscores, updates_zscore_entry, get_dynamic_spread_zscores, get_vecm_ect_zscore, get_hurst_exponent, get_ou_params, get_residual_heteroscedasticity_trend, get_spread_trade_direction
 
 class PairTradingStrategy:
     def __init__(self, connector: BrokerConnector):
@@ -23,7 +23,7 @@ class PairTradingStrategy:
         self.logger.info(f"Total current positions: {total_positions}")
         if total_positions > 0:
             self.logger.info("Existing positions detected, skipping new pair scanning.")
-            return None, None, None, None, None, arbitrage_found
+            return None, None, None, None, None, arbitrage_found, 0
         
         ## Get daily profit and highest z score period
         highest_zscore_period,total_profit,total_volume,grid_history = self.mt5_conn.total_daily_risk()
@@ -81,6 +81,15 @@ class PairTradingStrategy:
                   ou = get_ou_params(results['spread'].values)
                   ou_condition = ou['is_mean_reverting']
 
+                  vol_skew = get_residual_heteroscedasticity_trend(results['spread'].values)
+                  self.logger.info(
+                      f"Heteroscedasticity: variance_slope={vol_skew['variance_slope']:.4f}, "
+                      f"vol_asymmetry={vol_skew['vol_asymmetry']:.4f} "
+                      f"(σ_up={vol_skew['sigma_up']:.6f}, σ_down={vol_skew['sigma_down']:.6f}), "
+                      f"trend_signal={vol_skew['trend_signal']:+d}, "
+                      f"is_heteroscedastic={vol_skew['is_heteroscedastic']}"
+                  )
+
                   self.logger.info(f"Cointegration Condition Met: {cointegration_condition}")
                   self.logger.info(
                       f"VECM ECT Z-Score: {vecm_ect_zscore:.4f}, VECM Condition Met: {vecm_condition} | "
@@ -98,8 +107,17 @@ class PairTradingStrategy:
                       'hedge_ratio': results['hedge_ratio'].iloc[-1],
                       'spread': results['spread'].iloc[-1],
                       'z_score': results['z_scores'].iloc[-1],
-                      'arbitrage_found': arbitrage_found
+                      'arbitrage_found': arbitrage_found,
+                      'vol_skew_signal': vol_skew['trend_signal'],
+                      'vol_asymmetry': vol_skew['vol_asymmetry'],
                     }
+                  if vol_skew['is_heteroscedastic']:
+                      trend_label = "UPTREND" if vol_skew['trend_signal'] == 1 else "DOWNTREND"
+                      self.logger.info(
+                          f"Residual heteroscedasticity detected: {trend_label} "
+                          f"(variance_slope={vol_skew['variance_slope']:+.4f}, asymmetry={vol_skew['vol_asymmetry']:.4f}) "
+                          f"— spread variance is trending, directional bias active."
+                      )
                   time.sleep(15)
 
                   if scan_results['arbitrage_found']:
@@ -107,7 +125,16 @@ class PairTradingStrategy:
                      x = self.mt5_conn.get_symbol_futures(pair_x[j])
                      pair = (y[1], x[1])
                      self.logger.info(f"Arbitrage conditions met for pair: {pair}")
-                     return correlation, results['hedge_ratio'].iloc[-1], results['spread'].iloc[-1], results['z_scores'].iloc[-1], pair, scan_results['arbitrage_found']         
+                     direction = get_spread_trade_direction(
+                         results['z_scores'].iloc[-1], correlation,
+                         updated_zscore_entry, vol_skew['trend_signal']
+                     )
+                     self.logger.info(
+                         f"Trade direction: {direction['spread_direction']} "
+                         f"| Y={direction['action_y']}, X={direction['action_x']} "
+                         f"| skew_confirms={direction['skew_confirms']}, skew_warns={direction['skew_warns']}"
+                     )
+                     return correlation, results['hedge_ratio'].iloc[-1], results['spread'].iloc[-1], results['z_scores'].iloc[-1], pair, scan_results['arbitrage_found'], scan_results['vol_skew_signal']         
                   
             if not check_trading_time():
              self.logger.info(f"Outside trading hours, stopping scan.")
@@ -119,5 +146,5 @@ class PairTradingStrategy:
         # Return scalars (consistent with the early-return success path above).
         # If no pair was ever evaluated, results is unbound; return safe defaults.
         if 'results' not in dir() or results is None:
-            return None, None, None, None, pair, False
-        return correlation, results['hedge_ratio'].iloc[-1], results['spread'].iloc[-1], results['z_scores'].iloc[-1], pair, scan_results['arbitrage_found']
+            return None, None, None, None, pair, False, 0
+        return correlation, results['hedge_ratio'].iloc[-1], results['spread'].iloc[-1], results['z_scores'].iloc[-1], pair, scan_results['arbitrage_found'], scan_results.get('vol_skew_signal', 0)

@@ -1,0 +1,200 @@
+{"ts": "2026-06-05T13:12:17.982104+00:00", "level": "INFO", "logger": "__main__", "msg": "Broker initialized successfully, trading will start at 12:5 UTC for 4 hours and 30 minutes"}
+{"ts": "2026-06-05T13:12:17.982104+00:00", "level": "INFO", "logger": "__main__", "msg": "No open positions currently."}
+{"ts": "2026-06-05T13:12:17.982104+00:00", "level": "INFO", "logger": "__main__", "msg": "Start scanning for trading opportunities..."}
+{"ts": "2026-06-05T13:12:17.982104+00:00", "level": "INFO", "logger": "strategy", "msg": "Total current positions: 0"}
+{"ts": "2026-06-05T13:12:17.982104+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-05T13:12:17.982104+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.15 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-05T13:12:17.982104+00:00", "level": "INFO", "logger": "strategy", "msg": "Updated Z score entry : 1.15 total volumes 0.0 grids history is 0.0 how is grids count 0.0 and total profit 0"}
+{"ts": "2026-06-05T13:12:17.982104+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-05T13:12:17.982104+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WIN* and WDO*"}
+{"ts": "2026-06-05T13:12:17.998079+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WIN* and WDO* is -0.710023337206727"}
+{"ts": "2026-06-05T13:12:17.998079+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.547171190507012 for pair WIN* and WDO*"}
+{"ts": "2026-06-05T13:12:17.998079+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4727584474176805, Half-Life Condition Met: True"}
+{"ts": "2026-06-05T13:12:18.034137+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=-0.025066, x=-0.003462, beta_vec=[ 1.         -3.85186506], trace=-0.011731, valid_mean_reversion=True, beta=-0.159997"}
+{"ts": "2026-06-05T13:12:18.034137+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-05T13:12:18.034137+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.6131, VECM Condition Met: True | alpha_y=-0.025066, alpha_x=-0.003462, alpha_valid=True"}
+{"ts": "2026-06-05T13:12:18.034137+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0038, Hurst Condition Met: True"}
+{"ts": "2026-06-05T13:12:18.034137+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.473150, μ=-0.000200, σ=0.001486, OU Condition Met: True"}
+{"ts": "2026-06-05T13:12:18.034137+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WIN* and WDO*: 1.410270453504484 and z score is -1.547171190507012 and spread is -0.002598110185124191 for threshold 1.15"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "strategy", "msg": "Arbitrage conditions met for pair: ('WINM26', 'WDON26')"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage was found : True for pair y as WINM26 and x as WDON26 hedge ratio is 1.410270453504484 and spreads is -0.002598110185124191 and rolling z scores is -1.547171190507012"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage opportunity detected. Executing trades..."}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "__main__", "msg": "Starting trade execution for WINM26 and WDON26 and hedge ratio 1.410270453504484 and z score -1.547171190507012 and spreads -0.002598110185124191"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 0.0 total volumes 0.0 and max lots 42.85333333333334"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.15 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.85333333333334 open positions volume 0.0 current zscore -1.547171190507012 updated zscore entry 1.15"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.547171190507012, threshold=1.15, slope=-0.710023337206727"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "__main__", "msg": "No open positions currently."}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "__main__", "msg": "Start scanning for trading opportunities..."}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "strategy", "msg": "Total current positions: 0"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.15 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "strategy", "msg": "Updated Z score entry : 1.15 total volumes 0.0 grids history is 0.0 how is grids count 0.0 and total profit 0"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "strategy", "msg": "Highest Z-Score Period: 0.0, Total Profit: 0, Total Volume traded : 0.0"}
+{"ts": "2026-06-05T13:12:33.044207+00:00", "level": "INFO", "logger": "strategy", "msg": "Scanning pairs: WIN* and WDO*"}
+{"ts": "2026-06-05T13:12:33.057132+00:00", "level": "INFO", "logger": "strategy", "msg": "Correlation between WIN* and WDO* is -0.7080804591405694"}
+{"ts": "2026-06-05T13:12:33.057132+00:00", "level": "INFO", "logger": "strategy", "msg": "Z score -1.4923427831563294 for pair WIN* and WDO*"}
+{"ts": "2026-06-05T13:12:33.060091+00:00", "level": "INFO", "logger": "strategy", "msg": "Calculated Half-Life: 1.4683064006518463, Half-Life Condition Met: True"}
+{"ts": "2026-06-05T13:12:33.063614+00:00", "level": "INFO", "logger": "utils", "msg": "VECM alpha: y=-0.025710, x=-0.003633, beta_vec=[ 1.         -3.74145791], trace=-0.012116, valid_mean_reversion=True, beta=-0.168246"}
+{"ts": "2026-06-05T13:12:33.073854+00:00", "level": "INFO", "logger": "strategy", "msg": "Cointegration Condition Met: True"}
+{"ts": "2026-06-05T13:12:33.073854+00:00", "level": "INFO", "logger": "strategy", "msg": "VECM ECT Z-Score: -1.5789, VECM Condition Met: True | alpha_y=-0.025710, alpha_x=-0.003633, alpha_valid=True"}
+{"ts": "2026-06-05T13:12:33.073854+00:00", "level": "INFO", "logger": "strategy", "msg": "Hurst Exponent: -0.0038, Hurst Condition Met: True"}
+{"ts": "2026-06-05T13:12:33.073854+00:00", "level": "INFO", "logger": "strategy", "msg": "OU λ=0.474488, μ=-0.000196, σ=0.001483, OU Condition Met: True"}
+{"ts": "2026-06-05T13:12:33.073854+00:00", "level": "INFO", "logger": "strategy", "msg": "Hedge ratio between WIN* and WDO*: 1.410445688451542 and z score is -1.4923427831563294 and spread is -0.0025091078436815383 for threshold 1.15"}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "strategy", "msg": "Arbitrage conditions met for pair: ('WINM26', 'WDON26')"}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage was found : True for pair y as WINM26 and x as WDON26 hedge ratio is 1.410445688451542 and spreads is -0.0025091078436815383 and rolling z scores is -1.4923427831563294"}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "__main__", "msg": "Arbitrage opportunity detected. Executing trades..."}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "__main__", "msg": "Starting trade execution for WINM26 and WDON26 and hedge ratio 1.410445688451542 and z score -1.4923427831563294 and spreads -0.0025091078436815383"}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 0.0 total volumes 0.0 and max lots 42.85333333333334"}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 0.0, Total traded volumes: 0.0, Total profit: 0, Highest zscore period: 0.0, Total grids: 0.0"}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.15 for highest z score period 0.0 and total grids 0.0"}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.85333333333334 open positions volume 0.0 current zscore -1.4923427831563294 updated zscore entry 1.15"}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:12:48.079747+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.4923427831563294, threshold=1.15, slope=-0.7080804591405694"}
+{"ts": "2026-06-05T13:12:48.175488+00:00", "level": "INFO", "logger": "__main__", "msg": "Currently open positions: 2"}
+{"ts": "2026-06-05T13:12:48.175488+00:00", "level": "INFO", "logger": "__main__", "msg": "Managing trades..."}
+{"ts": "2026-06-05T13:12:48.175488+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:12:48.175488+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: 0.0, Trailing start: 539.952, Max loss: 1542.72 "}
+{"ts": "2026-06-05T13:12:48.175488+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:12:48.175488+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:12:48.191479+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.5045, hedge_ratio=1.4104, correlation=-0.7095"}
+{"ts": "2026-06-05T13:12:48.191479+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.85333333333334"}
+{"ts": "2026-06-05T13:12:48.191479+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:12:48.191479+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:12:48.191479+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:12:48.191479+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.85333333333334 open positions volume 3.0 current zscore -1.5045259914353588 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:12:48.191479+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:12:48.191479+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.5045259914353588, threshold=1.6233333333333333, slope=-0.709526828554628"}
+{"ts": "2026-06-05T13:13:03.194824+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:13:18.198902+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:13:18.198902+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: 11.0, Trailing start: 540.414, Max loss: 1544.04 "}
+{"ts": "2026-06-05T13:13:18.198902+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:13:18.198902+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:13:18.208385+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.5336, hedge_ratio=1.4103, correlation=-0.7089"}
+{"ts": "2026-06-05T13:13:18.208385+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.89"}
+{"ts": "2026-06-05T13:13:18.208385+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:13:18.208385+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:13:18.208385+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:13:18.208385+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.89 open positions volume 3.0 current zscore -1.533606903149607 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:13:18.208385+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:13:18.208385+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.533606903149607, threshold=1.6233333333333333, slope=-0.7089244487843257"}
+{"ts": "2026-06-05T13:13:33.216487+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:13:48.232029+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:13:48.232029+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: -72.0, Trailing start: 536.928, Max loss: 1534.0800000000002 "}
+{"ts": "2026-06-05T13:13:48.232029+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:13:48.232029+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:13:48.235004+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.5927, hedge_ratio=1.4101, correlation=-0.7107"}
+{"ts": "2026-06-05T13:13:48.235004+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.620000000000005"}
+{"ts": "2026-06-05T13:13:48.235004+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:13:48.235004+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:13:48.235004+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:13:48.235004+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.620000000000005 open positions volume 3.0 current zscore -1.5926931248957237 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:13:48.235004+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:13:48.235004+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.5926931248957237, threshold=1.6233333333333333, slope=-0.7107362407450099"}
+{"ts": "2026-06-05T13:14:03.245699+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:14:18.259852+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:14:18.259852+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: -57.0, Trailing start: 537.558, Max loss: 1535.88 "}
+{"ts": "2026-06-05T13:14:18.259852+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:14:18.259852+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:14:18.275784+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.6056, hedge_ratio=1.4101, correlation=-0.7102"}
+{"ts": "2026-06-05T13:14:18.276583+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.66333333333334"}
+{"ts": "2026-06-05T13:14:18.276583+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:14:18.276583+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:14:18.276583+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:14:18.276583+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.66333333333334 open positions volume 3.0 current zscore -1.605613079649705 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:14:18.276583+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:14:18.278088+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.605613079649705, threshold=1.6233333333333333, slope=-0.7102135839086866"}
+{"ts": "2026-06-05T13:14:33.290728+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:14:48.293912+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:14:48.294574+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: -79.0, Trailing start: 536.634, Max loss: 1533.24 "}
+{"ts": "2026-06-05T13:14:48.294574+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:14:48.294574+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:14:48.310753+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.5893, hedge_ratio=1.4101, correlation=-0.7110"}
+{"ts": "2026-06-05T13:14:48.311758+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.59666666666667"}
+{"ts": "2026-06-05T13:14:48.311758+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:14:48.311758+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:14:48.311758+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:14:48.311758+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.59666666666667 open positions volume 3.0 current zscore -1.589293975044321 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:14:48.312759+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:14:48.312759+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.589293975044321, threshold=1.6233333333333333, slope=-0.7109540108606365"}
+{"ts": "2026-06-05T13:15:03.319456+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:15:18.328359+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:15:18.328359+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: -100.0, Trailing start: 535.668, Max loss: 1530.48 "}
+{"ts": "2026-06-05T13:15:18.328359+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:15:18.328359+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:15:18.343814+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.6187, hedge_ratio=1.4100, correlation=-0.7113"}
+{"ts": "2026-06-05T13:15:18.343814+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.513333333333335"}
+{"ts": "2026-06-05T13:15:18.343814+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:15:18.343814+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:15:18.343814+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:15:18.343814+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.513333333333335 open positions volume 3.0 current zscore -1.6187473161252983 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:15:18.343814+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:15:18.343814+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.6187473161252983, threshold=1.6233333333333333, slope=-0.7112905988215329"}
+{"ts": "2026-06-05T13:15:33.344697+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:15:48.347552+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:15:48.347552+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: -123.0, Trailing start: 534.7860000000001, Max loss: 1527.9600000000003 "}
+{"ts": "2026-06-05T13:15:48.347552+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:15:48.347552+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:15:48.360636+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.6487, hedge_ratio=1.4099, correlation=-0.7117"}
+{"ts": "2026-06-05T13:15:48.360636+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.44333333333334"}
+{"ts": "2026-06-05T13:15:48.360636+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:15:48.360636+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:15:48.360636+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:15:48.360636+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.44333333333334 open positions volume 3.0 current zscore -1.6486792434855428 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:15:48.360636+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:15:48.360636+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.6486792434855428, threshold=1.6233333333333333, slope=-0.7116887558942324"}
+{"ts": "2026-06-05T13:16:03.375030+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:16:18.380928+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:16:18.380928+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: -73.0, Trailing start: 536.8860000000001, Max loss: 1533.9600000000003 "}
+{"ts": "2026-06-05T13:16:18.380928+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:16:18.380928+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:16:18.386807+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.6130, hedge_ratio=1.4101, correlation=-0.7106"}
+{"ts": "2026-06-05T13:16:18.386807+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.60333333333334"}
+{"ts": "2026-06-05T13:16:18.386807+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:16:18.386807+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:16:18.386807+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:16:18.386807+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.60333333333334 open positions volume 3.0 current zscore -1.6129539605605734 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:16:18.386807+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:16:18.386807+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.6129539605605734, threshold=1.6233333333333333, slope=-0.7105996727008059"}
+{"ts": "2026-06-05T13:16:33.389074+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:16:48.395358+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:16:48.395358+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: -42.0, Trailing start: 538.188, Max loss: 1537.68 "}
+{"ts": "2026-06-05T13:16:48.395358+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:16:48.395358+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:16:48.405966+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.5921, hedge_ratio=1.4101, correlation=-0.7099"}
+{"ts": "2026-06-05T13:16:48.405966+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.71333333333334"}
+{"ts": "2026-06-05T13:16:48.405966+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:16:48.405966+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:16:48.405966+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:16:48.405966+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.71333333333334 open positions volume 3.0 current zscore -1.59208561362779 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:16:48.405966+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:16:48.405966+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.59208561362779, threshold=1.6233333333333333, slope=-0.7099054194363545"}
+{"ts": "2026-06-05T13:17:03.421587+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:17:18.424708+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:17:18.424708+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: -41.0, Trailing start: 538.2299999999999, Max loss: 1537.8 "}
+{"ts": "2026-06-05T13:17:18.424708+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:17:18.424708+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:17:18.436143+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.5716, hedge_ratio=1.4102, correlation=-0.7101"}
+{"ts": "2026-06-05T13:17:18.436143+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.72333333333333"}
+{"ts": "2026-06-05T13:17:18.436143+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:17:18.436143+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:17:18.436143+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:17:18.436143+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.72333333333333 open positions volume 3.0 current zscore -1.5716188417350683 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:17:18.436143+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:17:18.436143+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.5716188417350683, threshold=1.6233333333333333, slope=-0.7100565665732774"}
+{"ts": "2026-06-05T13:17:33.440784+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}
+{"ts": "2026-06-05T13:17:48.449051+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Total open positions: 2"}
+{"ts": "2026-06-05T13:17:48.449051+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current profit: -75.0, Trailing start: 536.802, Max loss: 1533.72 "}
+{"ts": "2026-06-05T13:17:48.449051+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position Y: WINM26, Type: 0, Stop Loss: 0.0, Ticket: 5763703658"}
+{"ts": "2026-06-05T13:17:48.449051+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Position X: WDON26, Type: 0, Stop Loss: 0.0, Ticket: 5763703672"}
+{"ts": "2026-06-05T13:17:48.458117+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Current z_score=-1.6007, hedge_ratio=1.4101, correlation=-0.7108"}
+{"ts": "2026-06-05T13:17:48.458117+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Highest Z-Score Period: 1.49 total volumes 3.0 and max lots 42.60333333333334"}
+{"ts": "2026-06-05T13:17:48.458117+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total open grids: 1.0 and total grids history: 1.0"}
+{"ts": "2026-06-05T13:17:48.458117+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Total grids history: 1.0, Total traded volumes: 3.0, Total profit: 0.0, Highest zscore period: 1.49, Total grids: 1.0"}
+{"ts": "2026-06-05T13:17:48.458117+00:00", "level": "INFO", "logger": "utils", "msg": "[magic=324234] Updated z score is 1.6233333333333333 for highest z score period 1.49 and total grids 1.0"}
+{"ts": "2026-06-05T13:17:48.458117+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Max volume : 42.60333333333334 open positions volume 3.0 current zscore -1.6006985688123472 updated zscore entry 1.6233333333333333"}
+{"ts": "2026-06-05T13:17:48.458117+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Calculated volumes - WINM26: 2.0, WDON26: 1.0"}
+{"ts": "2026-06-05T13:17:48.458117+00:00", "level": "INFO", "logger": "trade_execution", "msg": "Sending order: z_score=-1.6006985688123472, threshold=1.6233333333333333, slope=-0.7107534347428092"}
+{"ts": "2026-06-05T13:18:03.467762+00:00", "level": "INFO", "logger": "trade_manager", "msg": "Managing positions"}

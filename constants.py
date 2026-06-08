@@ -13,7 +13,7 @@ START_TIME_MINUTE = 5
 HISTORY_TRADES_HOURS = 10
 TRADE_WINDOW_TIME_HOURS = 4
 TRADE_WINDOW_TIME_MINUTES = 30
-Z_SCORE_ENTRY_THRESHOLD = 0.90  # Raised from 1.35 — higher quality signals only (~96th pct)
+Z_SCORE_ENTRY_THRESHOLD = 1.75  # Raised from 1.35 — higher quality signals only (~96th pct)
 MARGIN_Y = 100
 MARGIN_X = 150
 VOLUME_FACTOR = 12
@@ -41,3 +41,5 @@ VECM_ECT_THRESHOLD = 0.5   # Minimum |VECM ECT z-score| required to open orders
 HURST_THRESHOLD = 0.5      # Spread Hurst exponent must be below this (mean-reverting)
 WAVELET_LEVEL = 1          # DWT decomposition levels for spread denoising (higher = more smoothing)
 KALMAN_ORDER = 1           # Kalman filter order for hedge-ratio estimation: 1 (standard) or 2 (tracks beta velocity/acceleration)
+VOL_SKEW_WINDOW = 30       # Rolling window (bars) for volatility skewness computation
+VOL_SKEW_THRESHOLD = 0.15  # |vol_asymmetry| must exceed this to declare a trend (range 0–1)
